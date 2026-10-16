@@ -21,8 +21,17 @@ export type Inputs = {
   today: Date;
 };
 
+function setupStatus() {
+  return { plaid: plaidConfigured(), db: dbConfigured(), encryption: Boolean(process.env.ENCRYPTION_KEY) };
+}
+
+/** Public demo: sample data only, never touches the database. */
+export function loadSampleDashboard(): Dashboard {
+  return build(sampleInputs(), true, setupStatus());
+}
+
 export async function loadDashboard(email: string): Promise<Dashboard> {
-  const setup = { plaid: plaidConfigured(), db: dbConfigured(), encryption: Boolean(process.env.ENCRYPTION_KEY) };
+  const setup = setupStatus();
   if (!setup.db) return build(sampleInputs(), true, setup);
 
   const d = db();

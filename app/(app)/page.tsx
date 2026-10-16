@@ -1,6 +1,5 @@
 import { currentEmail } from "@/auth";
-import { redirect } from "next/navigation";
-import { loadDashboard } from "@/lib/data";
+import { loadDashboard, loadSampleDashboard } from "@/lib/data";
 import { SampleBanner } from "@/components/SampleBanner";
 import { CommandBar } from "@/components/overview/CommandBar";
 import { NetWorthCard } from "@/components/overview/NetWorthCard";
@@ -13,15 +12,15 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Overview" };
 
 export default async function OverviewPage() {
+  // Signed out: public demo with sample data. Signed in: that account's own data.
   const email = await currentEmail();
-  if (!email) redirect("/signin");
-  const d = await loadDashboard(email);
+  const d = email ? await loadDashboard(email) : loadSampleDashboard();
   const now = new Date(d.asOf);
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 
   return (
     <main className="shell">
-      <SampleBanner d={d} />
+      <SampleBanner d={d} signedIn={Boolean(email)} />
       <CommandBar answers={d.answers} />
       <NetWorthCard netWorth={d.netWorth} series={d.series} historyDays={d.historyDays} />
       <div className="grid-2">

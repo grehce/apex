@@ -24,7 +24,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     authorized({ auth, request }) {
       const { pathname } = request.nextUrl;
-      const isPublic = pathname === "/signin" || pathname.startsWith("/api/auth");
+      // "/" is public: it shows the sample-data demo to signed-out visitors.
+      const isPublic = pathname === "/" || pathname === "/signin" || pathname.startsWith("/api/auth");
       if (isPublic) return true;
       return Boolean(auth?.user?.email);
     },
