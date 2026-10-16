@@ -49,7 +49,7 @@ In Plaid Sandbox, pick any test bank and use Plaid's documented sandbox login (`
 
 1. vercel.com → Add New → Project → import `grehce/apex`.
 2. Add every variable from `.env.example` under Settings → Environment Variables.
-3. Deploy, then run `npm run db:push` once against the production `DATABASE_URL`.
+3. Deploy. Tables are created automatically during the Vercel build (`scripts/migrate.mjs`).
 4. Every push to `main` redeploys.
 
 ## 4. Point apexfolios.com at Vercel (Squarespace DNS)
