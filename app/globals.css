@@ -13,8 +13,8 @@
   --accent-tint: #e6ece6;
   --accent-soft: #b5d6a7;
   --brass: #a47e4c;
-  --warn: #6b4e71; /* muted plum — over budget / needs attention (no brick red) */
-  --warn-tint: #efe8ef;
+  --warn: #7a5a2e; /* deep bronze — over budget / needs attention (no reds or purples) */
+  --warn-tint: #f1eadf;
   --dark: #17191a;
   --dark-2: #222624;
   --dark-line: #343935;

@@ -15,7 +15,7 @@ export function ApexMark({ size = 28, ink = "#17191A", ground = "#F4F4F2", accen
 
 /** Generic geometric tile for an institution — picks one of a few modernist shapes from the name. */
 export function InstitutionMark({ name, size = 40 }: { name: string; size?: number }) {
-  const palette = ["#3B4A5A", "#A47E4C", "#17191A", "#5C6B5E", "#6B4E71", "#3D5A4C"];
+  const palette = ["#3B4A5A", "#A47E4C", "#17191A", "#5C6B5E", "#8E9AA6", "#3D5A4C"];
   let h = 0;
   for (const c of name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   const bg = palette[h % palette.length];
