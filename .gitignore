@@ -147,3 +147,13 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Apex additions
+.next
+next-env.d.ts
+*.tsbuildinfo
+.vercel
+.DS_Store
+.env
+.env.*
+!.env.example
