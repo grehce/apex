@@ -40,11 +40,11 @@ export function AgentView({ trace, summary, now, targets, plans, recommended }: 
   return (
     <div className="row" style={{ alignItems: "flex-start", gap: 20 }}>
       <section aria-label="Agent" className="card" style={{ flex: "1 1 520px", minWidth: 0, padding: 24 }}>
-        <div style={{ alignSelf: "flex-end", maxWidth: "80%", background: "var(--ink)", color: "var(--dark-text)", padding: "12px 16px", borderRadius: "10px 10px 2px 10px" }}>
+        <div style={{ alignSelf: "flex-end", maxWidth: "80%", background: "var(--tip-bg)", color: "var(--dark-text)", padding: "12px 16px", borderRadius: "10px 10px 2px 10px" }}>
           Rebalance toward my targets, but keep taxes as low as possible.
         </div>
         <div className="row" style={{ alignItems: "flex-start", gap: 12, flexWrap: "nowrap" }}>
-          <span style={{ flex: "none", marginTop: 2 }}><ApexMark ground="#fff" /></span>
+          <span style={{ flex: "none", marginTop: 2 }}><ApexMark /></span>
           <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 14 }}>
             <div role="log" aria-label="Agent steps" className="dots-dark scan mono" style={{ backgroundColor: "var(--dark)", color: "var(--dark-text)", borderRadius: 6, padding: "14px 16px", fontSize: 12.5, display: "flex", flexDirection: "column", gap: 6 }}>
               {trace.map((t, i) => (
@@ -81,7 +81,7 @@ export function AgentView({ trace, summary, now, targets, plans, recommended }: 
         <div key={key} className="anim-in" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div className="row" style={{ alignItems: "baseline", gap: 10 }}>
             <span style={{ fontSize: 19, fontWeight: 700 }}>Plan {plan.key} · {plan.name}</span>
-            {plan.key === recommended && <span className="mono" style={{ padding: "3px 8px", borderRadius: 4, background: "var(--neon)", color: "var(--ink)", fontSize: 11, fontWeight: 600 }}>recommended</span>}
+            {plan.key === recommended && <span className="mono" style={{ padding: "3px 8px", borderRadius: 4, background: "var(--neon)", color: "var(--on-neon)", fontSize: 11, fontWeight: 600 }}>recommended</span>}
           </div>
           <p className="muted" style={{ margin: 0, fontSize: 14, color: "var(--ink-2)" }}>{plan.desc}</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
@@ -102,7 +102,7 @@ export function AgentView({ trace, summary, now, targets, plans, recommended }: 
           <div className="row between mono muted" style={{ fontSize: 11 }}>
             <span><Term k="drift" /> · now vs after</span>
             <span className="row" style={{ gap: 12 }}>
-              <span className="row" style={{ gap: 4 }}><span style={{ width: 10, height: 4, background: "#B4B8B3" }} />now</span>
+              <span className="row" style={{ gap: 4 }}><span style={{ width: 10, height: 4, background: "var(--bar-now)" }} />now</span>
               <span className="row" style={{ gap: 4 }}><span style={{ width: 10, height: 4, background: "var(--accent)" }} />after</span>
               <span className="row" style={{ gap: 4 }}><span style={{ width: 2, height: 10, background: "var(--ink)" }} /><Term k="target" align="right" /></span>
             </span>
@@ -111,7 +111,7 @@ export function AgentView({ trace, summary, now, targets, plans, recommended }: 
             <div key={c} style={{ display: "grid", gridTemplateColumns: "110px 1fr 104px", alignItems: "center", gap: 12 }}>
               <span style={{ fontSize: 14 }}>{c}</span>
               <div className="hatch" style={{ position: "relative", height: 18, backgroundColor: "var(--surface-2)", borderRadius: 2 }}>
-                <div style={{ position: "absolute", left: 0, top: 3, height: 5, width: scale(now[c]), background: "#B4B8B3", borderRadius: 1 }} />
+                <div style={{ position: "absolute", left: 0, top: 3, height: 5, width: scale(now[c]), background: "var(--bar-now)", borderRadius: 1 }} />
                 <div style={{ position: "absolute", left: 0, top: 10, height: 5, width: scale(plan.after[c]), background: "var(--accent)", borderRadius: 1, transition: "width 900ms var(--ease)" }} />
                 <div aria-hidden="true" style={{ position: "absolute", left: scale(targets[c]), top: -3, bottom: -3, width: 2, background: "var(--ink)" }} />
               </div>

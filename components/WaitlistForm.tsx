@@ -49,7 +49,7 @@ export function WaitlistForm({ referral }: { referral: string | null }) {
 
   if (status) return <Spot s={status} copied={copied} setCopied={setCopied} onReset={() => { try { localStorage.removeItem(KEY); } catch { /* ignore */ } setStatus(null); }} />;
 
-  const field: React.CSSProperties = { width: "100%", minHeight: 48, padding: "12px 14px", border: "1px solid #C9CDC8", borderRadius: 4, font: "inherit", background: "#fff", color: "var(--ink)" };
+  const field: React.CSSProperties = { width: "100%", minHeight: 48, padding: "12px 14px", border: "1px solid var(--line-strong)", borderRadius: 4, font: "inherit", background: "var(--field)", color: "var(--ink)" };
   return (
     <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }} noValidate>
       <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -96,7 +96,7 @@ function Spot({ s, copied, setCopied, onReset }: { s: Status; copied: boolean; s
         <strong>Move up the list</strong>
         <span style={{ color: "var(--ink-2)", fontSize: 14 }}>Each friend who joins through your link moves you up {PER_REF}.</span>
         <div className="row" style={{ gap: 8, flexWrap: "nowrap" }}>
-          <code className="mono" style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", padding: "12px 14px", border: "1px dashed #C9CDC8", borderRadius: 4, fontSize: 13, background: "#fff" }}>{link}</code>
+          <code className="mono" style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", padding: "12px 14px", border: "1px dashed var(--line-strong)", borderRadius: 4, fontSize: 13, background: "var(--field)" }}>{link}</code>
           <button type="button" className="btn" onClick={copy}>{copied ? "Copied ✓" : "Copy"}</button>
           {typeof navigator !== "undefined" && "share" in navigator && <button type="button" className="btn btn-primary" onClick={share}>Share</button>}
         </div>

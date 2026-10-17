@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { currentEmail, signOut } from "@/auth";
 import { ApexWordmark } from "@/components/Mark";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { NavLinks } from "@/components/NavLinks";
 
 // Every page in this group works signed out (sample data) and signed in (your data).
@@ -15,6 +16,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <ApexWordmark size={22} />
           </Link>
           <NavLinks />
+          <ThemeToggle />
           {email ? (
             <form
               action={async () => {

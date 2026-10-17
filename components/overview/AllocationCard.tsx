@@ -39,7 +39,7 @@ export function AllocationCard({ rows, invested }: { rows: AllocationRow[]; inve
             <div
               role="tooltip"
               className="mono anim-in"
-              style={{ position: "absolute", bottom: "calc(100% + 8px)", left: `clamp(90px, ${center}%, calc(100% - 90px))`, transform: "translateX(-50%)", background: "var(--ink)", color: "#fff", padding: "8px 10px", borderRadius: 4, fontSize: 12, whiteSpace: "nowrap", pointerEvents: "none", zIndex: 2, animationDuration: "150ms" }}
+              style={{ position: "absolute", bottom: "calc(100% + 8px)", left: `clamp(90px, ${center}%, calc(100% - 90px))`, transform: "translateX(-50%)", background: "var(--tip-bg)", color: "#fff", padding: "8px 10px", borderRadius: 4, fontSize: 12, whiteSpace: "nowrap", pointerEvents: "none", zIndex: 2, animationDuration: "150ms" }}
             >
               <div style={{ fontWeight: 600 }}>{h.name}</div>
               <div className="num">${h.value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} · {h.pct.toFixed(1)}%</div>
@@ -69,7 +69,7 @@ export function AllocationCard({ rows, invested }: { rows: AllocationRow[]; inve
           </span>
           <span className="num" style={{ fontSize: 30, fontWeight: 700, letterSpacing: "-0.03em" }}>
             ${Math.floor(Math.round(r.value * 100) / 100).toLocaleString("en-US")}
-            <span className="mono" style={{ fontSize: 16, fontWeight: 500, color: "#A3A8A3" }}>.{String(Math.round(r.value * 100) % 100).padStart(2, "0")}</span>
+            <span className="mono" style={{ fontSize: 16, fontWeight: 500, color: "var(--faint)" }}>.{String(Math.round(r.value * 100) % 100).padStart(2, "0")}</span>
           </span>
         </div>
         <div className="mono" style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12, color: "var(--ink-2)" }}>

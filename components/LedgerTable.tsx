@@ -29,13 +29,13 @@ export function LedgerTable({ rows }: { rows: TxRow[] }) {
   return (
     <section className="card" aria-label="Transactions">
       <div className="row" style={{ gap: 8 }}>
-        <label style={{ flex: "1 1 240px", display: "flex", alignItems: "center", gap: 8, height: 44, padding: "0 12px", border: "1px solid #c9cdc8", borderRadius: 4 }}>
+        <label style={{ flex: "1 1 240px", display: "flex", alignItems: "center", gap: 8, height: 44, padding: "0 12px", border: "1px solid var(--line-strong)", borderRadius: 4, background: "var(--field)" }}>
           <span className="mono muted">/</span>
           <span className="sr-only">Search transactions</span>
           <input value={q} onChange={(e) => { setQ(e.target.value); setLimit(50); }} placeholder="search merchant, category or account" style={{ flex: 1, minWidth: 0, border: 0, outline: "none", font: "inherit", background: "transparent" }} />
         </label>
         <label className="sr-only" htmlFor="cat">Category</label>
-        <select id="cat" value={cat} onChange={(e) => { setCat(e.target.value); setLimit(50); }} style={{ height: 44, padding: "0 10px", border: "1px solid #c9cdc8", borderRadius: 4, background: "#fff", font: "inherit", fontSize: 14 }}>
+        <select id="cat" value={cat} onChange={(e) => { setCat(e.target.value); setLimit(50); }} style={{ height: 44, padding: "0 10px", border: "1px solid var(--line-strong)", borderRadius: 4, background: "var(--field)", color: "var(--ink)", font: "inherit", fontSize: 14 }}>
           <option value="">all categories</option>
           {cats.map((c) => <option key={c} value={c}>{prettyCategory(c)}</option>)}
         </select>

@@ -30,7 +30,7 @@ export function FooterNote({ d, signedIn }: { d: Dashboard; signedIn: boolean })
     );
   }
   return (
-    <footer className="row between mono muted" style={{ fontSize: 12, gap: "8px 24px" }}>
+    <footer className="row between mono muted" style={{ fontSize: 12, gap: "8px 24px", marginTop: 32 }}>
       {left}
       <Quotes />
     </footer>

@@ -4,7 +4,7 @@ import type { HeatDay } from "@/lib/model";
 import { prettyCategory } from "@/lib/model";
 import { Scrolly } from "../Scrolly";
 
-const LEVELS = ["#ECEEEA", "#D3DED2", "#A9BFA9", "#6F8A70", "#3D5A4C"];
+const LEVELS = ["var(--heat-0)", "var(--heat-1)", "var(--heat-2)", "var(--heat-3)", "var(--heat-4)"];
 const DOW = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 const DOW_LONG = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -69,7 +69,7 @@ export function HeatmapCard({ days }: { days: HeatDay[] }) {
                 style={{
                   width: 16, height: 16, padding: 0, border: 0, borderRadius: 2, cursor: "pointer",
                   background: LEVELS[level(c.amount)],
-                  boxShadow: sel === idx ? "0 0 0 2px var(--ink)" : pinned === idx ? "0 0 0 2px #9AA39C" : "none",
+                  boxShadow: sel === idx ? "0 0 0 2px var(--ink)" : pinned === idx ? "0 0 0 2px var(--border-hover)" : "none",
                   transition: "box-shadow 150ms",
                 }}
               />

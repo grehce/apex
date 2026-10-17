@@ -33,7 +33,7 @@ export function NetWorthCard({ netWorth, series, historyDays }: { netWorth: numb
           <span id="nw-h" className="eyebrow">net_worth</span>
           <div aria-live="polite" className="num" style={{ fontSize: "clamp(40px, 11vw, 68px)", fontWeight: 700, letterSpacing: "-0.045em", lineHeight: 1 }}>
             {disp < 0 ? "−" : ""}${money.slice(0, dot)}
-            <span className="mono" style={{ fontSize: "clamp(20px, 5vw, 32px)", fontWeight: 500, letterSpacing: "-0.02em", color: "#A3A8A3" }}>{money.slice(dot)}</span>
+            <span className="mono" style={{ fontSize: "clamp(20px, 5vw, 32px)", fontWeight: 500, letterSpacing: "-0.02em", color: "var(--faint)" }}>{money.slice(dot)}</span>
           </div>
           <span className="pill" style={{ alignSelf: "flex-start", background: up ? "var(--accent-tint)" : "var(--warn-tint)", color: up ? "var(--accent-ink)" : "var(--warn)" }}>
             {up ? "▲ +" : "▼ −"}${Math.abs(delta).toLocaleString("en-US", { maximumFractionDigits: 0 })} {up ? "+" : ""}{pct.toFixed(1)}% {range.toLowerCase()}
@@ -67,8 +67,8 @@ export function NetWorthCard({ netWorth, series, historyDays }: { netWorth: numb
         onMouseLeave={() => setHover(null)}
       >
         <svg viewBox="0 0 1000 260" preserveAspectRatio="none" role="img" aria-label={`Net worth over ${range}, from ${kfmt(first)} to ${kfmt(last)}`} style={{ display: "block", width: "100%", height: 250, overflow: "visible" }}>
-          {[16, 92, 168].map((y) => <line key={y} x1="0" y1={y} x2="1000" y2={y} stroke="#ECEDE9" strokeDasharray="3 5" vectorEffect="non-scaling-stroke" />)}
-          <line x1="0" y1="244" x2="1000" y2="244" stroke="#DDDFDA" vectorEffect="non-scaling-stroke" />
+          {[16, 92, 168].map((y) => <line key={y} x1="0" y1={y} x2="1000" y2={y} stroke="var(--chart-grid)" strokeDasharray="3 5" vectorEffect="non-scaling-stroke" />)}
+          <line x1="0" y1="244" x2="1000" y2="244" stroke="var(--chart-base)" vectorEffect="non-scaling-stroke" />
           <path d={g.area} fill="var(--accent)" fillOpacity={0.08} style={{ d: `path('${g.area}')`, transition: "d 700ms var(--ease)" } as React.CSSProperties} />
           <path
             d={g.line}
@@ -83,8 +83,8 @@ export function NetWorthCard({ netWorth, series, historyDays }: { netWorth: numb
         </svg>
         {hover !== null && (
           <>
-            <div aria-hidden="true" style={{ position: "absolute", top: 0, bottom: 0, left: `${(hover / Math.max(1, s.v.length - 1)) * 100}%`, borderLeft: "1px dashed #9AA39C", pointerEvents: "none" }} />
-            <div aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, top: (g.y(s.v[hover]) * 250) / 260, borderTop: "1px dashed #C9CDC8", pointerEvents: "none" }} />
+            <div aria-hidden="true" style={{ position: "absolute", top: 0, bottom: 0, left: `${(hover / Math.max(1, s.v.length - 1)) * 100}%`, borderLeft: "1px dashed var(--border-hover)", pointerEvents: "none" }} />
+            <div aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, top: (g.y(s.v[hover]) * 250) / 260, borderTop: "1px dashed var(--line-strong)", pointerEvents: "none" }} />
             <div aria-hidden="true" style={{ position: "absolute", left: `${(hover / Math.max(1, s.v.length - 1)) * 100}%`, top: (g.y(s.v[hover]) * 250) / 260, width: 12, height: 12, margin: "-6px 0 0 -6px", borderRadius: 4, background: "#fff", border: "3px solid var(--accent)", pointerEvents: "none" }} />
           </>
         )}
