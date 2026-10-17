@@ -7,7 +7,9 @@ import { useMounted } from "../hooks";
 export function AllocationCard({ rows, invested }: { rows: AllocationRow[]; invested: number }) {
   const mounted = useMounted();
   const [sel, setSel] = useState(rows[0]?.name);
-  const r = rows.find((x) => x.name === sel) ?? rows[0];
+  const [hover, setHover] = useState<string | null>(null);
+  // Hovering previews a class; clicking pins it.
+  const r = rows.find((x) => x.name === (hover ?? sel)) ?? rows[0];
 
   if (!r || invested <= 0) {
     return (
@@ -26,24 +28,48 @@ export function AllocationCard({ rows, invested }: { rows: AllocationRow[]; inve
         <h2 id="al-h">Allocation</h2>
         <span className="mono muted" style={{ fontSize: 12 }}>${Math.round(invested).toLocaleString("en-US")} invested</span>
       </div>
-      <div role="group" aria-label="Asset classes" style={{ display: "flex", gap: 3, height: 44, borderRadius: 4, overflow: "hidden" }}>
-        {rows.filter((x) => x.value > 0).map((x) => (
-          <button
-            key={x.name}
-            type="button"
-            aria-pressed={x.name === r.name}
-            aria-label={`${x.name} ${x.pct.toFixed(0)}%`}
-            onClick={() => setSel(x.name)}
-            style={{ flex: "0 0 auto", width: `${mounted ? x.pct : 0}%`, minWidth: 18, border: 0, padding: 0, background: x.color, opacity: x.name === r.name ? 1 : 0.45, cursor: "pointer", transition: "width 900ms var(--ease), opacity 250ms" }}
-          />
-        ))}
+      <div style={{ position: "relative" }} onMouseLeave={() => setHover(null)}>
+        {hover && (() => {
+          const shown = rows.filter((x) => x.value > 0);
+          const i = shown.findIndex((x) => x.name === hover);
+          const center = shown.slice(0, i).reduce((s, x) => s + x.pct, 0) + shown[i].pct / 2;
+          const h = shown[i];
+          return (
+            <div
+              role="tooltip"
+              className="mono anim-in"
+              style={{ position: "absolute", bottom: "calc(100% + 8px)", left: `clamp(90px, ${center}%, calc(100% - 90px))`, transform: "translateX(-50%)", background: "var(--ink)", color: "#fff", padding: "8px 10px", borderRadius: 4, fontSize: 12, whiteSpace: "nowrap", pointerEvents: "none", zIndex: 2, animationDuration: "150ms" }}
+            >
+              <div style={{ fontWeight: 600 }}>{h.name}</div>
+              <div className="num">${h.value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} · {h.pct.toFixed(1)}%</div>
+            </div>
+          );
+        })()}
+        <div role="group" aria-label="Asset classes" style={{ display: "flex", gap: 3, height: 44, borderRadius: 4, overflow: "hidden" }}>
+          {rows.filter((x) => x.value > 0).map((x) => (
+            <button
+              key={x.name}
+              type="button"
+              aria-pressed={x.name === sel}
+              aria-label={`${x.name}: $${x.value.toLocaleString("en-US", { maximumFractionDigits: 2 })}, ${x.pct.toFixed(1)}%`}
+              onClick={() => setSel(x.name)}
+              onMouseEnter={() => setHover(x.name)}
+              onFocus={() => setHover(x.name)}
+              onBlur={() => setHover(null)}
+              style={{ flex: "0 0 auto", width: `${mounted ? x.pct : 0}%`, minWidth: 18, border: 0, padding: 0, background: x.color, opacity: x.name === r.name ? 1 : 0.45, cursor: "pointer", transition: "width 900ms var(--ease), opacity 250ms" }}
+            />
+          ))}
+        </div>
       </div>
       <div key={r.name} className="dots inner anim-in" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 14 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           <span className="row" style={{ gap: 8, fontWeight: 600 }}>
             <span style={{ width: 10, height: 10, borderRadius: 3, background: r.color }} />{r.name}
           </span>
-          <span className="num" style={{ fontSize: 30, fontWeight: 700, letterSpacing: "-0.03em" }}>${Math.round(r.value).toLocaleString("en-US")}</span>
+          <span className="num" style={{ fontSize: 30, fontWeight: 700, letterSpacing: "-0.03em" }}>
+            ${Math.floor(Math.round(r.value * 100) / 100).toLocaleString("en-US")}
+            <span className="mono" style={{ fontSize: 16, fontWeight: 500, color: "#A3A8A3" }}>.{String(Math.round(r.value * 100) % 100).padStart(2, "0")}</span>
+          </span>
         </div>
         <div className="mono" style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12, color: "var(--ink-2)" }}>
           <span>actual  <strong style={{ color: "var(--ink)" }}>{r.pct.toFixed(1)}%</strong></span>
