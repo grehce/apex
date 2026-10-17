@@ -9,7 +9,7 @@ export function ApexMark({ size = 28, ink = "#17191A", ground = "#F4F4F2", accen
       {/* legs match the letter stroke weight; the neon dot is the A's crossbar */}
       <path d="M24 5L47 43H36.65L24 22.1L11.35 43H1Z" fill={ink} />
       {/* neon dot as the crossbar: the one spot of brand highlight */}
-      <circle cx="24" cy="35" r="4.8" fill={accent} />
+      <circle cx="24" cy="36.4" r="6.6" fill={accent} />
     </svg>
   );
 }
@@ -22,7 +22,7 @@ export function ApexWordmark({ size = 20, ink = "currentColor", accent = "#C8FF3
       {/* viewBox cropped to the shape so its base sits on the text baseline */}
       <svg aria-hidden="true" viewBox="1 5 46 38" height={cap} width={(cap * 46) / 38} style={{ alignSelf: "baseline", marginRight: size * 0.02, overflow: "visible" }}>
         <path d="M24 5L47 43H36.65L24 22.1L11.35 43H1Z" fill={ink} />
-        <circle cx="24" cy="35" r="4.8" fill={accent} />
+        <circle cx="24" cy="36.4" r="6.6" fill={accent} />
       </svg>
       <span aria-hidden="true">pex</span>
     </span>
