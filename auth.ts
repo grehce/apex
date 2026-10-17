@@ -20,14 +20,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn({ profile }) {
       const email = profile?.email?.toLowerCase();
       // Google must have verified the address, and it must be on the allowlist.
-      return Boolean(email && profile?.email_verified && allowedEmails().has(email));
+      if (email && profile?.email_verified && allowedEmails().has(email)) return true;
+      // Everyone else goes to the waitlist instead of an error.
+      return "/waitlist?denied=1";
     },
     authorized({ auth, request }) {
       const { pathname } = request.nextUrl;
       // Every page is browsable signed out — visitors see the whole app on sample data.
       // Anything that touches real data (API routes) still requires a session.
       const PUBLIC = ["/", "/signin", "/networth", "/portfolio", "/spending", "/ledger", "/agent", "/settings"];
-      const isPublic = PUBLIC.includes(pathname) || pathname.startsWith("/api/auth");
+      const isPublic = PUBLIC.includes(pathname) || pathname === "/waitlist" || pathname.startsWith("/api/auth") || pathname === "/api/waitlist";
       if (isPublic) return true;
       return Boolean(auth?.user?.email);
     },

@@ -54,6 +54,16 @@ export const transactions = pgTable("transactions", {
   pending: boolean("pending").notNull().default(false),
 }, (t) => [index("tx_user_date_idx").on(t.userEmail, t.date)]);
 
+/** Waitlist for people who aren't on the access list yet. */
+export const waitlist = pgTable("waitlist", {
+  email: text("email").primaryKey(), // lowercased
+  name: text("name").notNull(),
+  note: text("note"),
+  refCode: text("ref_code").notNull().unique(),
+  referredBy: text("referred_by"), // another entry's ref_code
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("waitlist_ref_idx").on(t.referredBy)]);
+
 /** Daily net worth, written on each sync, so the chart builds history over time. */
 export const netWorthDaily = pgTable("net_worth_daily", {
   userEmail: text("user_email").notNull(),

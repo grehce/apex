@@ -68,6 +68,10 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
             </button>
           </form>
 
+          <p style={{ margin: 0, fontSize: 14 }}>
+            Not invited yet? <a href="/waitlist">Join the waitlist →</a>
+          </p>
+
           <p style={{ margin: 0, fontSize: 13, color: "var(--muted)" }}>
             Access is limited to approved Google accounts. Sessions last 12 hours.
           </p>

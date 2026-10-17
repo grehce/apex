@@ -1,7 +1,5 @@
-"use client";
-import { useEffect, useState } from "react";
-
 // Original lines (not attributed quotes), so nothing here is misattributed or borrowed.
+// Picked on the server per request, so a new line appears only when the page loads.
 const LINES = [
   "Small, boring, consistent. That's the whole trick.",
   "Every dollar you don't need today is a gift to future you.",
@@ -16,18 +14,6 @@ const LINES = [
 ];
 
 export function Quotes() {
-  // Start on a fixed line so server and browser render the same thing, then shuffle in.
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    setI(Math.floor(Math.random() * LINES.length));
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
-    const t = setInterval(() => setI((n) => (n + 1) % LINES.length), 9000);
-    return () => clearInterval(t);
-  }, []);
-  return (
-    <span key={i} className="anim-in" aria-live="off" style={{ animationDuration: "600ms" }}>
-      “{LINES[i]}”
-    </span>
-  );
+  const line = LINES[Math.floor(Math.random() * LINES.length)];
+  return <em style={{ fontFamily: "var(--sans)" }}>{line}</em>;
 }

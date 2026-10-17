@@ -1,53 +1,47 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Answer = { q: string; value: string; sub: string };
 
+/**
+ * A read-only "terminal readout": pick a query chip and it types itself out, then shows the answer.
+ * Deliberately not an input — it shouldn't look like something you can type into.
+ */
 export function CommandBar({ answers }: { answers: Answer[] }) {
   const [sel, setSel] = useState(0);
-  const [typed, setTyped] = useState<string | null>(null);
-  const [miss, setMiss] = useState(false);
+  const [typed, setTyped] = useState(answers[0]?.q.length ?? 0);
   const a = answers[sel];
+  const done = typed >= a.q.length;
 
-  function run(i: number) {
-    setSel(i);
-    setTyped(null);
-    setMiss(false);
-  }
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) {
+      setTyped(a.q.length);
+      return;
+    }
+    setTyped(0);
+    const t = setInterval(() => setTyped((n) => (n >= a.q.length ? (clearInterval(t), n) : n + 1)), 22);
+    return () => clearInterval(t);
+  }, [sel, a.q.length]);
 
   return (
-    <section aria-label="Ask Apex" className="dots-dark mono" style={{ backgroundColor: "var(--dark)", color: "var(--dark-text)", borderRadius: "var(--r-card)", padding: "20px 22px", display: "flex", flexDirection: "column", gap: 14 }}>
-      <label className="scan" style={{ display: "flex", alignItems: "center", gap: 12, height: 48, padding: "0 16px", backgroundColor: "var(--dark-2)", border: "1px solid var(--dark-line)", borderRadius: "var(--r-inner)" }}>
+    <section aria-label="Quick answers" className="dots-dark mono" style={{ backgroundColor: "var(--dark)", color: "var(--dark-text)", borderRadius: "var(--r-card)", padding: "20px 22px", display: "flex", flexDirection: "column", gap: 14 }}>
+      <div aria-hidden="true" style={{ display: "flex", alignItems: "center", gap: 12, minHeight: 28, padding: "0 4px", fontSize: 14, borderBottom: "1px dashed var(--dark-line)", paddingBottom: 12 }}>
         <span style={{ color: "var(--accent-soft)", fontWeight: 600 }}>apex&gt;</span>
-        <span className="sr-only">Ask Apex a question about your money</span>
-        <input
-          type="text"
-          spellCheck={false}
-          value={typed ?? a.q}
-          onChange={(e) => { setTyped(e.target.value); setMiss(false); }}
-          onKeyDown={(e) => {
-            if (e.key !== "Enter") return;
-            const i = answers.findIndex((x) => x.q === (typed ?? "").trim());
-            if (i >= 0) run(i);
-            else setMiss(true);
-          }}
-          style={{ flex: 1, minWidth: 0, border: 0, background: "transparent", color: "var(--dark-text)", font: "inherit", fontSize: 14, outline: "none" }}
-        />
-      </label>
-      {typed === null ? (
-        <div key={sel} className="anim-in row" style={{ alignItems: "baseline", gap: "6px 16px", padding: "2px 4px" }}>
-          <span style={{ color: "var(--dark-muted)" }}>→</span>
-          <span className="num" style={{ fontFamily: "var(--sans)", fontSize: 34, fontWeight: 700, letterSpacing: "-0.03em" }}>{a.value}</span>
-          <span style={{ color: "#B9C0BA", fontSize: 13 }}>{a.sub}</span>
-        </div>
-      ) : (
-        <div style={{ padding: "2px 4px", color: "var(--dark-muted)", fontSize: 13 }} aria-live="polite">
-          ↵ to run<span className="blink">_</span> {miss ? " no match yet — free-form queries are coming; try a suggestion" : " · or pick a suggestion"}
-        </div>
-      )}
-      <div className="row" style={{ gap: 8 }}>
+        <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {a.q.slice(0, typed)}
+          <span className="blink" style={{ color: "var(--accent-soft)" }}>▍</span>
+        </span>
+      </div>
+      <div className="row" aria-live="polite" style={{ alignItems: "baseline", gap: "6px 16px", padding: "0 4px", minHeight: 44, opacity: done ? 1 : 0, transition: "opacity 300ms" }}>
+        <span className="sr-only">{a.q}:</span>
+        <span style={{ color: "var(--dark-muted)" }}>→</span>
+        <span className="num" style={{ fontFamily: "var(--sans)", fontSize: 34, fontWeight: 700, letterSpacing: "-0.03em" }}>{a.value}</span>
+        <span style={{ color: "#B9C0BA", fontSize: 13 }}>{a.sub}</span>
+      </div>
+      <div className="row" role="group" aria-label="Pick a question" style={{ gap: 8 }}>
         {answers.map((x, i) => (
-          <button key={x.q} type="button" className="chip chip-dark" aria-pressed={sel === i && typed === null} onClick={() => run(i)}>
+          <button key={x.q} type="button" className="chip chip-dark" aria-pressed={sel === i} onClick={() => setSel(i)}>
             {x.q}
           </button>
         ))}
