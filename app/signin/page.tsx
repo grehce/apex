@@ -16,7 +16,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         style={{ flex: "1 1 520px", minWidth: 0, backgroundColor: "var(--dark)", color: "var(--dark-text)", padding: "clamp(24px, 6vw, 48px)", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 48, minHeight: "min(560px, 100vh)" }}
       >
         <div className="row">
-          <ApexMark size={34} ink="#EDEFEA" ground="#17191A" accent="#E2FF3D" />
+          <ApexMark size={34} ink="#EDEFEA" ground="#17191A" accent="#3DFF8B" />
           <span style={{ fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em" }}>Apex</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 520 }}>
@@ -32,7 +32,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         <div className="scan mono" style={{ backgroundColor: "#1F2321", border: "1px solid var(--dark-line)", borderRadius: "var(--r-card)", padding: "18px 20px", fontSize: 13, display: "flex", flexDirection: "column", gap: 8, maxWidth: 520 }}>
           <span style={{ color: "var(--dark-muted)" }}>apex&gt; security --summary</span>
           <span><span style={{ color: "var(--accent-soft)" }}>✓</span> sign-in via Google · no Apex password to leak</span>
-          <span><span style={{ color: "var(--accent-soft)" }}>✓</span> read-only bank access via Plaid · credentials never touch Apex</span>
+          <span><span style={{ color: "var(--accent-soft)" }}>✓</span> read-only via Plaid · bank logins never touch Apex</span>
           <span><span style={{ color: "var(--accent-soft)" }}>✓</span> bank tokens encrypted at rest (AES-256-GCM)</span>
           <span><span style={{ color: "var(--accent-soft)" }}>✓</span> agent can propose, never move money<span className="blink">_</span></span>
         </div>

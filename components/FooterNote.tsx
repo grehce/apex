@@ -17,14 +17,14 @@ export function FooterNote({ d, signedIn }: { d: Dashboard; signedIn: boolean })
   } else if (!signedIn) {
     left = (
       <span className="row" style={{ gap: 10 }}>
-        <span>These numbers are pretend. Yours won&apos;t be.</span>
+        <span>Nice numbers, right? Bring yours.</span>
         <Go href="/signin" label="Sign up or log in" />
       </span>
     );
   } else {
     left = (
       <span className="row" style={{ gap: 10 }}>
-        <span>Still pretend money. Let&apos;s fix that.</span>
+        <span>Ready when your accounts are.</span>
         <Go href="/settings" label="Connect an account" />
       </span>
     );

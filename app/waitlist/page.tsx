@@ -16,7 +16,7 @@ export default async function WaitlistPage({ searchParams }: { searchParams: Pro
     <div style={{ minHeight: "100vh", display: "flex", flexWrap: "wrap" }}>
       <section className="dots-dark" aria-label="About Apex" style={{ flex: "1 1 520px", minWidth: 0, backgroundColor: "var(--dark)", color: "var(--dark-text)", padding: "clamp(24px, 6vw, 48px)", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 40, minHeight: "min(600px, 100vh)" }}>
         <Link href="/" className="row" style={{ gap: 12, color: "var(--dark-text)", textDecoration: "none" }}>
-          <ApexMark size={34} ink="#EDEFEA" ground="#17191A" accent="#E2FF3D" />
+          <ApexMark size={34} ink="#EDEFEA" ground="#17191A" accent="#3DFF8B" />
           <span style={{ fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em" }}>Apex</span>
         </Link>
         <div style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: 540 }}>

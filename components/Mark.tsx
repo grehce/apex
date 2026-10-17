@@ -1,4 +1,4 @@
-export function ApexMark({ size = 28, ink = "#17191A", ground = "#F4F4F2", accent = "#E2FF3D" }: {
+export function ApexMark({ size = 28, ink = "#17191A", ground = "#F4F4F2", accent = "#3DFF8B" }: {
   size?: number;
   ink?: string;
   ground?: string;

@@ -47,9 +47,9 @@ export function AgentView({ trace, summary, now, targets, plans, recommended }: 
           <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 14 }}>
             <div role="log" aria-label="Agent steps" className="dots-dark scan mono" style={{ backgroundColor: "var(--dark)", color: "var(--dark-text)", borderRadius: 6, padding: "14px 16px", fontSize: 12.5, display: "flex", flexDirection: "column", gap: 6 }}>
               {trace.map((t, i) => (
-                <div key={i} style={{ display: "flex", gap: 10, opacity: i < shown ? 1 : 0, transform: `translateY(${i < shown ? 0 : 6}px)`, transition: "opacity 350ms, transform 350ms" }}>
+                <div key={i} className="trace-row" style={{ opacity: i < shown ? 1 : 0, transform: `translateY(${i < shown ? 0 : 6}px)`, transition: "opacity 350ms, transform 350ms" }}>
                   <span style={{ color: t[0] === "done" ? "var(--accent-soft)" : "var(--dark-muted)", width: 12 }}>{t[0] === "done" ? "✓" : "▸"}</span>
-                  <span style={{ color: "#B9C0BA", minWidth: 132 }}>{t[0]} {t[1]}</span>
+                  <span style={{ color: "#B9C0BA" }}>{t[0]} {t[1]}</span>
                   <span>{t[2]}</span>
                 </div>
               ))}
