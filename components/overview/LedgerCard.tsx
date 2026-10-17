@@ -12,7 +12,7 @@ export function LedgerCard({ rows }: { rows: TxRow[] }) {
   return (
     <section className="card lift" aria-labelledby="lg-h" style={{ gap: 12 }}>
       <div className="row between">
-        <h2 id="lg-h">Ledger</h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}><h2 id="lg-h">Ledger</h2><span className="mono muted" style={{ fontSize: 11 }}>largest · last 30 days</span></div>
         <div role="group" aria-label="Filter" className="row" style={{ gap: 4 }}>
           {(["all", "in", "out"] as F[]).map((k) => (
             <button key={k} type="button" className="chip" aria-pressed={f === k} onClick={() => setF(k)}>{k}</button>

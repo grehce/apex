@@ -10,6 +10,7 @@ export function LedgerTable({ rows }: { rows: TxRow[] }) {
   const [f, setF] = useState<F>("all");
   const [cat, setCat] = useState("");
   const [limit, setLimit] = useState(50);
+  const [sort, setSort] = useState<"largest" | "newest">("largest");
 
   const cats = useMemo(() => [...new Set(rows.map((r) => r.category).filter(Boolean))].sort(), [rows]);
   const filtered = useMemo(() => {
@@ -19,8 +20,8 @@ export function LedgerTable({ rows }: { rows: TxRow[] }) {
         (f === "all" || (f === "in" ? r.amount < 0 : r.amount > 0)) &&
         (!cat || r.category === cat) &&
         (!needle || r.name.toLowerCase().includes(needle) || prettyCategory(r.category).includes(needle) || r.account.toLowerCase().includes(needle)),
-    );
-  }, [rows, q, f, cat]);
+    ).sort((a, b) => (sort === "largest" ? Math.abs(b.amount) - Math.abs(a.amount) : 0) || (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  }, [rows, q, f, cat, sort]);
   const inSum = filtered.filter((r) => r.amount < 0).reduce((s, r) => s - r.amount, 0);
   const outSum = filtered.filter((r) => r.amount > 0).reduce((s, r) => s + r.amount, 0);
   const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -38,6 +39,11 @@ export function LedgerTable({ rows }: { rows: TxRow[] }) {
           <option value="">all categories</option>
           {cats.map((c) => <option key={c} value={c}>{prettyCategory(c)}</option>)}
         </select>
+        <div role="group" aria-label="Sort" className="row" style={{ gap: 4 }}>
+          {(["largest", "newest"] as const).map((k) => (
+            <button key={k} type="button" className="chip" aria-pressed={sort === k} onClick={() => { setSort(k); setLimit(50); }}>{k}</button>
+          ))}
+        </div>
         <div role="group" aria-label="Direction" className="row" style={{ gap: 4 }}>
           {(["all", "in", "out"] as F[]).map((k) => (
             <button key={k} type="button" className="chip" aria-pressed={f === k} onClick={() => { setF(k); setLimit(50); }}>{k}</button>

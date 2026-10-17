@@ -11,8 +11,8 @@
   --accent: #3d5a4c;
   --accent-ink: #2f4a3e;
   --accent-tint: #e6ece6;
-  --accent-soft: #3dff8b; /* on dark panels */
-  --neon: #3dff8b; /* neon green — sparing highlight: logo dot, selected chips, highlighter marks */
+  --accent-soft: #ff3e9a; /* on dark panels */
+  --neon: #ff3e9a; /* hot pink — sparing highlight: logo dot, selected chips, highlighter marks */
   --brass: #a47e4c;
   --warn: #7a5a2e; /* deep bronze — over budget / needs attention (no reds or purples) */
   --warn-tint: #f1eadf;
@@ -77,9 +77,10 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.02em; }
 .tile:hover > .card { box-shadow: 0 0 0 1px #c9cdc8; }
 .tile.dragging { opacity: .35; }
 .tile.drop-target > .card { box-shadow: 0 0 0 2px var(--accent); }
-.tile-tools { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-ctl); opacity: 0; transition: opacity 150ms; z-index: 3; }
+/* Sits on the card's top edge, above the padding, so it never covers the card's own controls. */
+.tile-tools { position: absolute; top: -17px; right: 16px; box-shadow: 0 4px 12px -6px rgba(20,24,22,.25); display: flex; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-ctl); opacity: 0; transition: opacity 150ms; z-index: 3; }
 .tile:hover .tile-tools, .tile:focus-within .tile-tools { opacity: 1; }
-.tile-tools a, .tile-tools button { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 8px; border: 0; border-radius: 3px; background: transparent; font-family: var(--mono); font-size: 12px; color: var(--ink-2); text-decoration: none; cursor: pointer; }
+.tile-tools a, .tile-tools button { display: inline-flex; align-items: center; gap: 6px; min-height: 26px; padding: 0 8px; border: 0; border-radius: 3px; background: transparent; font-family: var(--mono); font-size: 12px; color: var(--ink-2); text-decoration: none; cursor: pointer; }
 .tile-tools a:hover, .tile-tools button:hover { background: #eff0ec; color: var(--ink); }
 .tile-tools .grip { cursor: grab; touch-action: none; }
 .tile-tools .grip:active { cursor: grabbing; }
@@ -110,9 +111,9 @@ table.data tr:hover td { background: #fafaf8; }
 .chip-dark { border-color: #3a3f3c; color: #b9c0ba; }
 .chip-dark[aria-pressed="true"] { background: var(--neon); color: var(--ink); border-color: var(--neon); }
 .btn-neon { background: var(--neon); color: var(--ink); border-color: var(--neon); }
-.btn-neon:hover { background: #2ce679; color: var(--ink); border-color: #2ce679; }
+.btn-neon:hover { background: #f0278a; color: var(--ink); border-color: #f0278a; }
 .hl { background: linear-gradient(transparent 62%, var(--neon) 62%, var(--neon) 92%, transparent 92%); padding: 0 .08em; }
-.hl-dark { background: linear-gradient(transparent 62%, rgba(61,255,139,.32) 62%, rgba(61,255,139,.32) 92%, transparent 92%); }
+.hl-dark { background: linear-gradient(transparent 62%, rgba(255,62,154,.38) 62%, rgba(255,62,154,.38) 92%, transparent 92%); }
 .tag { padding: 2px 8px; border-radius: 3px; border: 1px solid var(--line-dash); font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
 
 .seg { position: relative; display: flex; padding: 4px; background: #eff0ec; border-radius: var(--r-ctl); font-family: var(--mono); }

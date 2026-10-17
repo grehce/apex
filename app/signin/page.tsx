@@ -16,7 +16,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         style={{ flex: "1 1 520px", minWidth: 0, backgroundColor: "var(--dark)", color: "var(--dark-text)", padding: "clamp(24px, 6vw, 48px)", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 48, minHeight: "min(560px, 100vh)" }}
       >
         <div className="row">
-          <ApexMark size={34} ink="#EDEFEA" ground="#17191A" accent="#3DFF8B" />
+          <ApexMark size={34} ink="#EDEFEA" ground="#17191A" accent="#FF3E9A" />
           <span style={{ fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em" }}>Apex</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 520 }}>

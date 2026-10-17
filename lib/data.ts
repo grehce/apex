@@ -204,7 +204,11 @@ export function build(inp: Inputs, sample: boolean, setup: Dashboard["setup"]): 
     allocation,
     holdings: inp.holdings,
     spendByCategory,
-    ledger: inp.txs.slice().sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 12),
+    // Overview ledger: the biggest money moves of the last 30 days, largest first.
+    ledger: inp.txs
+      .filter((t) => t.date >= ymd(new Date(today.getTime() - 30 * 86400000)))
+      .sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount) || (a.date < b.date ? 1 : -1))
+      .slice(0, 12),
     transactions: inp.txs.slice().sort((a, b) => (a.date < b.date ? 1 : -1)),
     heat,
     answers,
