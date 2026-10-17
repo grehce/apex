@@ -24,19 +24,19 @@ export default async function WaitlistPage({ searchParams }: { searchParams: Pro
             ● by invitation{total >= 25 ? ` · ${total.toLocaleString("en-US")} people waiting` : ""}
           </span>
           <h1 style={{ fontSize: "clamp(36px, 9vw, 52px)", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1.02 }}>
-            Your money,
+            A financial mind,
             <br />
-            <span className="hl-dark">finally legible.</span>
+            <span className="hl-dark">on your side.</span>
           </h1>
           <p style={{ margin: 0, fontSize: 18, color: "#B9C0BA" }}>
-            We&apos;re welcoming members in small groups. Each one is drawn from the list, and those who bring others are welcomed first.
+            An expert agent fluent in tax, investing and trading. Clear views from your own accounts, paid for by you and no one else.
           </p>
         </div>
         <div className="scan mono" style={{ backgroundColor: "#1F2321", border: "1px solid var(--dark-line)", borderRadius: "var(--r-card)", padding: "18px 20px", fontSize: 13, display: "flex", flexDirection: "column", gap: 8, maxWidth: 540 }}>
           <span style={{ color: "var(--dark-muted)" }}>apex&gt; whats-inside</span>
-          <span><span style={{ color: "var(--accent-soft)" }}>▸</span> every account in one net worth, updated daily</span>
-          <span><span style={{ color: "var(--accent-soft)" }}>▸</span> spending pace that tells you before you overshoot</span>
-          <span><span style={{ color: "var(--accent-soft)" }}>▸</span> an agent that finds the tax-smart way to rebalance</span>
+          <span><span style={{ color: "var(--accent-soft)" }}>▸</span> tax, investing and trading expertise, built in</span>
+          <span><span style={{ color: "var(--accent-soft)" }}>▸</span> no commissions, no kickbacks, no sponsored picks</span>
+          <span><span style={{ color: "var(--accent-soft)" }}>▸</span> the market signals the pros watch, minus the exotic bets</span>
           <span><span style={{ color: "var(--accent-soft)" }}>▸</span> read-only and encrypted — it can&apos;t move your money<span className="blink">_</span></span>
         </div>
       </section>
@@ -48,11 +48,11 @@ export default async function WaitlistPage({ searchParams }: { searchParams: Pro
             <span className="eyebrow">by invitation</span>
             <h2 id="wl-h" style={{ fontSize: "clamp(28px, 7vw, 34px)", fontWeight: 700, letterSpacing: "-0.03em" }}>Request an invitation</h2>
             {denied ? (
-              <p style={{ margin: 0, color: "var(--ink-2)" }}>This Google account isn&apos;t on the guest list yet. Request an invitation and you&apos;ll be among the first considered when we welcome the next group.</p>
+              <p style={{ margin: 0, color: "var(--ink-2)" }}>This Google account isn&apos;t on the list yet.</p>
             ) : referral ? (
-              <p style={{ margin: 0, color: "var(--ink-2)" }}>Someone already on the list asked us to save you a place. Requests made through a friend are welcomed sooner — for both of you.</p>
+              <p style={{ margin: 0, color: "var(--ink-2)" }}>A member saved you a place.</p>
             ) : (
-              <p style={{ margin: 0, color: "var(--ink-2)" }}>Apex opens quietly, a small group at a time. Invitations go to the list first, and to those who bring good company sooner. Already a member? <Link href="/signin">Log in</Link>.</p>
+              <p style={{ margin: 0, color: "var(--ink-2)" }}>Membership is limited. Already a member? <Link href="/signin">Log in</Link>.</p>
             )}
           </div>
           <WaitlistForm referral={referral} />
