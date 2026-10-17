@@ -6,8 +6,8 @@ export function ApexMark({ size = 28, ink = "#17191A", ground = "#F4F4F2", accen
 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
-      <path d="M24 5L45 43H3Z" fill={ink} />
-      <path d="M24 27L32 43H16Z" fill={ground} />
+      {/* one solid shape with the notch cut out, so no seam shows at the base */}
+      <path d="M24 5L45 43H32L24 27L16 43H3Z" fill={ink} />
       {/* neon dot: the one spot of brand highlight */}
       <circle cx="24" cy="13" r="4" fill={accent} />
     </svg>
