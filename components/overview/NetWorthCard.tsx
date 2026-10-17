@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { RangeKey, Series } from "@/lib/model";
 import { kfmt, seriesPath } from "@/lib/geom";
 import { useMounted, useTween } from "../hooks";
@@ -10,6 +10,10 @@ export function NetWorthCard({ netWorth, series, historyDays }: { netWorth: numb
   const [range, setRange] = useState<RangeKey>("1Y");
   const [hover, setHover] = useState<number | null>(null);
   const mounted = useMounted();
+  // The draw-in uses a dash; with a non-scaling stroke the dash length is off, which
+  // clipped the line short of today. Drop the dash once the draw-in has played.
+  const [drawn, setDrawn] = useState(false);
+  useEffect(() => { if (!mounted) return; const t = setTimeout(() => setDrawn(true), 1700); return () => clearTimeout(t); }, [mounted]);
   const disp = useTween(netWorth, 1400);
   const s = series[range];
   const g = useMemo(() => seriesPath(s.v), [s]);
@@ -74,7 +78,7 @@ export function NetWorthCard({ netWorth, series, historyDays }: { netWorth: numb
             strokeWidth={2.5}
             strokeLinecap="round"
             vectorEffect="non-scaling-stroke"
-            style={{ d: `path('${g.line}')`, strokeDasharray: 1, strokeDashoffset: mounted ? 0 : 1, transition: "d 700ms var(--ease), stroke-dashoffset 1600ms var(--ease)" } as React.CSSProperties}
+            style={{ d: `path('${g.line}')`, strokeDasharray: drawn ? "none" : 1, strokeDashoffset: mounted ? 0 : 1, transition: "d 700ms var(--ease), stroke-dashoffset 1600ms var(--ease)" } as React.CSSProperties}
           />
         </svg>
         {hover !== null && (

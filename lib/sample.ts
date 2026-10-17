@@ -6,25 +6,25 @@ export function sampleInputs(): Inputs {
   const today = new Date();
   const items: ItemRow[] = [
     { itemId: "s-north", institution: "Northline Bank", status: "ok", lastSyncedAt: today.toISOString(),
-      accounts: [{ id: "s-chk", itemId: "s-north", institution: "Northline Bank", name: "Checking", mask: "4021", type: "depository", subtype: "checking", balance: 24108.12, include: true }] },
+      accounts: [{ id: "s-chk", itemId: "s-north", institution: "Northline Bank", name: "Checking", mask: "4021", type: "depository", subtype: "checking", balance: 284117.36, include: true }] },
     { itemId: "s-mesa", institution: "Mesa Credit Union", status: "ok", lastSyncedAt: today.toISOString(),
-      accounts: [{ id: "s-sav", itemId: "s-mesa", institution: "Mesa Credit Union", name: "High-Yield Savings", mask: "7710", type: "depository", subtype: "savings", balance: 14312, include: true }] },
+      accounts: [{ id: "s-sav", itemId: "s-mesa", institution: "Mesa Credit Union", name: "High-Yield Savings", mask: "7710", type: "depository", subtype: "savings", balance: 1431908.52, include: true }] },
     { itemId: "s-arc", institution: "Arc Brokerage", status: "ok", lastSyncedAt: today.toISOString(),
-      accounts: [{ id: "s-brk", itemId: "s-arc", institution: "Arc Brokerage", name: "Individual", mask: "0932", type: "investment", subtype: "brokerage", balance: 312540.88, include: true }] },
+      accounts: [{ id: "s-brk", itemId: "s-arc", institution: "Arc Brokerage", name: "Individual", mask: "0932", type: "investment", subtype: "brokerage", balance: 18752452.8, include: true }] },
     { itemId: "s-harbor", institution: "Harbor Retirement", status: "login_required", lastSyncedAt: new Date(today.getTime() - 9 * 86400000).toISOString(),
-      accounts: [{ id: "s-401k", itemId: "s-harbor", institution: "Harbor Retirement", name: "401(k)", mask: "5518", type: "investment", subtype: "401k", balance: 139005.4, include: true }] },
+      accounts: [{ id: "s-401k", itemId: "s-harbor", institution: "Harbor Retirement", name: "401(k)", mask: "5518", type: "investment", subtype: "401k", balance: 2502097.2, include: true }] },
     { itemId: "s-kite", institution: "Kite Card", status: "ok", lastSyncedAt: today.toISOString(),
-      accounts: [{ id: "s-cc", itemId: "s-kite", institution: "Kite Card", name: "Credit card", mask: "3304", type: "credit", subtype: "credit card", balance: -7650, include: true }] },
+      accounts: [{ id: "s-cc", itemId: "s-kite", institution: "Kite Card", name: "Credit card", mask: "3304", type: "credit", subtype: "credit card", balance: -18420, include: true }] },
   ];
 
   const holdings: HoldingRow[] = [
-    { accountId: "s-brk", ticker: "VTI", name: "US total market index", assetClass: "Stocks & funds", value: 201400, costBasis: 148200, taxAdvantaged: false },
-    { accountId: "s-brk", ticker: "VXUS", name: "International index", assetClass: "Stocks & funds", value: 72300, costBasis: 66100, taxAdvantaged: false },
-    { accountId: "s-brk", ticker: "THEM", name: "Thematic ETF", assetClass: "Other", value: 18060, costBasis: 15100, taxAdvantaged: false },
-    { accountId: "s-brk", ticker: null, name: "Cash sweep", assetClass: "Cash", value: 20780.88, costBasis: null, taxAdvantaged: false },
-    { accountId: "s-401k", ticker: "TDF55", name: "Target date 2055", assetClass: "Stocks & funds", value: 69505.4, costBasis: null, taxAdvantaged: true },
-    { accountId: "s-401k", ticker: "BND", name: "US bond index", assetClass: "Bonds", value: 54200, costBasis: null, taxAdvantaged: true },
-    { accountId: "s-401k", ticker: "STBL", name: "Stable value", assetClass: "Cash", value: 15300, costBasis: null, taxAdvantaged: true },
+    { accountId: "s-brk", ticker: "VTI", name: "US total market index", assetClass: "Stocks & funds", value: 12084000, costBasis: 8892000, taxAdvantaged: false },
+    { accountId: "s-brk", ticker: "VXUS", name: "International index", assetClass: "Stocks & funds", value: 4338000, costBasis: 3966000, taxAdvantaged: false },
+    { accountId: "s-brk", ticker: "THEM", name: "Thematic ETF", assetClass: "Other", value: 1083600, costBasis: 906000, taxAdvantaged: false },
+    { accountId: "s-brk", ticker: null, name: "Cash sweep", assetClass: "Cash", value: 1246852.8, costBasis: null, taxAdvantaged: false },
+    { accountId: "s-401k", ticker: "TDF55", name: "Target date 2055", assetClass: "Stocks & funds", value: 1251097.2, costBasis: null, taxAdvantaged: true },
+    { accountId: "s-401k", ticker: "BND", name: "US bond index", assetClass: "Bonds", value: 975600, costBasis: null, taxAdvantaged: true },
+    { accountId: "s-401k", ticker: "STBL", name: "Stable value", assetClass: "Cash", value: 275400, costBasis: null, taxAdvantaged: true },
   ];
 
   // ~95 days of transactions, deterministic.
@@ -49,13 +49,22 @@ export function sampleInputs(): Inputs {
     if (d.getDate() === 1 || d.getDate() === 15) txs.push({ id: `s${n++}`, date: day, name: "Payroll", category: "INCOME", account: "Northline Bank ••4021", amount: -7100 });
   }
 
-  // A year of daily net worth, drifting up from ~431k to today's value.
+  // Seven years of daily net worth: compounding from ~$3.4M to today, with a
+  // bear-market drawdown in the middle and market-like daily noise. Deterministic.
   const nowValue = items.flatMap((i) => i.accounts).reduce((s, a) => s + a.balance, 0);
-  const snapshots = Array.from({ length: 366 }, (_, i) => {
-    const t = i / 365;
-    const wobble = Math.sin(i / 9) * 2400 + Math.sin(i / 41) * 5200;
-    const day = new Date(today.getTime() - (365 - i) * 86400000).toISOString().slice(0, 10);
-    return { day, value: i === 365 ? nowValue : 431000 + (nowValue - 431000) * t + wobble * (1 - t * 0.6) };
+  const DAYS = 7 * 365;
+  const start = 3_400_000;
+  let seed = 7;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 2 ** 32 - 0.5; };
+  const walk: number[] = [0];
+  for (let i = 1; i <= DAYS; i++) walk.push(walk[i - 1] + rnd() * 0.012);
+  const snapshots = Array.from({ length: DAYS + 1 }, (_, i) => {
+    const t = i / DAYS;
+    const trend = Math.log(start) + (Math.log(nowValue) - Math.log(start)) * t;
+    const drawdown = -0.22 * Math.exp(-(((t - 0.48) / 0.07) ** 2)); // a rough year, then recovery
+    const noise = walk[i] - walk[DAYS] * t; // pinned to zero at both ends
+    const day = new Date(today.getTime() - (DAYS - i) * 86400000).toISOString().slice(0, 10);
+    return { day, value: i === DAYS ? nowValue : Math.round(Math.exp(trend + drawdown + noise) * 100) / 100 };
   });
 
   return { items, holdings, txs, snapshots, today };
