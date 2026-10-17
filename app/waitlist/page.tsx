@@ -43,7 +43,7 @@ export default async function WaitlistPage({ searchParams }: { searchParams: Pro
 
       <section aria-labelledby="wl-h" style={{ flex: "1 1 460px", minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(28px, 6vw, 48px) 20px" }}>
         <div className="anim-in" style={{ width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", gap: 22 }}>
-          <Link href="/" className="back">← back to the demo</Link>
+          <Link href="/" className="back">← back to apex</Link>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <span className="eyebrow">waitlist · invite-only</span>
             <h2 id="wl-h" style={{ fontSize: "clamp(28px, 7vw, 34px)", fontWeight: 700, letterSpacing: "-0.03em" }}>Claim your seat</h2>

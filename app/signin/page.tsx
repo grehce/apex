@@ -41,7 +41,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
       <section aria-labelledby="si-h" style={{ flex: "1 1 460px", minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(28px, 6vw, 48px) 20px" }}>
         <div className="anim-in" style={{ width: "100%", maxWidth: 400, display: "flex", flexDirection: "column", gap: 24 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <a href="/" className="back">← back to the demo</a>
+            <a href="/" className="back">← back to apex</a>
             <span className="eyebrow">auth · google</span>
             <h2 id="si-h" style={{ fontSize: "clamp(28px, 7vw, 34px)", fontWeight: 700, letterSpacing: "-0.03em" }}>Sign up or log in</h2>
             <p style={{ margin: 0, color: "var(--ink-2)" }}>
