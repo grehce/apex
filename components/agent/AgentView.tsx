@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ASSET_CLASSES, type AssetClass } from "@/lib/model";
 import type { Plan } from "@/lib/plans";
 import { ApexMark } from "../Mark";
+import { Term } from "../Term";
 
 type Props = {
   trace: [string, string, string][];
@@ -86,11 +87,11 @@ export function AgentView({ trace, summary, now, targets, plans, recommended }: 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
             {[
               ["sells", String(plan.sells)],
-              ["max drift after", `${plan.maxDrift.toFixed(1)}%`],
+              ["off target after", `${plan.maxDrift.toFixed(1)}%`],
               ["taxable gains", plan.realizedGain === null ? "unknown" : `$${Math.round(plan.realizedGain).toLocaleString("en-US")}`],
-            ].map(([k, v]) => (
+            ].map(([k, v], i) => (
               <div key={k} className="dots inner" style={{ padding: "10px 12px" }}>
-                <div className="mono muted" style={{ fontSize: 11 }}>{k}</div>
+                <div className="mono muted" style={{ fontSize: 11 }}>{k === "sells" ? k : <Term k={k as "taxable gains"} align={i === 2 ? "right" : "left"} />}</div>
                 <div className="num" style={{ fontSize: 20, fontWeight: 700, color: k === "taxable gains" && plan.realizedGain ? "var(--warn)" : "var(--ink)" }}>{v}</div>
               </div>
             ))}
@@ -99,11 +100,11 @@ export function AgentView({ trace, summary, now, targets, plans, recommended }: 
 
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <div className="row between mono muted" style={{ fontSize: 11 }}>
-            <span>drift · now vs after</span>
+            <span><Term k="drift" /> · now vs after</span>
             <span className="row" style={{ gap: 12 }}>
               <span className="row" style={{ gap: 4 }}><span style={{ width: 10, height: 4, background: "#B4B8B3" }} />now</span>
               <span className="row" style={{ gap: 4 }}><span style={{ width: 10, height: 4, background: "var(--accent)" }} />after</span>
-              <span className="row" style={{ gap: 4 }}><span style={{ width: 2, height: 10, background: "var(--ink)" }} />target</span>
+              <span className="row" style={{ gap: 4 }}><span style={{ width: 2, height: 10, background: "var(--ink)" }} /><Term k="target" align="right" /></span>
             </span>
           </div>
           {classes.map((c) => (
@@ -127,7 +128,7 @@ export function AgentView({ trace, summary, now, targets, plans, recommended }: 
               <span className="mono" style={{ fontSize: 12, fontWeight: 600, color: t.side === "SELL" ? "var(--warn)" : t.side === "BUY" ? "var(--accent-ink)" : "var(--muted)" }}>{t.side}</span>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 500, fontSize: 14 }}>{t.what}</div>
-                <div className="mono muted" style={{ fontSize: 11 }}>{t.where}</div>
+                <div className="mono muted" style={{ fontSize: 11 }}>{t.where.startsWith("tax-advantaged") ? <><Term k="tax-advantaged" />{t.where.slice("tax-advantaged".length)}</> : t.where}</div>
               </div>
               <span className="mono num" style={{ fontSize: 13 }}>${t.amount.toLocaleString("en-US")}</span>
             </div>

@@ -48,7 +48,7 @@ export function buildPlans(holdings: HoldingRow[], targets: Record<AssetClass, n
   const planA: Plan = {
     key: "A",
     name: "Route new money",
-    desc: `No sells. Direct about ${fmt(needed)} of future contributions to underweight classes and let drift close over time.`,
+    desc: `No sells. Send about ${fmt(needed)} of new contributions to what you're short on, so your mix moves back to target over time.`,
     trades: under.map((c) => ({ side: "ROUTE", what: c, where: "next contributions", amount: round100(gap[c]) })),
     after: pct(aAfter),
     maxDrift: maxDrift(pct(aAfter), targets),
@@ -81,7 +81,7 @@ export function buildPlans(holdings: HoldingRow[], targets: Record<AssetClass, n
   const planB: Plan = {
     key: "B",
     name: "Tax-aware rebalance",
-    desc: "Rebalance only inside retirement and other tax-advantaged accounts, where trades don't create a tax bill.",
+    desc: "Rebalance only inside accounts like a 401(k) or IRA, where trades don't create a tax bill.",
     trades: bTrades,
     after: pct(bAfter),
     maxDrift: maxDrift(pct(bAfter), targets),
@@ -114,7 +114,7 @@ export function buildPlans(holdings: HoldingRow[], targets: Record<AssetClass, n
   const planC: Plan = {
     key: "C",
     name: "Full rebalance",
-    desc: "Hit every target now, including sells in taxable accounts. Fastest, but can realize capital gains.",
+    desc: "Hit every target now, including sells in your regular brokerage account. Fastest, but selling at a profit means a tax bill.",
     trades: cTrades,
     after: cAfter,
     maxDrift: 0,

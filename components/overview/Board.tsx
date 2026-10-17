@@ -63,7 +63,7 @@ export function Board({ tiles }: { tiles: Tile[] }) {
               data-tile={id}
               onClick={(e) => {
                 const el = e.target as HTMLElement;
-                if (el.closest("button, a, input, select, label, [role='switch'], [role='group'], [role='tooltip']")) return;
+                if (el.closest("button, a, input, select, label, [role='switch'], [role='group'], [role='tooltip'], .term")) return;
                 router.push(t.href);
               }}
             >

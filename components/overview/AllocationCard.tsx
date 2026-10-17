@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { AllocationRow } from "@/lib/model";
 import { useMounted } from "../hooks";
+import { Term } from "../Term";
 
 export function AllocationCard({ rows, invested }: { rows: AllocationRow[]; invested: number }) {
   const mounted = useMounted();
@@ -73,9 +74,9 @@ export function AllocationCard({ rows, invested }: { rows: AllocationRow[]; inve
         </div>
         <div className="mono" style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12, color: "var(--ink-2)" }}>
           <span>actual  <strong style={{ color: "var(--ink)" }}>{r.pct.toFixed(1)}%</strong></span>
-          <span>target  {r.target}%</span>
+          <span><Term k="target" />  {r.target}%</span>
           <span style={{ color: Math.abs(drift) >= 3 ? "var(--warn)" : "var(--ink-2)" }}>
-            drift   {drift > 0 ? "+" : ""}{drift.toFixed(1)}% {Math.abs(drift) >= 3 ? "· rebalance" : "· ok"}
+            <Term k="drift" />   {drift > 0 ? "+" : ""}{drift.toFixed(1)}% {Math.abs(drift) >= 3 ? <>· <Term k="rebalance" /></> : "· ok"}
           </span>
           <span style={{ color: "var(--accent)", whiteSpace: "pre" }}>{"█".repeat(blocks) + "░".repeat(Math.max(0, 20 - blocks))}</span>
         </div>
