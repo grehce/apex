@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { HeatDay } from "@/lib/model";
 import { prettyCategory } from "@/lib/model";
 import { Scrolly } from "../Scrolly";
+import { useTween } from "../hooks";
 
 const MAX_ROWS = 4;
 const ROW_H = 48;
@@ -41,6 +42,7 @@ export function HeatmapCard({ days }: { days: HeatDay[] }) {
   const vsAvg =
     d.amount === 0 ? "no spending" : ratio >= 1.15 ? `${ratio.toFixed(1)}× your daily average` : ratio <= 0.85 ? `${Math.round((1 - ratio) * 100)}% below average` : "about average";
   const shown = d.items.slice(0, MAX_ROWS);
+  const shownAmount = Math.round(useTween(d.amount, 260) * 100) / 100;
   const more = d.items.length - shown.length;
 
   return (
@@ -87,17 +89,18 @@ export function HeatmapCard({ days }: { days: HeatDay[] }) {
         <span style={{ marginLeft: 4 }}>more</span>
       </div>
 
-      <div key={d.day} className="dots inner anim-in" aria-live="polite" style={{ display: "flex", flexDirection: "column", gap: 10, animationDuration: "220ms" }}>
+      {/* The panel stays put: the total rolls to the new value and only the purchase list softly cross-fades. */}
+      <div className="dots inner" aria-live="polite" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <span className="eyebrow">{DOW_LONG[dt.getDay()]} · {MON[dt.getMonth()]} {dt.getDate()}</span>
-          <span className="num" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.2 }}>{money(d.amount)}</span>
+          <span className="num" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.2 }}>{money(shownAmount)}</span>
           <span className="mono" style={{ fontSize: 12, lineHeight: "18px", height: 18, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: ratio >= 1.5 ? "var(--warn)" : "var(--ink-2)" }}>{vsAvg}</span>
         </div>
         {/* Fixed height (4 rows + the "+n more" line) so hovering never resizes the card. */}
         {d.amount === 0 ? (
-          <div style={{ height: ROWS_H }}><span className="muted" style={{ fontSize: 14 }}>A no-spend day. Nice.</span></div>
+          <div key={d.day} className="fade-soft" style={{ height: ROWS_H }}><span className="muted" style={{ fontSize: 14 }}>A no-spend day. Nice.</span></div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", height: ROWS_H, overflow: "hidden" }}>
+          <div key={d.day} className="fade-soft" style={{ display: "flex", flexDirection: "column", height: ROWS_H, overflow: "hidden" }}>
             {shown.map((t, i) => (
               <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center", height: ROW_H, flex: "none", borderTop: "1px dashed var(--line-dash)" }}>
                 <div style={{ minWidth: 0 }}>

@@ -276,3 +276,8 @@ table.data tr:hover td { background: var(--row-hover); }
   table.t-ledger th:nth-child(4), table.t-ledger td:nth-child(4) { display: none; }
   table.data td.r, table.data th.r { white-space: nowrap; }
 }
+
+/* Soft cross-fade for content that swaps as you hover (no slide, no layout change) */
+@keyframes fadeSoft { from { opacity: .25; } to { opacity: 1; } }
+.fade-soft { animation: fadeSoft 180ms ease-out both; }
+@media (prefers-reduced-motion: reduce) { .fade-soft { animation: none; } }
