@@ -17,7 +17,7 @@ export function FooterNote({ d, signedIn }: { d: Dashboard; signedIn: boolean })
   } else if (!signedIn) {
     left = (
       <span className="row" style={{ gap: 10 }}>
-        <span>Nice numbers, right? Bring yours.</span>
+        <span>Nice numbers, right? Your turn.</span>
         <Go href="/signin" label="Sign up or log in" />
       </span>
     );
