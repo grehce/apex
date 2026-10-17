@@ -6,10 +6,10 @@ export function ApexMark({ size = 28, ink = "#17191A", ground = "#F4F4F2", accen
 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
-      {/* one solid shape with the notch cut out, so no seam shows at the base */}
-      <path d="M24 5L45 43H32L24 27L16 43H3Z" fill={ink} />
+      {/* one solid shape with the notch cut out; the peak is trimmed so the dot is the top */}
+      <path d="M22.2 9H25.8L45 43H32L24 27L16 43H3Z" fill={ink} />
       {/* neon dot: the one spot of brand highlight */}
-      <circle cx="24" cy="13" r="4" fill={accent} />
+      <circle cx="24" cy="11" r="4.5" fill={accent} />
     </svg>
   );
 }
