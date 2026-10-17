@@ -113,7 +113,7 @@ table.data tr:hover td { background: #fafaf8; }
 .btn-neon { background: var(--neon); color: var(--ink); border-color: var(--neon); }
 .btn-neon:hover { background: #f5a300; color: var(--ink); border-color: #f5a300; }
 .hl { background: linear-gradient(transparent 62%, var(--neon) 62%, var(--neon) 92%, transparent 92%); padding: 0 .08em; }
-.hl-dark { background: linear-gradient(transparent 62%, rgba(255,178,30,.4) 62%, rgba(255,178,30,.4) 92%, transparent 92%); }
+.hl-dark { background: linear-gradient(transparent 86%, var(--neon) 86%, var(--neon) 94%, transparent 94%); }
 .tag { padding: 2px 8px; border-radius: 3px; border: 1px solid var(--line-dash); font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
 
 .seg { position: relative; display: flex; padding: 4px; background: #eff0ec; border-radius: var(--r-ctl); font-family: var(--mono); }
