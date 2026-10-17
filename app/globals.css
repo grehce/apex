@@ -256,3 +256,23 @@ table.data tr:hover td { background: var(--row-hover); }
 .theme-toggle button { display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 3px; background: transparent; color: var(--muted); cursor: pointer; transition: background 150ms, color 150ms; }
 .theme-toggle button:hover { color: var(--ink); background: var(--hover); }
 .theme-toggle button[aria-checked="true"] { background: var(--ink); color: var(--on-ink); }
+
+/* Footer: quote right-aligned beside the note on wide screens; stacked and left-aligned on phones */
+.quote-line { text-align: right; }
+@media (max-width: 700px) {
+  .site-footer { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .site-footer .quote-line { text-align: left; }
+}
+
+/* Phones: wide tables keep only the columns that matter */
+@media (max-width: 600px) {
+  table.t-nw th:nth-child(2), table.t-nw td:nth-child(2),
+  table.t-nw th:nth-child(4), table.t-nw td:nth-child(4),
+  table.t-hold th:nth-child(2), table.t-hold td:nth-child(2),
+  table.t-hold th:nth-child(3), table.t-hold td:nth-child(3),
+  table.t-hold th:nth-child(5), table.t-hold td:nth-child(5),
+  table.t-hold th:nth-child(7), table.t-hold td:nth-child(7),
+  table.t-ledger th:nth-child(3), table.t-ledger td:nth-child(3),
+  table.t-ledger th:nth-child(4), table.t-ledger td:nth-child(4) { display: none; }
+  table.data td.r, table.data th.r { white-space: nowrap; }
+}

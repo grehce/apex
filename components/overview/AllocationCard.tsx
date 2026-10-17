@@ -62,12 +62,12 @@ export function AllocationCard({ rows, invested }: { rows: AllocationRow[]; inve
           ))}
         </div>
       </div>
-      <div key={r.name} className="dots inner anim-in" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 14 }}>
+      <div key={r.name} className="dots inner anim-in" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 14 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           <span className="row" style={{ gap: 8, fontWeight: 600 }}>
             <span style={{ width: 10, height: 10, borderRadius: 3, background: r.color }} />{r.name}
           </span>
-          <span className="num" style={{ fontSize: 30, fontWeight: 700, letterSpacing: "-0.03em" }}>
+          <span className="num" style={{ fontSize: "clamp(24px, 7vw, 30px)", fontWeight: 700, letterSpacing: "-0.03em", whiteSpace: "nowrap" }}>
             ${Math.floor(Math.round(r.value * 100) / 100).toLocaleString("en-US")}
             <span className="mono" style={{ fontSize: 16, fontWeight: 500, color: "var(--faint)" }}>.{String(Math.round(r.value * 100) % 100).padStart(2, "0")}</span>
           </span>

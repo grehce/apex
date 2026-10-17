@@ -25,7 +25,7 @@ export default async function NetWorthPage() {
         <p className="muted" style={{ margin: 0 }}>None.</p>
       ) : (
         <div className="table-wrap">
-          <table className="data">
+          <table className="data t-nw">
             <thead><tr><th>account</th><th>type</th><th className="r">balance</th><th className="r">share</th></tr></thead>
             <tbody>
               {rows.slice().sort((a, b) => Math.abs(b.balance) - Math.abs(a.balance)).map((a) => (

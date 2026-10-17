@@ -54,7 +54,7 @@ export function LedgerTable({ rows }: { rows: TxRow[] }) {
         {filtered.length} transactions · in +{fmt(inSum)} · out −{fmt(outSum)}
       </div>
       <div className="table-wrap">
-        <table className="data">
+        <table className="data t-ledger">
           <thead><tr><th>date</th><th>merchant</th><th>category</th><th>account</th><th className="r">amount</th></tr></thead>
           <tbody>
             {filtered.slice(0, limit).map((r) => (

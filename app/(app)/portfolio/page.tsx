@@ -49,7 +49,7 @@ export default async function PortfolioPage() {
           <p className="muted" style={{ margin: 0 }}>Connect a brokerage or retirement account to see holdings.</p>
         ) : (
           <div className="table-wrap">
-            <table className="data">
+            <table className="data t-hold">
               <thead>
                 <tr><th>holding</th><th>class</th><th>account</th><th className="r">value</th><th className="r">cost basis</th><th className="r">gain</th><th className="r">weight</th></tr>
               </thead>
