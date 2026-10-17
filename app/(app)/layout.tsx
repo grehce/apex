@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { currentEmail, signOut } from "@/auth";
-import { ApexMark } from "@/components/Mark";
+import { ApexWordmark } from "@/components/Mark";
 import { NavLinks } from "@/components/NavLinks";
 
 // Every page in this group works signed out (sample data) and signed in (your data).
@@ -12,8 +12,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <header className="topbar">
         <div className="topbar-inner">
           <Link href="/" className="brand">
-            <ApexMark />
-            Apex
+            <ApexWordmark size={22} />
           </Link>
           <NavLinks />
           {email ? (

@@ -14,6 +14,21 @@ export function ApexMark({ size = 28, ink = "#17191A", ground = "#F4F4F2", accen
   );
 }
 
+/** Wordmark: the mark stands in for the "A", followed by "pex". `size` is the font size in px. */
+export function ApexWordmark({ size = 20, ink = "currentColor", accent = "#C8FF3A" }: { size?: number; ink?: string; accent?: string }) {
+  const cap = size * 0.74; // Figtree cap height
+  return (
+    <span aria-label="Apex" role="img" style={{ display: "inline-flex", alignItems: "baseline", fontWeight: 800, fontSize: size, letterSpacing: "-0.02em", lineHeight: 1 }}>
+      {/* viewBox cropped to the shape so its base sits on the text baseline */}
+      <svg aria-hidden="true" viewBox="3 6.5 42 36.5" height={cap} width={(cap * 42) / 36.5} style={{ alignSelf: "baseline", marginRight: size * 0.02, overflow: "visible" }}>
+        <path d="M22.2 9H25.8L45 43H32L24 27L16 43H3Z" fill={ink} />
+        <circle cx="24" cy="11" r="4.5" fill={accent} />
+      </svg>
+      <span aria-hidden="true">pex</span>
+    </span>
+  );
+}
+
 /** Generic geometric tile for an institution — picks one of a few modernist shapes from the name. */
 export function InstitutionMark({ name, size = 40 }: { name: string; size?: number }) {
   const palette = ["#3B4A5A", "#A47E4C", "#17191A", "#5C6B5E", "#8E9AA6", "#3D5A4C"];

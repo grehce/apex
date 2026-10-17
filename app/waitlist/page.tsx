@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ApexMark } from "@/components/Mark";
+import { ApexWordmark } from "@/components/Mark";
 import { WaitlistForm } from "@/components/WaitlistForm";
 import { dbConfigured } from "@/lib/db";
 import { totalWaiting } from "@/lib/waitlist";
@@ -16,8 +16,7 @@ export default async function WaitlistPage({ searchParams }: { searchParams: Pro
     <div style={{ minHeight: "100vh", display: "flex", flexWrap: "wrap" }}>
       <section className="dots-dark" aria-label="About Apex" style={{ flex: "1 1 520px", minWidth: 0, backgroundColor: "var(--dark)", color: "var(--dark-text)", padding: "clamp(24px, 6vw, 48px)", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 40, minHeight: "min(600px, 100vh)" }}>
         <Link href="/" className="row" style={{ gap: 12, color: "var(--dark-text)", textDecoration: "none" }}>
-          <ApexMark size={34} ink="#EDEFEA" ground="#17191A" accent="#C8FF3A" />
-          <span style={{ fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em" }}>Apex</span>
+          <ApexWordmark size={30} ink="#EDEFEA" />
         </Link>
         <div style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: 540 }}>
           <span className="mono" style={{ alignSelf: "flex-start", padding: "4px 10px", border: "1px solid var(--dark-line)", borderRadius: 4, fontSize: 12, color: "var(--accent-soft)" }}>

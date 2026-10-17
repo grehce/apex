@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { signIn, currentEmail } from "@/auth";
-import { ApexMark } from "@/components/Mark";
+import { ApexWordmark } from "@/components/Mark";
 
 export const metadata = { title: "Sign up / Log in" };
 
@@ -16,8 +16,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         style={{ flex: "1 1 520px", minWidth: 0, backgroundColor: "var(--dark)", color: "var(--dark-text)", padding: "clamp(24px, 6vw, 48px)", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 48, minHeight: "min(560px, 100vh)" }}
       >
         <div className="row">
-          <ApexMark size={34} ink="#EDEFEA" ground="#17191A" accent="#C8FF3A" />
-          <span style={{ fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em" }}>Apex</span>
+          <ApexWordmark size={30} ink="#EDEFEA" />
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 520 }}>
           <h1 style={{ fontSize: "clamp(36px, 9vw, 52px)", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1.02 }}>
