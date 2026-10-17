@@ -44,7 +44,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
             <span className="eyebrow">auth · google</span>
             <h2 id="si-h" style={{ fontSize: "clamp(28px, 7vw, 34px)", fontWeight: 700, letterSpacing: "-0.03em" }}>Sign up or log in</h2>
             <p style={{ margin: 0, color: "var(--ink-2)" }}>
-              One Google account does both — your first sign-in creates your Apex. Turn on 2-Step Verification in Google and it protects Apex too.
+              One Google account, protected by Google’s security.
             </p>
           </div>
 

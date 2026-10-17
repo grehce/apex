@@ -14,9 +14,9 @@ const QUOTES: { text: string; who: string; work: string }[] = [
 export function Quotes() {
   const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
   return (
-    <span style={{ fontFamily: "var(--sans)", textAlign: "right", maxWidth: 560 }}>
-      <em>{q.text}</em>
-      <span className="mono" style={{ fontSize: 11, marginLeft: 8, whiteSpace: "nowrap" }}>— {q.who}, <em>{q.work}</em></span>
+    <span className="quote-line" style={{ textAlign: "right" }}>
+      {q.text}
+      <span style={{ marginLeft: 8, whiteSpace: "nowrap" }}>— {q.who}, {q.work}</span>
     </span>
   );
 }

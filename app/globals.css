@@ -185,3 +185,6 @@ table.data tr:hover td { background: #fafaf8; }
   /* on phones the definition docks to the bottom of the screen so it never runs off the edge */
   .term-tip, .term-tip-r { position: fixed; left: 16px; right: 16px; bottom: 16px; top: auto; width: auto; max-width: none; font-size: 14px; padding: 12px 14px; }
 }
+
+/* Footer quote stays on one line wherever there's room */
+@media (min-width: 1000px) { .quote-line { white-space: nowrap; } }
