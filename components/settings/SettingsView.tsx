@@ -142,7 +142,7 @@ export function SettingsView({ items, sample, setup, plaidEnv, email, demo = fal
 
         <div className="banner dots">
           <span>
-            Accounts connect through <strong style={{ color: "var(--ink)" }}>Plaid</strong> with read-only access. Your bank login goes to Plaid and your bank — never to Apex. Access tokens are encrypted before they&apos;re stored.
+            Read-only through <strong style={{ color: "var(--ink)" }}>Plaid</strong> · your bank login never reaches Apex · tokens encrypted
           </span>
         </div>
 
