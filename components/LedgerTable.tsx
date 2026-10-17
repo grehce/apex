@@ -35,7 +35,7 @@ export function LedgerTable({ rows }: { rows: TxRow[] }) {
           <input value={q} onChange={(e) => { setQ(e.target.value); setLimit(50); }} placeholder="search merchant, category or account" style={{ flex: 1, minWidth: 0, border: 0, outline: "none", font: "inherit", background: "transparent" }} />
         </label>
         <label className="sr-only" htmlFor="cat">Category</label>
-        <select id="cat" value={cat} onChange={(e) => { setCat(e.target.value); setLimit(50); }} style={{ height: 44, padding: "0 10px", border: "1px solid var(--line-strong)", borderRadius: 4, background: "var(--field)", color: "var(--ink)", font: "inherit", fontSize: 14 }}>
+        <select id="cat" value={cat} onChange={(e) => { setCat(e.target.value); setLimit(50); }} className="select" style={{ height: 44, padding: "0 36px 0 12px", border: "1px solid var(--line-strong)", borderRadius: 4, backgroundColor: "var(--field)", color: "var(--ink)", font: "inherit", fontSize: 14 }}>
           <option value="">all categories</option>
           {cats.map((c) => <option key={c} value={c}>{prettyCategory(c)}</option>)}
         </select>
