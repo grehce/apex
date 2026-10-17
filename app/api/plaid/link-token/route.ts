@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { CountryCode, Products } from "plaid";
 import { guard } from "@/lib/api";
-import { plaid } from "@/lib/plaid";
+import { plaid, plaidEnv } from "@/lib/plaid";
 import { db } from "@/lib/db";
 import { decrypt } from "@/lib/crypto";
 import { plaidItems } from "@/lib/schema";
@@ -32,6 +32,9 @@ export async function POST(req: Request) {
     client_name: "Apex",
     language: "en",
     country_codes: [CountryCode.Us],
+    // Banks like Chase and Bank of America sign in on their own site, then send the user back here.
+    // Must exactly match a redirect URI registered in the Plaid Dashboard.
+    ...(plaidEnv() === "production" ? { redirect_uri: process.env.PLAID_REDIRECT_URI || `${new URL(req.url).origin}/oauth` } : {}),
     ...(accessToken
       ? { access_token: accessToken }
       : { products: [Products.Transactions], optional_products: [Products.Investments] }),

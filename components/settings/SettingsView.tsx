@@ -76,6 +76,8 @@ export function SettingsView({ items, sample, setup, plaidEnv, email, demo = fal
     try {
       const j = await post("/api/plaid/link-token", itemId ? { itemId } : {});
       setUpdateItem(itemId ?? null);
+      // Saved so Link can resume on /oauth after a bank's own sign-in page.
+      try { sessionStorage.setItem("apex.plaid.link", JSON.stringify({ token: j.linkToken, itemId: itemId ?? null })); } catch { /* ignore */ }
       setToken(j.linkToken);
     } catch (e) {
       setMsg({ kind: "err", text: (e as Error).message });
