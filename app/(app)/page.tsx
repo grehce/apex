@@ -10,7 +10,7 @@ import { HeatmapCard } from "@/components/overview/HeatmapCard";
 import { Board } from "@/components/overview/Board";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: { absolute: "Apex — a financial mind, on your side" }, alternates: { canonical: "/" } };
+export const metadata = { title: { absolute: "Apex — see everything, know your next move" }, alternates: { canonical: "/" } };
 
 // Structured data so search engines and AI assistants can describe Apex accurately.
 const JSON_LD = {

@@ -14,12 +14,12 @@ export function ValuePanel({ badge }: { badge?: string }) {
           <span className="mono" style={{ alignSelf: "flex-start", padding: "4px 10px", border: "1px solid var(--dark-line)", borderRadius: 4, fontSize: 12, color: "var(--accent-soft)" }}>● {badge}</span>
         )}
         <h1 style={{ fontSize: "clamp(36px, 9vw, 52px)", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1.02 }}>
-          A financial mind,
+          See everything.
           <br />
-          <span className="hl-dark">on your side.</span>
+          <span className="hl-dark">Know your next move.</span>
         </h1>
         <p style={{ margin: 0, fontSize: 18, color: "#B9C0BA" }}>
-          An expert agent fluent in tax, investing and trading. Clear views from your own accounts, paid for by you and no one else.
+          Apex connects all your accounts, and an expert agent tells you what to do next, tax math included. No kickbacks, ever.
         </p>
       </div>
       <div className="scan mono" style={{ backgroundColor: "#1F2321", border: "1px solid var(--dark-line)", borderRadius: "var(--r-card)", padding: "18px 20px", fontSize: 13, display: "flex", flexDirection: "column", gap: 8, maxWidth: 540 }}>

@@ -4,7 +4,7 @@ import { THEME_BOOT } from "@/lib/theme";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.apexfolios.com"),
-  title: { default: "Apex — a financial mind, on your side", template: "%s · Apex" },
+  title: { default: "Apex — see everything, know your next move", template: "%s · Apex" },
   description:
     "Apex is a personal finance agent fluent in tax, investing and trading. It reads your accounts read-only, shows your whole net worth, and proposes tax-aware plans. No commissions, no kickbacks. By invitation.",
   applicationName: "Apex",

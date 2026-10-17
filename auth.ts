@@ -29,7 +29,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // Every page is browsable signed out — visitors see the whole app on sample data.
       // Anything that touches real data (API routes) still requires a session.
       const PUBLIC = ["/robots.txt", "/sitemap.xml", "/llms.txt", "/opengraph-image.png", "/twitter-image.png", "/", "/signin", "/networth", "/portfolio", "/spending", "/ledger", "/agent", "/settings"];
-      const isPublic = PUBLIC.includes(pathname) || pathname === "/waitlist" || pathname.startsWith("/api/auth") || pathname === "/api/waitlist" || pathname.startsWith("/api/v1/"); // v1 checks its own API keys
+      const isPublic = PUBLIC.includes(pathname) || pathname === "/waitlist" || pathname.startsWith("/api/auth") || pathname === "/api/waitlist" || pathname.startsWith("/api/v1/") || pathname === "/api/agent/chat"; // these check auth themselves and reply 401 JSON
       if (isPublic) return true;
       return Boolean(auth?.user?.email);
     },
