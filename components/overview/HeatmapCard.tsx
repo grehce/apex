@@ -4,6 +4,9 @@ import type { HeatDay } from "@/lib/model";
 import { prettyCategory } from "@/lib/model";
 import { Scrolly } from "../Scrolly";
 
+const MAX_ROWS = 4;
+const ROW_H = 48;
+const ROWS_H = MAX_ROWS * ROW_H + 24;
 const LEVELS = ["var(--heat-0)", "var(--heat-1)", "var(--heat-2)", "var(--heat-3)", "var(--heat-4)"];
 const DOW = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 const DOW_LONG = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -37,7 +40,7 @@ export function HeatmapCard({ days }: { days: HeatDay[] }) {
   const ratio = avg > 0 ? d.amount / avg : 0;
   const vsAvg =
     d.amount === 0 ? "no spending" : ratio >= 1.15 ? `${ratio.toFixed(1)}× your daily average` : ratio <= 0.85 ? `${Math.round((1 - ratio) * 100)}% below average` : "about average";
-  const shown = d.items.slice(0, 4);
+  const shown = d.items.slice(0, MAX_ROWS);
   const more = d.items.length - shown.length;
 
   return (
@@ -85,19 +88,18 @@ export function HeatmapCard({ days }: { days: HeatDay[] }) {
       </div>
 
       <div key={d.day} className="dots inner anim-in" aria-live="polite" style={{ display: "flex", flexDirection: "column", gap: 10, animationDuration: "220ms" }}>
-        <div className="row between" style={{ alignItems: "baseline" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <span className="eyebrow">{DOW_LONG[dt.getDay()]} · {MON[dt.getMonth()]} {dt.getDate()}</span>
-            <span className="num" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em" }}>{money(d.amount)}</span>
-          </div>
-          <span className="mono" style={{ fontSize: 12, color: ratio >= 1.5 ? "var(--warn)" : "var(--ink-2)" }}>{vsAvg}</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <span className="eyebrow">{DOW_LONG[dt.getDay()]} · {MON[dt.getMonth()]} {dt.getDate()}</span>
+          <span className="num" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.2 }}>{money(d.amount)}</span>
+          <span className="mono" style={{ fontSize: 12, lineHeight: "18px", height: 18, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: ratio >= 1.5 ? "var(--warn)" : "var(--ink-2)" }}>{vsAvg}</span>
         </div>
+        {/* Fixed height (4 rows + the "+n more" line) so hovering never resizes the card. */}
         {d.amount === 0 ? (
-          <span className="muted" style={{ fontSize: 14 }}>A no-spend day. Nice.</span>
+          <div style={{ height: ROWS_H }}><span className="muted" style={{ fontSize: 14 }}>A no-spend day. Nice.</span></div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", flexDirection: "column", height: ROWS_H, overflow: "hidden" }}>
             {shown.map((t, i) => (
-              <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center", padding: "7px 0", borderTop: "1px dashed var(--line-dash)" }}>
+              <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center", height: ROW_H, flex: "none", borderTop: "1px dashed var(--line-dash)" }}>
                 <div style={{ minWidth: 0 }}>
                   <Scrolly text={t.name} style={{ fontSize: 14, fontWeight: 500 }} />
                   <Scrolly text={prettyCategory(t.category)} className="mono muted" style={{ fontSize: 11 }} />
@@ -105,7 +107,7 @@ export function HeatmapCard({ days }: { days: HeatDay[] }) {
                 <span className="mono num" style={{ fontSize: 13 }}>{money(t.amount)}</span>
               </div>
             ))}
-            {more > 0 && <span className="mono muted" style={{ fontSize: 11, paddingTop: 6 }}>+{more} more</span>}
+            {more > 0 && <span className="mono muted" style={{ fontSize: 11, lineHeight: "20px", paddingTop: 4 }}>+{more} more</span>}
           </div>
         )}
         <span className="mono muted" style={{ fontSize: 11 }}>{hover !== null ? "hovering · click to pin" : "hover a day to see it here"}</span>
