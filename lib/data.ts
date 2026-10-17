@@ -190,6 +190,11 @@ export function build(inp: Inputs, sample: boolean, setup: Dashboard["setup"]): 
     { q: "income where month=last | sum", value: money(-income.reduce((s, t) => s + t.amount, 0)), sub: `${income.length} deposits categorized as income` },
     { q: "spend | group cat | top 1", value: top ? top.name : "—", sub: top ? `${money(top.thisMonth)} this month · ${money(top.lastMonth)} last month` : "no spending yet" },
     { q: `networth --since ${first?.day ?? ymd(today)}`, value: (delta >= 0 ? "+" : "") + money(delta, 0), sub: `${snaps.length} daily snapshots recorded` },
+    { q: "networth", value: money(netWorth, 0), sub: `across ${included.length} accounts` },
+    { q: "spend where month=last | sum", value: money(spend.filter((t) => monthKey(t.date) === lastM).reduce((s, t) => s + t.amount, 0)), sub: "all of last month" },
+    { q: "spend | avg per day", value: money(heat.reduce((s, h) => s + h.amount, 0) / heat.length), sub: "over the last 13 weeks" },
+    { q: "invested | sum", value: money(invested, 0), sub: `${inp.holdings.length} positions` },
+    { q: "cash | sum", value: money(byClass.get("Cash") ?? 0, 0), sub: "cash and cash-like holdings" },
   ];
 
   return {
