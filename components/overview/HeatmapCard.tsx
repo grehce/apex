@@ -52,7 +52,8 @@ export function HeatmapCard({ days }: { days: HeatDay[] }) {
         <span className="mono muted" style={{ fontSize: 12 }}>avg ${Math.round(avg)}/day · last 13 weeks</span>
       </div>
 
-      <div style={{ display: "flex", gap: 8, overflowX: "auto" }}>
+      {/* 4px of padding (cancelled by the negative margin) so the selection ring isn't clipped by the scroll box */}
+      <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: 4, margin: -4 }}>
         <div aria-hidden="true" className="mono muted" style={{ display: "grid", gridTemplateRows: "repeat(7, 16px)", gap: 4, fontSize: 10, lineHeight: "16px" }}>
           <span>sun</span><span /><span>tue</span><span /><span>thu</span><span /><span>sat</span>
         </div>
