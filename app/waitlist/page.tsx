@@ -5,7 +5,7 @@ import { dbConfigured } from "@/lib/db";
 import { totalWaiting } from "@/lib/waitlist";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Join the waitlist" };
+export const metadata = { title: "Request an invitation" };
 
 export default async function WaitlistPage({ searchParams }: { searchParams: Promise<{ ref?: string; denied?: string }> }) {
   const { ref, denied } = await searchParams;
@@ -16,12 +16,12 @@ export default async function WaitlistPage({ searchParams }: { searchParams: Pro
     <div style={{ minHeight: "100vh", display: "flex", flexWrap: "wrap" }}>
       <section className="dots-dark" aria-label="About Apex" style={{ flex: "1 1 520px", minWidth: 0, backgroundColor: "var(--dark)", color: "var(--dark-text)", padding: "clamp(24px, 6vw, 48px)", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 40, minHeight: "min(600px, 100vh)" }}>
         <Link href="/" className="row" style={{ gap: 12, color: "var(--dark-text)", textDecoration: "none" }}>
-          <ApexMark size={34} ink="#EDEFEA" ground="#17191A" accent="#FF3E9A" />
+          <ApexMark size={34} ink="#EDEFEA" ground="#17191A" accent="#FFB21E" />
           <span style={{ fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em" }}>Apex</span>
         </Link>
         <div style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: 540 }}>
           <span className="mono" style={{ alignSelf: "flex-start", padding: "4px 10px", border: "1px solid var(--dark-line)", borderRadius: 4, fontSize: 12, color: "var(--accent-soft)" }}>
-            ● invite-only{total >= 25 ? ` · ${total.toLocaleString("en-US")} people waiting` : ""}
+            ● by invitation{total >= 25 ? ` · ${total.toLocaleString("en-US")} people waiting` : ""}
           </span>
           <h1 style={{ fontSize: "clamp(36px, 9vw, 52px)", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1.02 }}>
             Your money,
@@ -29,7 +29,7 @@ export default async function WaitlistPage({ searchParams }: { searchParams: Pro
             <span className="hl-dark">finally legible.</span>
           </h1>
           <p style={{ margin: 0, fontSize: 18, color: "#B9C0BA" }}>
-            We&apos;re opening Apex in small batches. Each round fills from the list — and the people who bring friends go first.
+            We&apos;re welcoming members in small groups. Each one is drawn from the list, and those who bring others are welcomed first.
           </p>
         </div>
         <div className="scan mono" style={{ backgroundColor: "#1F2321", border: "1px solid var(--dark-line)", borderRadius: "var(--r-card)", padding: "18px 20px", fontSize: 13, display: "flex", flexDirection: "column", gap: 8, maxWidth: 540 }}>
@@ -45,14 +45,14 @@ export default async function WaitlistPage({ searchParams }: { searchParams: Pro
         <div className="anim-in" style={{ width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", gap: 22 }}>
           <Link href="/" className="back">← back to apex</Link>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <span className="eyebrow">waitlist · invite-only</span>
-            <h2 id="wl-h" style={{ fontSize: "clamp(28px, 7vw, 34px)", fontWeight: 700, letterSpacing: "-0.03em" }}>Claim your seat</h2>
+            <span className="eyebrow">by invitation</span>
+            <h2 id="wl-h" style={{ fontSize: "clamp(28px, 7vw, 34px)", fontWeight: 700, letterSpacing: "-0.03em" }}>Request an invitation</h2>
             {denied ? (
-              <p style={{ margin: 0, color: "var(--ink-2)" }}>That Google account isn&apos;t on the guest list — yet. Claim a seat now and you&apos;ll be first in line when the next batch opens.</p>
+              <p style={{ margin: 0, color: "var(--ink-2)" }}>This Google account isn&apos;t on the guest list yet. Request an invitation and you&apos;ll be among the first considered when we welcome the next group.</p>
             ) : referral ? (
-              <p style={{ margin: 0, color: "var(--ink-2)" }}>You&apos;ve been personally invited to skip ahead. Claim your seat and you both move up the line.</p>
+              <p style={{ margin: 0, color: "var(--ink-2)" }}>Someone already on the list asked us to save you a place. Requests made through a friend are welcomed sooner — for both of you.</p>
             ) : (
-              <p style={{ margin: 0, color: "var(--ink-2)" }}>Apex lets people in a few at a time, and seats go to the list first. Every friend you bring bumps you up. Already invited? <Link href="/signin">Log in</Link>.</p>
+              <p style={{ margin: 0, color: "var(--ink-2)" }}>Apex opens quietly, a small group at a time. Invitations go to the list first, and to those who bring good company sooner. Already a member? <Link href="/signin">Log in</Link>.</p>
             )}
           </div>
           <WaitlistForm referral={referral} />

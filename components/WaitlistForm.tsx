@@ -68,9 +68,9 @@ export function WaitlistForm({ referral }: { referral: string | null }) {
       <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: "absolute", left: -9999, width: 1, height: 1, opacity: 0 }} />
       {err && <div role="alert" className="banner" style={{ background: "var(--warn-tint)", color: "var(--warn)" }}>{err}</div>}
       <button type="submit" className="btn btn-primary" disabled={busy} style={{ height: 52, fontSize: 16 }}>
-        {busy ? "Claiming your seat…" : "Claim my seat"}
+        {busy ? "Requesting…" : "Request an invitation"}
       </button>
-      <p className="muted" style={{ margin: 0, fontSize: 13 }}>We&apos;ll only email you about your invite.</p>
+      <p className="muted" style={{ margin: 0, fontSize: 13 }}>We&apos;ll only write to you about your invitation.</p>
     </form>
   );
 }
@@ -82,20 +82,20 @@ function Spot({ s, copied, setCopied, onReset }: { s: Status; copied: boolean; s
     try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* ignore */ }
   }
   async function share() {
-    try { await navigator.share({ title: "Apex", text: "I'm on the Apex waitlist — join with my link and we both move up.", url: link }); } catch { /* dismissed */ }
+    try { await navigator.share({ title: "Apex", text: "I'm on the list for Apex. Request an invitation through my link and we both move up.", url: link }); } catch { /* dismissed */ }
   }
   return (
     <div className="anim-in" style={{ display: "flex", flexDirection: "column", gap: 18 }} aria-live="polite">
       <div className="dots inner" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <span className="eyebrow">your spot</span>
+        <span className="eyebrow">your place on the list</span>
         <span className="num hl" style={{ alignSelf: "flex-start", fontSize: "clamp(48px, 13vw, 64px)", fontWeight: 700, letterSpacing: "-0.045em", lineHeight: 1 }}>#{Math.max(1, Math.round(pos))}</span>
         <span className="mono muted" style={{ fontSize: 12 }}>
           of {s.total} waiting · {s.referrals} friend{s.referrals === 1 ? "" : "s"} joined with your link
         </span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <strong>Skip the line</strong>
-        <span style={{ color: "var(--ink-2)", fontSize: 14 }}>Every friend who joins with your link moves you up {PER_REF} spots.</span>
+        <strong>Move up the list</strong>
+        <span style={{ color: "var(--ink-2)", fontSize: 14 }}>Each person who requests an invitation through your link moves you up {PER_REF} places.</span>
         <div className="row" style={{ gap: 8, flexWrap: "nowrap" }}>
           <code className="mono" style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", padding: "12px 14px", border: "1px dashed #C9CDC8", borderRadius: 4, fontSize: 13, background: "#fff" }}>{link}</code>
           <button type="button" className="btn" onClick={copy}>{copied ? "Copied ✓" : "Copy"}</button>
