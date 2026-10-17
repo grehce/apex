@@ -14,10 +14,39 @@ type Props = {
   recommended: Plan["key"];
 };
 
-export function AgentView({ trace, summary, now, targets, plans, recommended }: Props) {
+/** Requests you can pick. Each maps to the plan that best fits it. */
+const GOALS: { id: string; chip: string; ask: string; plan: Plan["key"] | "rec" }[] = [
+  { id: "tax", chip: "keep taxes low", ask: "Rebalance toward my targets, but keep taxes as low as possible.", plan: "rec" },
+  { id: "nosell", chip: "don't sell anything", ask: "Get me closer to my targets without selling anything.", plan: "A" },
+  { id: "exact", chip: "hit targets exactly", ask: "Put me exactly on my targets, even if it costs some tax.", plan: "C" },
+];
+
+function money(n: number) {
+  return `$${Math.round(n).toLocaleString("en-US")}`;
+}
+
+export function AgentView({ trace: baseTrace, summary: baseSummary, now, targets, plans, recommended }: Props) {
+  const [goal, setGoal] = useState(GOALS[0].id);
+  const g = GOALS.find((x) => x.id === goal)!;
+  const goalPlan = plans.find((p) => p.key === (g.plan === "rec" ? recommended : g.plan))!;
+  // Same analysis steps; the last step and the summary follow the chosen request.
+  const trace: [string, string, string][] = [...baseTrace.slice(0, -1), ["done", "recommend", `plan ${goalPlan.key} · ${goalPlan.name.toLowerCase()}`]];
+  const summary =
+    g.plan === "rec"
+      ? baseSummary
+      : goalPlan.trades.length === 0
+        ? "You're already within target, so there's nothing to do."
+        : `Plan ${goalPlan.key} (${goalPlan.name.toLowerCase()}) ${goalPlan.key === "A" ? `sends new contributions where you're short and sells nothing, so it adds no tax. It leaves you within ${goalPlan.maxDrift.toFixed(1)}% of target until the new money catches up.` : `puts every class within ${goalPlan.maxDrift.toFixed(1)}% of target now${goalPlan.realizedGain ? `, with about ${money(goalPlan.realizedGain)} of taxable gains` : goalPlan.realizedGain === 0 ? " with no taxable gains" : ""}.`}`;
   const [shown, setShown] = useState(0);
   const [run, setRun] = useState(0);
   const [key, setKey] = useState<Plan["key"]>(recommended);
+  function pick(id: string) {
+    const next = GOALS.find((x) => x.id === id)!;
+    setGoal(id);
+    setKey(next.plan === "rec" ? recommended : next.plan);
+    setCopied(false);
+    setRun((r) => r + 1);
+  }
   const [copied, setCopied] = useState(false);
   const done = shown >= trace.length;
   const plan = plans.find((p) => p.key === key)!;
@@ -40,8 +69,16 @@ export function AgentView({ trace, summary, now, targets, plans, recommended }: 
   return (
     <div className="row" style={{ alignItems: "flex-start", gap: 20 }}>
       <section aria-label="Agent" className="card" style={{ flex: "1 1 520px", minWidth: 0, padding: 24 }}>
-        <div style={{ alignSelf: "flex-end", maxWidth: "80%", background: "var(--tip-bg)", color: "var(--dark-text)", padding: "12px 16px", borderRadius: "10px 10px 2px 10px" }}>
-          Rebalance toward my targets, but keep taxes as low as possible.
+        <div style={{ alignSelf: "flex-end", maxWidth: "80%", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+          <div key={goal} className="fade-soft" style={{ background: "var(--tip-bg)", color: "var(--dark-text)", padding: "12px 16px", borderRadius: "10px 10px 2px 10px" }}>
+            {g.ask}
+          </div>
+          <div role="group" aria-label="Pick a request" className="row" style={{ gap: 6, justifyContent: "flex-end" }}>
+            <span className="mono muted" style={{ fontSize: 11 }}>ask apex:</span>
+            {GOALS.map((x) => (
+              <button key={x.id} type="button" className="chip" aria-pressed={goal === x.id} onClick={() => pick(x.id)} style={{ minHeight: 30 }}>{x.chip}</button>
+            ))}
+          </div>
         </div>
         <div className="row" style={{ alignItems: "flex-start", gap: 12, flexWrap: "nowrap" }}>
           <span style={{ flex: "none", marginTop: 2 }}><ApexMark /></span>
@@ -63,7 +100,7 @@ export function AgentView({ trace, summary, now, targets, plans, recommended }: 
           </div>
         </div>
         <p className="muted" style={{ margin: 0, fontSize: 13, borderTop: "1px dashed var(--line-dash)", paddingTop: 14 }}>
-          Plans are calculated from your synced holdings and default targets. Conversational follow-ups are the next iteration.
+          Pick a request above and the agent re-runs. Plans are calculated from your synced holdings and default targets. Typing your own questions comes next.
         </p>
       </section>
 
