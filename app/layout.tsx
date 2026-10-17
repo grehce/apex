@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     title: "Apex — a financial mind, on your side",
     description: "A personal finance agent fluent in tax, investing and trading. Read-only, no kickbacks, by invitation.",
   },
-  twitter: { card: "summary", title: "Apex — a financial mind, on your side", description: "A personal finance agent fluent in tax, investing and trading. Read-only, no kickbacks, by invitation." },
+  twitter: { card: "summary_large_image", title: "Apex — a financial mind, on your side", description: "A personal finance agent fluent in tax, investing and trading. Read-only, no kickbacks, by invitation." },
   robots: { index: true, follow: true },
   other: { "color-scheme": "light dark" },
 };
