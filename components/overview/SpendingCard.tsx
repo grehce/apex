@@ -40,7 +40,7 @@ export function SpendingCard({ rows, dayOfMonth, daysInMonth }: { rows: Row[]; d
           })}
         </div>
       )}
-      <p className="note">This month vs. all of last month. The tick marks how far through the month we are.</p>
+      <p className="note" style={{ marginTop: 20 }}>This month vs. all of last month. The tick marks how far through the month we are.</p>
     </section>
   );
 }
