@@ -79,7 +79,7 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.02em; }
 .tile:hover .tile-tools, .tile:focus-within .tile-tools { opacity: 1; }
 .tile-tools a, .tile-tools button { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 8px; border: 0; border-radius: 3px; background: transparent; font-family: var(--mono); font-size: 12px; color: var(--ink-2); text-decoration: none; cursor: pointer; }
 .tile-tools a:hover, .tile-tools button:hover { background: #eff0ec; color: var(--ink); }
-.tile-tools .grip { cursor: grab; }
+.tile-tools .grip { cursor: grab; touch-action: none; }
 .tile-tools .grip:active { cursor: grabbing; }
 @media (hover: none) { .tile-tools { opacity: 1; } }
 

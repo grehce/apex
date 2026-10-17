@@ -16,7 +16,6 @@ export function Board({ tiles }: { tiles: Tile[] }) {
   const ids = tiles.map((t) => t.id);
   const [order, setOrder] = useState<string[]>(ids);
   const [dragId, setDragId] = useState<string | null>(null);
-  const [armed, setArmed] = useState<string | null>(null);
   const [over, setOver] = useState<string | null>(null);
   const [announce, setAnnounce] = useState("");
 
@@ -59,30 +58,9 @@ export function Board({ tiles }: { tiles: Tile[] }) {
           return (
             <div
               key={id}
-              className={`tile${dragId === id ? " dragging" : ""}${over === id && dragId && dragId !== id ? " drop-target" : ""}`}
+              className={`tile${dragId === id && over ? " dragging" : ""}${over === id && dragId && dragId !== id ? " drop-target" : ""}`}
               style={t.wide ? { gridColumn: "1 / -1" } : undefined}
-              draggable={armed === id}
-              onDragStart={(e) => {
-                setDragId(id);
-                e.dataTransfer.effectAllowed = "move";
-                e.dataTransfer.setData("text/plain", id);
-              }}
-              onDragOver={(e) => {
-                if (!dragId || dragId === id) return;
-                e.preventDefault();
-                setOver(id);
-              }}
-              onDragLeave={() => setOver((o) => (o === id ? null : o))}
-              onDrop={(e) => {
-                e.preventDefault();
-                if (dragId && dragId !== id) move(dragId, order.indexOf(id));
-                setOver(null);
-              }}
-              onDragEnd={() => {
-                setDragId(null);
-                setArmed(null);
-                setOver(null);
-              }}
+              data-tile={id}
               onClick={(e) => {
                 const el = e.target as HTMLElement;
                 if (el.closest("button, a, input, select, label, [role='switch'], [role='group'], [role='tooltip']")) return;
@@ -95,9 +73,28 @@ export function Board({ tiles }: { tiles: Tile[] }) {
                   className="grip"
                   aria-label={`Move ${t.title}. Use arrow keys to reorder.`}
                   title="Drag to rearrange"
-                  onMouseDown={() => setArmed(id)}
-                  onMouseUp={() => setArmed(null)}
-                  onTouchStart={() => setArmed(id)}
+                  onPointerDown={(e) => {
+                    // Pointer-based drag (mouse, pen, touch): follow the pointer, drop on the tile beneath it.
+                    e.preventDefault();
+                    e.currentTarget.setPointerCapture?.(e.pointerId);
+                    setDragId(id);
+                  }}
+                  onPointerMove={(e) => {
+                    if (dragId !== id) return;
+                    const under = document.elementFromPoint(e.clientX, e.clientY)?.closest("[data-tile]") as HTMLElement | null;
+                    const target = under?.dataset.tile ?? null;
+                    setOver(target && target !== id ? target : null);
+                  }}
+                  onPointerUp={() => {
+                    if (dragId === id && over) {
+                      move(id, order.indexOf(over));
+                      setAnnounce(`${t.title} moved`);
+                    }
+                    setDragId(null);
+                    setOver(null);
+                  }}
+                  onPointerCancel={() => { setDragId(null); setOver(null); }}
+                  onClick={(e) => e.stopPropagation()}
                   onKeyDown={(e) => {
                     if (["ArrowLeft", "ArrowUp"].includes(e.key) && idx > 0) {
                       e.preventDefault();
