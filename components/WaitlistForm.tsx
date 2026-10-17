@@ -68,7 +68,7 @@ export function WaitlistForm({ referral }: { referral: string | null }) {
       <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: "absolute", left: -9999, width: 1, height: 1, opacity: 0 }} />
       {err && <div role="alert" className="banner" style={{ background: "var(--warn-tint)", color: "var(--warn)" }}>{err}</div>}
       <button type="submit" className="btn btn-primary" disabled={busy} style={{ height: 52, fontSize: 16 }}>
-        {busy ? "Saving your spot…" : "Save my spot"}
+        {busy ? "Claiming your seat…" : "Claim my seat"}
       </button>
       <p className="muted" style={{ margin: 0, fontSize: 13 }}>We&apos;ll only email you about your invite. No spam, no selling your info.</p>
     </form>

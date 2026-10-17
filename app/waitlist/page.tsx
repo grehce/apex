@@ -29,7 +29,7 @@ export default async function WaitlistPage({ searchParams }: { searchParams: Pro
             <span className="hl-dark">finally legible.</span>
           </h1>
           <p style={{ margin: 0, fontSize: 18, color: "#B9C0BA" }}>
-            Apex is opening a few seats at a time while we tune it. Grab yours before the next batch goes out.
+            We&apos;re opening Apex in small batches. Each round fills from the list — and the people who bring friends go first.
           </p>
         </div>
         <div className="scan mono" style={{ backgroundColor: "#1F2321", border: "1px solid var(--dark-line)", borderRadius: "var(--r-card)", padding: "18px 20px", fontSize: 13, display: "flex", flexDirection: "column", gap: 8, maxWidth: 540 }}>
@@ -45,14 +45,14 @@ export default async function WaitlistPage({ searchParams }: { searchParams: Pro
         <div className="anim-in" style={{ width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", gap: 22 }}>
           <Link href="/" className="back">← back to the demo</Link>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <span className="eyebrow">waitlist</span>
-            <h2 id="wl-h" style={{ fontSize: "clamp(28px, 7vw, 34px)", fontWeight: 700, letterSpacing: "-0.03em" }}>Save your spot</h2>
+            <span className="eyebrow">waitlist · invite-only</span>
+            <h2 id="wl-h" style={{ fontSize: "clamp(28px, 7vw, 34px)", fontWeight: 700, letterSpacing: "-0.03em" }}>Claim your seat</h2>
             {denied ? (
-              <p style={{ margin: 0, color: "var(--ink-2)" }}>That Google account isn&apos;t on the invite list yet. Leave your details and you&apos;ll hear first when a seat opens.</p>
+              <p style={{ margin: 0, color: "var(--ink-2)" }}>That Google account isn&apos;t on the guest list — yet. Claim a seat now and you&apos;ll be first in line when the next batch opens.</p>
             ) : referral ? (
-              <p style={{ margin: 0, color: "var(--ink-2)" }}>A friend saved you a seat — joining with their link moves you both up.</p>
+              <p style={{ margin: 0, color: "var(--ink-2)" }}>You&apos;ve been personally invited to skip ahead. Claim your seat and you both move up the line.</p>
             ) : (
-              <p style={{ margin: 0, color: "var(--ink-2)" }}>Leave your details and you&apos;ll hear first when a seat opens. Already invited? <Link href="/signin">Log in</Link>.</p>
+              <p style={{ margin: 0, color: "var(--ink-2)" }}>Apex lets people in a few at a time, and seats go to the list first. Every friend you bring bumps you up. Already invited? <Link href="/signin">Log in</Link>.</p>
             )}
           </div>
           <WaitlistForm referral={referral} />

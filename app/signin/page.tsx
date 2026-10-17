@@ -63,7 +63,14 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
               await signIn("google", { redirectTo: "/" });
             }}
           >
-            <button type="submit" className="btn" style={{ width: "100%", height: 52, fontSize: 16, background: "#fff" }}>
+            {/* Per Google's Sign in with Google branding guidelines (light theme): white fill, 1px #747775 stroke,
+                #1F1F1F Google Sans Medium 14/20, standard-color G (official asset, not redrawn), 12/10/12 padding. */}
+            <button
+              type="submit"
+              style={{ width: "100%", height: 44, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "0 12px", background: "#FFFFFF", border: "1px solid #747775", borderRadius: 4, color: "#1F1F1F", fontFamily: "'Google Sans', Roboto, Arial, sans-serif", fontWeight: 500, fontSize: 14, lineHeight: "20px", cursor: "pointer" }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="https://developers.google.com/static/identity/images/g-logo.png" alt="" width={20} height={20} />
               Continue with Google
             </button>
           </form>
