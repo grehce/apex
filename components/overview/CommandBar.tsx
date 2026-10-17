@@ -36,7 +36,7 @@ export function CommandBar({ answers }: { answers: Answer[] }) {
       <div className="row" aria-live="polite" style={{ alignItems: "baseline", gap: "6px 16px", padding: "0 4px", minHeight: 44, opacity: done ? 1 : 0, transition: "opacity 300ms" }}>
         <span className="sr-only">{a.q}:</span>
         <span style={{ color: "var(--dark-muted)" }}>→</span>
-        <span className="num" style={{ fontFamily: "var(--sans)", fontSize: 34, fontWeight: 700, letterSpacing: "-0.03em" }}>{a.value}</span>
+        <span className="num" style={{ fontFamily: "var(--sans)", fontSize: "clamp(26px, 7vw, 34px)", fontWeight: 700, letterSpacing: "-0.03em" }}>{a.value}</span>
         <span style={{ color: "#B9C0BA", fontSize: 13 }}>{a.sub}</span>
       </div>
       <div className="row" role="group" aria-label="Pick a question" style={{ gap: 8 }}>

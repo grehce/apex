@@ -13,17 +13,17 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
       <section
         className="dots-dark"
         aria-label="About Apex"
-        style={{ flex: "1 1 520px", minWidth: 0, backgroundColor: "var(--dark)", color: "var(--dark-text)", padding: 48, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 48, minHeight: 560 }}
+        style={{ flex: "1 1 520px", minWidth: 0, backgroundColor: "var(--dark)", color: "var(--dark-text)", padding: "clamp(24px, 6vw, 48px)", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 48, minHeight: "min(560px, 100vh)" }}
       >
         <div className="row">
-          <ApexMark size={34} ink="#EDEFEA" ground="#17191A" accent="#B5D6A7" />
+          <ApexMark size={34} ink="#EDEFEA" ground="#17191A" accent="#E2FF3D" />
           <span style={{ fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em" }}>Apex</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 520 }}>
-          <h1 style={{ fontSize: 52, fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1.02 }}>
+          <h1 style={{ fontSize: "clamp(36px, 9vw, 52px)", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1.02 }}>
             Every account.
             <br />
-            One clear view.
+            <span className="hl-dark">One clear view.</span>
           </h1>
           <p style={{ margin: 0, fontSize: 18, color: "#B9C0BA" }}>
             Net worth, spending and portfolio in one place — with an agent that proposes, and you decide.
@@ -38,12 +38,12 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         </div>
       </section>
 
-      <section aria-labelledby="si-h" style={{ flex: "1 1 460px", minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "48px 28px" }}>
+      <section aria-labelledby="si-h" style={{ flex: "1 1 460px", minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(28px, 6vw, 48px) 20px" }}>
         <div className="anim-in" style={{ width: "100%", maxWidth: 400, display: "flex", flexDirection: "column", gap: 24 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <a href="/" className="back">← back to the demo</a>
             <span className="eyebrow">auth · google</span>
-            <h2 id="si-h" style={{ fontSize: 34, fontWeight: 700, letterSpacing: "-0.03em" }}>Sign up or log in</h2>
+            <h2 id="si-h" style={{ fontSize: "clamp(28px, 7vw, 34px)", fontWeight: 700, letterSpacing: "-0.03em" }}>Sign up or log in</h2>
             <p style={{ margin: 0, color: "var(--ink-2)" }}>
               One Google account does both — your first sign-in creates your Apex. Turn on 2-Step Verification in Google and it protects Apex too.
             </p>

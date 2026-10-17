@@ -88,7 +88,7 @@ function Spot({ s, copied, setCopied, onReset }: { s: Status; copied: boolean; s
     <div className="anim-in" style={{ display: "flex", flexDirection: "column", gap: 18 }} aria-live="polite">
       <div className="dots inner" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <span className="eyebrow">your spot</span>
-        <span className="num" style={{ fontSize: 64, fontWeight: 700, letterSpacing: "-0.045em", lineHeight: 1 }}>#{Math.max(1, Math.round(pos))}</span>
+        <span className="num hl" style={{ alignSelf: "flex-start", fontSize: "clamp(48px, 13vw, 64px)", fontWeight: 700, letterSpacing: "-0.045em", lineHeight: 1 }}>#{Math.max(1, Math.round(pos))}</span>
         <span className="mono muted" style={{ fontSize: 12 }}>
           of {s.total} waiting · {s.referrals} friend{s.referrals === 1 ? "" : "s"} joined with your link
         </span>

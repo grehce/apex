@@ -1,4 +1,4 @@
-export function ApexMark({ size = 28, ink = "#17191A", ground = "#F4F4F2", accent = "#3D5A4C" }: {
+export function ApexMark({ size = 28, ink = "#17191A", ground = "#F4F4F2", accent = "#E2FF3D" }: {
   size?: number;
   ink?: string;
   ground?: string;
@@ -8,7 +8,8 @@ export function ApexMark({ size = 28, ink = "#17191A", ground = "#F4F4F2", accen
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
       <path d="M24 5L45 43H3Z" fill={ink} />
       <path d="M24 27L32 43H16Z" fill={ground} />
-      <circle cx="24" cy="13" r="3.5" fill={accent} />
+      {/* neon dot: the one spot of brand highlight */}
+      <circle cx="24" cy="13" r="4" fill={accent} />
     </svg>
   );
 }

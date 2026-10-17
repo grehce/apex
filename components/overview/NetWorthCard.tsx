@@ -27,9 +27,9 @@ export function NetWorthCard({ netWorth, series, historyDays }: { netWorth: numb
       <div className="row between" style={{ alignItems: "flex-end", gap: 20 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <span id="nw-h" className="eyebrow">net_worth</span>
-          <div aria-live="polite" className="num" style={{ fontSize: 68, fontWeight: 700, letterSpacing: "-0.045em", lineHeight: 1 }}>
+          <div aria-live="polite" className="num" style={{ fontSize: "clamp(40px, 11vw, 68px)", fontWeight: 700, letterSpacing: "-0.045em", lineHeight: 1 }}>
             {disp < 0 ? "−" : ""}${money.slice(0, dot)}
-            <span className="mono" style={{ fontSize: 32, fontWeight: 500, letterSpacing: "-0.02em", color: "#A3A8A3" }}>{money.slice(dot)}</span>
+            <span className="mono" style={{ fontSize: "clamp(20px, 5vw, 32px)", fontWeight: 500, letterSpacing: "-0.02em", color: "#A3A8A3" }}>{money.slice(dot)}</span>
           </div>
           <span className="pill" style={{ alignSelf: "flex-start", background: up ? "var(--accent-tint)" : "var(--warn-tint)", color: up ? "var(--accent-ink)" : "var(--warn)" }}>
             {up ? "▲ +" : "▼ −"}${Math.abs(delta).toLocaleString("en-US", { maximumFractionDigits: 0 })} {up ? "+" : ""}{pct.toFixed(1)}% {range.toLowerCase()}

@@ -119,7 +119,7 @@ export function Board({ tiles }: { tiles: Tile[] }) {
           );
         })}
       </div>
-      <div className="row between mono muted" style={{ fontSize: 11, marginTop: -8 }}>
+      <div className="row mono muted" style={{ fontSize: 11, marginTop: -8, justifyContent: "center", gap: 12 }}>
         <span aria-live="polite">{announce || "drag ⠿ to rearrange · click a card for details"}</span>
         {!isDefault && (
           <button type="button" className="chip" style={{ minHeight: 28 }} onClick={() => save(ids)}>

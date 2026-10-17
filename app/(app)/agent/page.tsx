@@ -44,7 +44,7 @@ export default async function AgentPage() {
       <div className="row between" style={{ alignItems: "flex-end" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <span className="eyebrow">agent · portfolio</span>
-          <h1 style={{ fontSize: 40, fontWeight: 700, letterSpacing: "-0.035em", lineHeight: 1.05 }}>Apex Agent</h1>
+          <h1 style={{ fontSize: "clamp(30px, 8vw, 40px)", fontWeight: 700, letterSpacing: "-0.035em", lineHeight: 1.05 }}>Apex Agent</h1>
         </div>
         <div className="row mono" style={{ gap: 8, fontSize: 12 }}>
           <span style={{ padding: "6px 10px", borderRadius: 4, background: "var(--accent-tint)", color: "var(--accent-ink)" }}>reads · {d.items.length} institutions</span>

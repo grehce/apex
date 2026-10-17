@@ -80,7 +80,7 @@ export function AgentView({ trace, summary, now, targets, plans, recommended }: 
         <div key={key} className="anim-in" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div className="row" style={{ alignItems: "baseline", gap: 10 }}>
             <span style={{ fontSize: 19, fontWeight: 700 }}>Plan {plan.key} · {plan.name}</span>
-            {plan.key === recommended && <span className="mono" style={{ padding: "3px 8px", borderRadius: 4, background: "var(--accent)", color: "#fff", fontSize: 11 }}>recommended</span>}
+            {plan.key === recommended && <span className="mono" style={{ padding: "3px 8px", borderRadius: 4, background: "var(--neon)", color: "var(--ink)", fontSize: 11, fontWeight: 600 }}>recommended</span>}
           </div>
           <p className="muted" style={{ margin: 0, fontSize: 14, color: "var(--ink-2)" }}>{plan.desc}</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>

@@ -26,7 +26,7 @@ export function SpendingCard({ rows, dayOfMonth, daysInMonth }: { rows: Row[]; d
             const over = r.p > 100;
             const hot = !over && r.p > pace * 1.4;
             return (
-              <div key={r.name} style={{ display: "grid", gridTemplateColumns: "minmax(0,130px) 1fr 120px", alignItems: "center", gap: 14 }}>
+              <div key={r.name} style={{ display: "grid", gridTemplateColumns: "minmax(0,120px) minmax(48px,1fr) auto", alignItems: "center", gap: 14 }}>
                 <Scrolly text={r.name} style={{ fontSize: 14 }} />
                 <div className="bar-track hatch" style={{ overflow: "visible" }}>
                   <div className="bar-fill" style={{ width: `${mounted ? Math.min(100, r.p) : 0}%`, background: over ? "var(--warn)" : hot ? "var(--brass)" : "var(--accent)", transitionDelay: `${i * 90}ms` }} />

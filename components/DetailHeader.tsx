@@ -7,7 +7,7 @@ export function DetailHeader({ eyebrow, title, right }: { eyebrow: string; title
       <div className="row between" style={{ alignItems: "flex-end" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <span className="eyebrow">{eyebrow}</span>
-          <h1 style={{ fontSize: 40, fontWeight: 700, letterSpacing: "-0.035em", lineHeight: 1.05 }}>{title}</h1>
+          <h1 style={{ fontSize: "clamp(30px, 8vw, 40px)", fontWeight: 700, letterSpacing: "-0.035em", lineHeight: 1.05 }}>{title}</h1>
         </div>
         {right}
       </div>
