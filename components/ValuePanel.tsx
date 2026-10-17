@@ -19,13 +19,13 @@ export function ValuePanel({ badge }: { badge?: string }) {
           <span className="hl-dark">Know your next move.</span>
         </h1>
         <p style={{ margin: 0, fontSize: 18, color: "#B9C0BA" }}>
-          Apex connects all your accounts, and an expert agent tells you what to do next, tax math included. No kickbacks, ever.
+          Apex connects all your accounts, and an expert agent shows you how to grow them, tax math included.
         </p>
       </div>
       <div className="scan mono" style={{ backgroundColor: "#1F2321", border: "1px solid var(--dark-line)", borderRadius: "var(--r-card)", padding: "18px 20px", fontSize: 13, display: "flex", flexDirection: "column", gap: 8, maxWidth: 540 }}>
         <span style={{ color: "var(--dark-muted)" }}>apex&gt; whats-inside</span>
         <span><span style={tick}>▸</span> tax, investing and trading expertise, built in</span>
-        <span><span style={tick}>▸</span> no commissions, no kickbacks, no sponsored picks</span>
+        <span><span style={tick}>▸</span> working only for you, never pushing paid products</span>
         <span><span style={tick}>▸</span> the market signals the pros watch, minus the exotic bets</span>
         <span><span style={tick}>▸</span> read-only and encrypted — it can&apos;t move your money<span className="blink">_</span></span>
       </div>

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.apexfolios.com"),
   title: { default: "Apex — see everything, know your next move", template: "%s · Apex" },
   description:
-    "Apex is a personal finance agent fluent in tax, investing and trading. It reads your accounts read-only, shows your whole net worth, and proposes tax-aware plans. No commissions, no kickbacks. By invitation.",
+    "Apex is a personal finance agent fluent in tax, investing and trading. It reads your accounts read-only, shows your whole net worth, and proposes tax-aware plans. It recommends only what's best for your money. By invitation.",
   applicationName: "Apex",
   alternates: { canonical: "/" },
   // Social previews (link cards): short, scannable, built around the one claim competitors can't make.
@@ -14,13 +14,13 @@ export const metadata: Metadata = {
     type: "website",
     url: "https://www.apexfolios.com",
     siteName: "Apex",
-    title: "Every account. One expert. Zero kickbacks.",
-    description: "Apex sees your whole financial picture and tells you the smartest next move, with the tax math already done.",
+    title: "Every account. One expert. Working only for you.",
+    description: "Apex sees your whole financial picture and shows you the smartest way to grow it, with the tax math already done.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Every account. One expert. Zero kickbacks.",
-    description: "Apex sees your whole financial picture and tells you the smartest next move, with the tax math already done.",
+    title: "Every account. One expert. Working only for you.",
+    description: "Apex sees your whole financial picture and shows you the smartest way to grow it, with the tax math already done.",
   },
   robots: { index: true, follow: true },
   other: { "color-scheme": "light dark" },

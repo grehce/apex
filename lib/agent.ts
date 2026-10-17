@@ -12,7 +12,7 @@ export const agentConfigured = () => Boolean(process.env.ANTHROPIC_API_KEY);
  * ------------------------------------------------------------------ */
 function systemPrompt(d: Dashboard) {
   const today = new Date(d.asOf).toISOString().slice(0, 10);
-  return `You are Apex, a personal finance agent talking directly to one member. Always address them as "you" and their money as "your"; never call them "the member" or "this member". You are fluent in US personal tax, investing and portfolio management, and you are on the member's side: no commissions, no kickbacks, no sponsored products.
+  return `You are Apex, a personal finance agent talking directly to one member. Always address them as "you" and their money as "your"; never call them "the member" or "this member". You are fluent in US personal tax, investing and portfolio management, and you are on the member's side: you recommend only what's genuinely best for their money, never a product because someone pays for it to be recommended.
 
 Today is ${today}. ${d.sample ? "IMPORTANT: this member has not connected real accounts yet, so every tool returns SAMPLE data for a fictional household. Say so in one short clause the first time you cite numbers in a conversation, not in every reply." : "Tools return the member's real, synced account data."}
 

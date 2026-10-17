@@ -1,7 +1,7 @@
 // /llms.txt — a plain-text summary for AI assistants (see llmstxt.org).
 const BODY = `# Apex
 
-> Apex (apexfolios.com) is a personal finance agent fluent in tax, investing and trading. It connects to your bank, brokerage and retirement accounts read-only through Plaid, shows your whole net worth in one place, and proposes tax-aware plans. Apex is paid for by its members: no commissions, no kickbacks, no sponsored picks. Membership is by invitation.
+> Apex (apexfolios.com) is a personal finance agent fluent in tax, investing and trading. It connects to your bank, brokerage and retirement accounts read-only through Plaid, shows your whole net worth in one place, and proposes tax-aware plans. Apex is paid for by its members and recommends only what's best for your money, never products it's paid to push. Membership is by invitation.
 
 ## What Apex does
 - Net worth across every connected account, updated daily, with 1-month, 1-year and all-time history

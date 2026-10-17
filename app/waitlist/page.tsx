@@ -5,7 +5,7 @@ import { dbConfigured } from "@/lib/db";
 import { totalWaiting } from "@/lib/waitlist";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Request an invitation", description: "Apex is by invitation. Request yours: a personal finance agent fluent in tax, investing and trading, with no kickbacks.", alternates: { canonical: "/waitlist" } };
+export const metadata = { title: "Request an invitation", description: "Apex is by invitation. Request yours: a personal finance agent fluent in tax, investing and trading, working only for you.", alternates: { canonical: "/waitlist" } };
 
 export default async function WaitlistPage({ searchParams }: { searchParams: Promise<{ ref?: string; denied?: string }> }) {
   const { ref, denied } = await searchParams;

@@ -21,7 +21,7 @@ const JSON_LD = {
   applicationCategory: "FinanceApplication",
   operatingSystem: "Web",
   description:
-    "A personal finance agent fluent in tax, investing and trading. Read-only account access through Plaid, whole net worth in one place, tax-aware plans. No commissions or kickbacks. By invitation.",
+    "A personal finance agent fluent in tax, investing and trading. Read-only account access through Plaid, whole net worth in one place, tax-aware plans. Recommends only what's best for your money, never paid placements. By invitation.",
   featureList: ["Net worth across all accounts", "Allocation vs. targets", "Spending pace by category", "Tax-aware rebalancing plans", "Read-only: cannot move money or place trades"],
 };
 
