@@ -40,7 +40,7 @@ export default async function PortfolioPage() {
               </div>
             ))}
           </div>
-          <p className="muted" style={{ margin: 0, fontSize: 13 }}>Classes come from each security&apos;s type as reported by your brokerage. Bond funds may show under Stocks &amp; funds for now.</p>
+          <p className="note">Classes come from each security&apos;s type as reported by your brokerage. Bond funds may show under Stocks &amp; funds for now.</p>
         </section>
       </div>
       <section className="card" aria-label="Holdings">
