@@ -209,7 +209,7 @@ export function SettingsView({ items, sample, setup, plaidEnv, email, demo = fal
         <div className="list-row">
           <div style={{ flex: "1 1 260px" }}>
             <div style={{ fontWeight: 600 }}>Access list</div>
-            <div className="muted" style={{ fontSize: 14 }}>Only emails in ALLOWED_EMAILS can sign in. Sessions expire after 12 hours.</div>
+            <div className="muted" style={{ fontSize: 14 }}>Only approved Google accounts can sign in.</div>
           </div>
         </div>
       </section>
