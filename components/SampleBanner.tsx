@@ -5,15 +5,13 @@ export function SampleBanner({ d, signedIn = true }: { d: Dashboard; signedIn?: 
   if (!d.sample) return null;
 
   if (!signedIn) {
+    // The header already has the Sign in button; the banner just explains what you're looking at.
     return (
-      <div className="banner dots" role="status" style={{ justifyContent: "space-between", flexWrap: "wrap", alignItems: "center" }}>
+      <div className="banner dots" role="status">
         <span>
           <strong style={{ color: "var(--ink)" }}>You&apos;re viewing a demo with sample data.</strong>{" "}
           Sign in to see your own accounts, spending and portfolio.
         </span>
-        <Link href="/signin" className="btn btn-primary" style={{ minHeight: 36, fontSize: 14 }}>
-          Sign in
-        </Link>
       </div>
     );
   }
