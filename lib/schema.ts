@@ -70,3 +70,15 @@ export const netWorthDaily = pgTable("net_worth_daily", {
   day: date("day").notNull(),
   value: doublePrecision("value").notNull(),
 }, (t) => [primaryKey({ columns: [t.userEmail, t.day] })]);
+
+/** Read-only API keys members create for outside agents (Muse, Claude, ChatGPT…). Only a hash is stored. */
+export const apiTokens = pgTable("api_tokens", {
+  id: text("id").primaryKey(),
+  userEmail: text("user_email").notNull(),
+  name: text("name").notNull(),
+  tokenHash: text("token_hash").notNull().unique(), // sha256 of the full token
+  prefix: text("prefix").notNull(), // first characters, shown so you can tell keys apart
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+  revokedAt: timestamp("revoked_at", { withTimezone: true }),
+}, (t) => [index("api_tokens_user_idx").on(t.userEmail)]);

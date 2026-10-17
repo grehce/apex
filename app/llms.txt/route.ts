@@ -14,6 +14,13 @@ const BODY = `# Apex
 - It cannot move money or place trades. Access is read-only; members place their own trades.
 - Bank logins go to Plaid and the bank, never to Apex. Access tokens are encrypted at rest.
 
+## API for agents
+Members can give an AI agent read-only access to their own data with an API key from Apex → Settings → Agent access.
+- OpenAPI description: https://www.apexfolios.com/api/v1/openapi.json
+- Auth: \`Authorization: Bearer apex_ro_…\`
+- Endpoints: /api/v1/summary, /api/v1/accounts, /api/v1/holdings, /api/v1/transactions, /api/v1/plans
+- Read-only. Keys can be revoked at any time. Nothing in the API can move money or place trades.
+
 ## Access
 - Request an invitation: https://www.apexfolios.com/waitlist
 - Sign in (approved Google accounts): https://www.apexfolios.com/signin

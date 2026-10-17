@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { usePlaidLink } from "react-plaid-link";
 import type { ItemRow } from "@/lib/model";
 import { InstitutionMark } from "../Mark";
+import { AgentAccess } from "./AgentAccess";
 
 type Props = {
   items: ItemRow[];
@@ -216,11 +217,14 @@ export function SettingsView({ items, sample, setup, plaidEnv, email, demo = fal
         </div>
       </section>
 
+      <AgentAccess demo={demo} />
+
       <section id="agent" aria-labelledby="a-h" className="card card-dark dots-dark" style={{ gap: 4 }}>
         <h2 id="a-h" style={{ marginBottom: 6 }}>Agent permissions</h2>
         {[
           ["Read balances & holdings", "needed for drift and plans", "on"],
           ["Propose & simulate plans", "you review every plan", "on"],
+          ["Outside agents, with your key", "read-only · revoke any time above", "on"],
           ["Place trades", "Apex connects read-only · you place trades", "locked"],
         ].map(([n, s, st]) => (
           <div key={n} className="list-row list-row-dark">

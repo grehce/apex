@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 
 /** Emails allowed to sign in, from ALLOWED_EMAILS (comma-separated). Empty list = nobody. */
-function allowedEmails(): Set<string> {
+export function allowedEmails(): Set<string> {
   return new Set(
     (process.env.ALLOWED_EMAILS ?? "")
       .split(",")
@@ -29,7 +29,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // Every page is browsable signed out — visitors see the whole app on sample data.
       // Anything that touches real data (API routes) still requires a session.
       const PUBLIC = ["/robots.txt", "/sitemap.xml", "/llms.txt", "/", "/signin", "/networth", "/portfolio", "/spending", "/ledger", "/agent", "/settings"];
-      const isPublic = PUBLIC.includes(pathname) || pathname === "/waitlist" || pathname.startsWith("/api/auth") || pathname === "/api/waitlist";
+      const isPublic = PUBLIC.includes(pathname) || pathname === "/waitlist" || pathname.startsWith("/api/auth") || pathname === "/api/waitlist" || pathname.startsWith("/api/v1/"); // v1 checks its own API keys
       if (isPublic) return true;
       return Boolean(auth?.user?.email);
     },
