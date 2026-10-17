@@ -9,14 +9,19 @@ export const metadata: Metadata = {
     "Apex is a personal finance agent fluent in tax, investing and trading. It reads your accounts read-only, shows your whole net worth, and proposes tax-aware plans. No commissions, no kickbacks. By invitation.",
   applicationName: "Apex",
   alternates: { canonical: "/" },
+  // Social previews (link cards): short, scannable, built around the one claim competitors can't make.
   openGraph: {
     type: "website",
     url: "https://www.apexfolios.com",
     siteName: "Apex",
-    title: "Apex — a financial mind, on your side",
-    description: "A personal finance agent fluent in tax, investing and trading. Read-only, no kickbacks, by invitation.",
+    title: "Every account. One expert. Zero kickbacks.",
+    description: "Apex sees your whole financial picture and tells you the smartest next move, with the tax math already done.",
   },
-  twitter: { card: "summary_large_image", title: "Apex — a financial mind, on your side", description: "A personal finance agent fluent in tax, investing and trading. Read-only, no kickbacks, by invitation." },
+  twitter: {
+    card: "summary_large_image",
+    title: "Every account. One expert. Zero kickbacks.",
+    description: "Apex sees your whole financial picture and tells you the smartest next move, with the tax math already done.",
+  },
   robots: { index: true, follow: true },
   other: { "color-scheme": "light dark" },
 };
