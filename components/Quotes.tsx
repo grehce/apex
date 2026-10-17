@@ -1,12 +1,14 @@
-// Money lines from literary greats — all public-domain works, wording checked against sources.
+// Lines on living well from literary greats — all public-domain works (standard English
+// translations for Seneca, Marcus Aurelius, Montaigne and Voltaire).
 // One is picked on the server per request, so it changes only when the page loads.
 const QUOTES: { text: string; who: string; work: string }[] = [
-  { text: "A man is rich in proportion to the number of things he can afford to let alone.", who: "Henry David Thoreau", work: "Walden" },
-  { text: "It is not the man who has too little, but the man who craves more, that is poor.", who: "Seneca", work: "Letters to Lucilius" },
-  { text: "Beware of little expenses; a small leak will sink a great ship.", who: "Benjamin Franklin", work: "The Way to Wealth" },
-  { text: "Neither a borrower nor a lender be.", who: "William Shakespeare", work: "Hamlet" },
-  { text: "A large income is the best recipe for happiness I ever heard of.", who: "Jane Austen", work: "Mansfield Park" },
-  { text: "Annual income twenty pounds, annual expenditure nineteen nineteen and six, result happiness.", who: "Charles Dickens", work: "David Copperfield" },
+  { text: "I went to the woods because I wished to live deliberately.", who: "Henry David Thoreau", work: "Walden" },
+  { text: "Life is long if you know how to use it.", who: "Seneca", work: "On the Shortness of Life" },
+  { text: "As is a tale, so is life: not how long it is, but how good it is, is what matters.", who: "Seneca", work: "Letters to Lucilius" },
+  { text: "Very little is needed to make a happy life.", who: "Marcus Aurelius", work: "Meditations" },
+  { text: "The value of life lies not in the length of days, but in the use we make of them.", who: "Michel de Montaigne", work: "Essays" },
+  { text: "We must cultivate our garden.", who: "Voltaire", work: "Candide" },
+  { text: "What do we live for, if it is not to make life less difficult to each other?", who: "George Eliot", work: "Middlemarch" },
 ];
 
 export function Quotes() {
