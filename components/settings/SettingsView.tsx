@@ -11,6 +11,7 @@ type Props = {
   setup: { plaid: boolean; db: boolean; encryption: boolean };
   plaidEnv: string;
   email: string;
+  demo?: boolean; // signed out: browse sample accounts; any action goes to sign up / log in
 };
 
 async function post(url: string, body: unknown, method = "POST") {
@@ -30,9 +31,10 @@ function ago(iso: string | null) {
   return `${Math.round(h / 24)} d ago`;
 }
 
-export function SettingsView({ items, sample, setup, plaidEnv, email }: Props) {
+export function SettingsView({ items, sample, setup, plaidEnv, email, demo = false }: Props) {
   const router = useRouter();
-  const ready = setup.plaid && setup.db && setup.encryption;
+  const ready = demo || (setup.plaid && setup.db && setup.encryption);
+  const toSignIn = () => router.push("/signin");
   const [token, setToken] = useState<string | null>(null);
   const [updateItem, setUpdateItem] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -69,6 +71,7 @@ export function SettingsView({ items, sample, setup, plaidEnv, email }: Props) {
   }, [token, linkReady, open]);
 
   async function startLink(itemId?: string) {
+    if (demo) return toSignIn();
     setMsg(null);
     try {
       const j = await post("/api/plaid/link-token", itemId ? { itemId } : {});
@@ -80,6 +83,7 @@ export function SettingsView({ items, sample, setup, plaidEnv, email }: Props) {
   }
 
   async function syncNow() {
+    if (demo) return toSignIn();
     setBusy("Syncing…");
     setMsg(null);
     try {
@@ -95,6 +99,7 @@ export function SettingsView({ items, sample, setup, plaidEnv, email }: Props) {
   }
 
   async function remove(item: ItemRow) {
+    if (demo) return toSignIn();
     if (!confirm(`Disconnect ${item.institution}? This revokes Apex's access at Plaid and deletes its data here.`)) return;
     setBusy("Disconnecting…");
     try {
@@ -108,6 +113,7 @@ export function SettingsView({ items, sample, setup, plaidEnv, email }: Props) {
   }
 
   async function toggleInclude(accountId: string, include: boolean) {
+    if (demo) return toSignIn();
     try {
       await post("/api/plaid/item", { accountId, include }, "PATCH");
       router.refresh();
@@ -146,7 +152,7 @@ export function SettingsView({ items, sample, setup, plaidEnv, email }: Props) {
           </div>
         )}
 
-        {!ready && (
+        {!ready && !demo && (
           <div className="inner hatch" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <strong>Setup needed before connecting real accounts</strong>
             <span className="mono" style={{ fontSize: 12 }}>{setup.plaid ? "✓" : "✕"} PLAID_CLIENT_ID / PLAID_SECRET</span>

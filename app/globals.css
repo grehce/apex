@@ -66,7 +66,31 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.02em; }
 
 /* cards */
 .card { background: var(--surface); border-radius: var(--r-card); padding: 26px; display: flex; flex-direction: column; gap: 16px; transition: transform 300ms var(--ease), box-shadow 300ms var(--ease); }
-.card.lift:hover { transform: translateY(-2px); box-shadow: 0 18px 40px -20px rgba(20,24,22,.25); }
+/* Cards don't lift (that read as "pick me up"); tiles on the overview get an outline + tools instead. */
+.card.lift { transition: box-shadow 200ms var(--ease); }
+
+/* Overview tiles: click to open details, drag the grip to rearrange */
+.tile { position: relative; cursor: pointer; border-radius: var(--r-card); }
+.tile > .card { height: 100%; }
+.tile:hover > .card { box-shadow: 0 0 0 1px #c9cdc8; }
+.tile.dragging { opacity: .35; }
+.tile.drop-target > .card { box-shadow: 0 0 0 2px var(--accent); }
+.tile-tools { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-ctl); opacity: 0; transition: opacity 150ms; z-index: 3; }
+.tile:hover .tile-tools, .tile:focus-within .tile-tools { opacity: 1; }
+.tile-tools a, .tile-tools button { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 8px; border: 0; border-radius: 3px; background: transparent; font-family: var(--mono); font-size: 12px; color: var(--ink-2); text-decoration: none; cursor: pointer; }
+.tile-tools a:hover, .tile-tools button:hover { background: #eff0ec; color: var(--ink); }
+.tile-tools .grip { cursor: grab; }
+.tile-tools .grip:active { cursor: grabbing; }
+@media (hover: none) { .tile-tools { opacity: 1; } }
+
+.back { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 12px; color: var(--muted); text-decoration: none; }
+.back:hover { color: var(--ink); }
+table.data { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.data th { text-align: left; font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.data td { padding: 10px; border-top: 1px dashed var(--line-dash); vertical-align: middle; }
+table.data td.r, table.data th.r { text-align: right; }
+table.data tr:hover td { background: #fafaf8; }
+.table-wrap { overflow-x: auto; }
 .card h2 { font-size: 21px; font-weight: 700; }
 .card-dark { background-color: var(--dark); color: var(--dark-text); }
 .inner { background-color: var(--surface-2); border-radius: var(--r-inner); padding: 16px; }

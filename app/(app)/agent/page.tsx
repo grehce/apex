@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { currentEmail } from "@/auth";
-import { loadDashboard } from "@/lib/data";
+import { viewerDashboard } from "@/lib/viewer";
+import { FooterNote } from "@/components/FooterNote";
 import { ASSET_CLASSES, DEFAULT_TARGETS } from "@/lib/model";
 import { buildPlans, currentPct } from "@/lib/plans";
 import { SampleBanner } from "@/components/SampleBanner";
@@ -11,9 +10,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Agent" };
 
 export default async function AgentPage() {
-  const email = await currentEmail();
-  if (!email) redirect("/signin");
-  const d = await loadDashboard(email);
+  const { email, d } = await viewerDashboard();
   const now = currentPct(d.holdings);
   const plans = buildPlans(d.holdings);
 
@@ -43,7 +40,7 @@ export default async function AgentPage() {
 
   return (
     <main className="shell" style={{ gap: 20 }}>
-      <SampleBanner d={d} />
+      <SampleBanner d={d} signedIn={Boolean(email)} />
       <div className="row between" style={{ alignItems: "flex-end" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <span className="eyebrow">agent · portfolio</span>
@@ -57,6 +54,7 @@ export default async function AgentPage() {
         </div>
       </div>
       <AgentView trace={trace} summary={summary} now={now} targets={DEFAULT_TARGETS} plans={plans} recommended={recommended} />
+      <FooterNote d={d} signedIn={Boolean(email)} />
     </main>
   );
 }

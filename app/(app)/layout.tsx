@@ -3,8 +3,7 @@ import { currentEmail, signOut } from "@/auth";
 import { ApexMark } from "@/components/Mark";
 import { NavLinks } from "@/components/NavLinks";
 
-// Pages in this group decide for themselves whether they need a session:
-// "/" shows a public demo when signed out; /agent and /settings redirect to /signin.
+// Every page in this group works signed out (sample data) and signed in (your data).
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const email = await currentEmail();
 
@@ -16,7 +15,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <ApexMark />
             Apex
           </Link>
-          <NavLinks signedIn={Boolean(email)} />
+          <NavLinks />
           {email ? (
             <form
               action={async () => {
@@ -30,7 +29,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </form>
           ) : (
             <Link href="/signin" className="btn btn-primary" style={{ minHeight: 40 }}>
-              Sign in
+              Sign up / Log in
             </Link>
           )}
         </div>

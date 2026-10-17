@@ -73,6 +73,7 @@ export type Dashboard = {
   holdings: HoldingRow[];
   spendByCategory: { name: string; thisMonth: number; lastMonth: number }[];
   ledger: TxRow[];
+  transactions: TxRow[]; // everything synced in the window (~120 days), newest first
   heat: HeatDay[]; // last 91 days, oldest first
   answers: { q: string; value: string; sub: string }[];
 };

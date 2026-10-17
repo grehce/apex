@@ -205,6 +205,7 @@ export function build(inp: Inputs, sample: boolean, setup: Dashboard["setup"]): 
     holdings: inp.holdings,
     spendByCategory,
     ledger: inp.txs.slice().sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 12),
+    transactions: inp.txs.slice().sort((a, b) => (a.date < b.date ? 1 : -1)),
     heat,
     answers,
   };

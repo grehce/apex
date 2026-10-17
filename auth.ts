@@ -24,8 +24,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     authorized({ auth, request }) {
       const { pathname } = request.nextUrl;
-      // "/" is public: it shows the sample-data demo to signed-out visitors.
-      const isPublic = pathname === "/" || pathname === "/signin" || pathname.startsWith("/api/auth");
+      // Every page is browsable signed out — visitors see the whole app on sample data.
+      // Anything that touches real data (API routes) still requires a session.
+      const PUBLIC = ["/", "/signin", "/networth", "/portfolio", "/spending", "/ledger", "/agent", "/settings"];
+      const isPublic = PUBLIC.includes(pathname) || pathname.startsWith("/api/auth");
       if (isPublic) return true;
       return Boolean(auth?.user?.email);
     },

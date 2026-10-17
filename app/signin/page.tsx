@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { signIn, currentEmail } from "@/auth";
 import { ApexMark } from "@/components/Mark";
 
-export const metadata = { title: "Sign in" };
+export const metadata = { title: "Sign up / Log in" };
 
 export default async function SignInPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   if (await currentEmail()) redirect("/");
@@ -41,10 +41,11 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
       <section aria-labelledby="si-h" style={{ flex: "1 1 460px", minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "48px 28px" }}>
         <div className="anim-in" style={{ width: "100%", maxWidth: 400, display: "flex", flexDirection: "column", gap: 24 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <a href="/" className="back">← back to the demo</a>
             <span className="eyebrow">auth · google</span>
-            <h2 id="si-h" style={{ fontSize: 34, fontWeight: 700, letterSpacing: "-0.03em" }}>Sign in to Apex</h2>
+            <h2 id="si-h" style={{ fontSize: 34, fontWeight: 700, letterSpacing: "-0.03em" }}>Sign up or log in</h2>
             <p style={{ margin: 0, color: "var(--ink-2)" }}>
-              Use your Google account. Turn on 2-Step Verification there and it protects Apex too.
+              One Google account does both — your first sign-in creates your Apex. Turn on 2-Step Verification in Google and it protects Apex too.
             </p>
           </div>
 
