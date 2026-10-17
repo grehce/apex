@@ -4,6 +4,7 @@ import { ASSET_CLASSES, type AssetClass } from "@/lib/model";
 import type { Plan } from "@/lib/plans";
 import { ApexMark } from "../Mark";
 import { Term } from "../Term";
+import { AgentChat } from "./AgentChat";
 
 type Props = {
   trace: [string, string, string][];
@@ -12,6 +13,7 @@ type Props = {
   targets: Record<AssetClass, number>;
   plans: Plan[];
   recommended: Plan["key"];
+  chat: { signedIn: boolean; configured: boolean };
 };
 
 /** Requests you can pick. Each maps to the plan that best fits it. */
@@ -25,7 +27,7 @@ function money(n: number) {
   return `$${Math.round(n).toLocaleString("en-US")}`;
 }
 
-export function AgentView({ trace: baseTrace, summary: baseSummary, now, targets, plans, recommended }: Props) {
+export function AgentView({ trace: baseTrace, summary: baseSummary, now, targets, plans, recommended, chat }: Props) {
   const [goal, setGoal] = useState(GOALS[0].id);
   const g = GOALS.find((x) => x.id === goal)!;
   const goalPlan = plans.find((p) => p.key === (g.plan === "rec" ? recommended : g.plan))!;
@@ -99,9 +101,7 @@ export function AgentView({ trace: baseTrace, summary: baseSummary, now, targets
             </div>
           </div>
         </div>
-        <p className="muted" style={{ margin: 0, fontSize: 13, borderTop: "1px dashed var(--line-dash)", paddingTop: 14 }}>
-          Pick a request above and the agent re-runs. Plans are calculated from your synced holdings and default targets. Typing your own questions comes next.
-        </p>
+        <AgentChat signedIn={chat.signedIn} configured={chat.configured} />
       </section>
 
       <section aria-labelledby="pl-h" className="card" style={{ flex: "1 1 400px", minWidth: 0, padding: 24, opacity: done ? 1 : 0.35, transition: "opacity 600ms" }}>

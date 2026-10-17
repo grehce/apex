@@ -5,6 +5,7 @@ import { ASSET_CLASSES, DEFAULT_TARGETS } from "@/lib/model";
 import { buildPlans, currentPct } from "@/lib/plans";
 import { SampleBanner } from "@/components/SampleBanner";
 import { AgentView } from "@/components/agent/AgentView";
+import { agentConfigured } from "@/lib/agent";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Agent" };
@@ -53,7 +54,7 @@ export default async function AgentPage() {
           <Link href="/settings">settings →</Link>
         </div>
       </div>
-      <AgentView trace={trace} summary={summary} now={now} targets={DEFAULT_TARGETS} plans={plans} recommended={recommended} />
+      <AgentView trace={trace} summary={summary} now={now} targets={DEFAULT_TARGETS} plans={plans} recommended={recommended} chat={{ signedIn: Boolean(email), configured: agentConfigured() }} />
       <FooterNote d={d} signedIn={Boolean(email)} />
     </main>
   );
