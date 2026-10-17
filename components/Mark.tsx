@@ -6,10 +6,10 @@ export function ApexMark({ size = 28, ink = "#17191A", ground = "#F4F4F2", accen
 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
-      {/* one solid shape with the notch cut out; the peak is trimmed so the dot is the top */}
-      <path d="M22.2 9H25.8L45 43H32L24 27L16 43H3Z" fill={ink} />
-      {/* neon dot: the one spot of brand highlight */}
-      <circle cx="24" cy="11" r="4.5" fill={accent} />
+      {/* legs match the letter stroke weight; the neon dot is the A's crossbar */}
+      <path d="M24 5L45 43H36.6L24 20.2L11.4 43H3Z" fill={ink} />
+      {/* neon dot as the crossbar: the one spot of brand highlight */}
+      <circle cx="24" cy="32" r="4.2" fill={accent} />
     </svg>
   );
 }
@@ -20,9 +20,9 @@ export function ApexWordmark({ size = 20, ink = "currentColor", accent = "#C8FF3
   return (
     <span aria-label="Apex" role="img" style={{ display: "inline-flex", alignItems: "baseline", fontWeight: 800, fontSize: size, letterSpacing: "-0.02em", lineHeight: 1 }}>
       {/* viewBox cropped to the shape so its base sits on the text baseline */}
-      <svg aria-hidden="true" viewBox="3 6.5 42 36.5" height={cap} width={(cap * 42) / 36.5} style={{ alignSelf: "baseline", marginRight: size * 0.02, overflow: "visible" }}>
-        <path d="M22.2 9H25.8L45 43H32L24 27L16 43H3Z" fill={ink} />
-        <circle cx="24" cy="11" r="4.5" fill={accent} />
+      <svg aria-hidden="true" viewBox="3 5 42 38" height={cap} width={(cap * 42) / 38} style={{ alignSelf: "baseline", marginRight: size * 0.02, overflow: "visible" }}>
+        <path d="M24 5L45 43H36.6L24 20.2L11.4 43H3Z" fill={ink} />
+        <circle cx="24" cy="32" r="4.2" fill={accent} />
       </svg>
       <span aria-hidden="true">pex</span>
     </span>
