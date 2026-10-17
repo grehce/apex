@@ -10,7 +10,8 @@
     "start": "next start",
     "lint": "tsc --noEmit",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "eval:agent": "node --conditions=react-server --import tsx evals/run-agent-evals.mts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.131.0",
@@ -29,6 +30,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "drizzle-kit": "^0.31.11",
+    "tsx": "4.23.15",
     "typescript": "^5.6.0"
   },
   "engines": {
