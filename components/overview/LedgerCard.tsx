@@ -2,6 +2,7 @@
 import { useState } from "react";
 import type { TxRow } from "@/lib/model";
 import { prettyCategory } from "@/lib/model";
+import { Scrolly } from "../Scrolly";
 
 type F = "all" | "in" | "out";
 
@@ -24,8 +25,8 @@ export function LedgerCard({ rows }: { rows: TxRow[] }) {
           <div key={r.id} className="anim-in" style={{ display: "grid", gridTemplateColumns: "52px 1fr auto", alignItems: "center", gap: 12, padding: "11px 0", borderTop: "1px dashed var(--line-dash)", animationDelay: `${i * 40}ms` }}>
             <span className="mono muted" style={{ fontSize: 12 }}>{r.date.slice(5)}</span>
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.name}</div>
-              <div className="mono muted" style={{ fontSize: 11 }}>{prettyCategory(r.category)} · {r.account}</div>
+              <Scrolly text={r.name} style={{ fontWeight: 500 }} />
+              <Scrolly text={`${prettyCategory(r.category)} · ${r.account}`} className="mono muted" style={{ fontSize: 11 }} />
             </div>
             <span className="mono num" style={{ fontSize: 14, color: r.amount < 0 ? "var(--accent-ink)" : "var(--ink)" }}>
               {r.amount < 0 ? "+" : "−"}{Math.abs(r.amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

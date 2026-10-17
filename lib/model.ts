@@ -54,6 +54,12 @@ export type TxRow = {
   amount: number; // Plaid sign: positive = money out
 };
 
+export type HeatDay = {
+  day: string; // YYYY-MM-DD
+  amount: number;
+  items: { name: string; category: string; amount: number }[]; // that day's spending, largest first
+};
+
 export type Dashboard = {
   sample: boolean;
   setup: { plaid: boolean; db: boolean; encryption: boolean };
@@ -67,7 +73,7 @@ export type Dashboard = {
   holdings: HoldingRow[];
   spendByCategory: { name: string; thisMonth: number; lastMonth: number }[];
   ledger: TxRow[];
-  heat: { day: string; amount: number }[]; // last 91 days, oldest first
+  heat: HeatDay[]; // last 91 days, oldest first
   answers: { q: string; value: string; sub: string }[];
 };
 

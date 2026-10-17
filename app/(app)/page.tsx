@@ -7,6 +7,7 @@ import { AllocationCard } from "@/components/overview/AllocationCard";
 import { SpendingCard } from "@/components/overview/SpendingCard";
 import { LedgerCard } from "@/components/overview/LedgerCard";
 import { HeatmapCard } from "@/components/overview/HeatmapCard";
+import { Quotes } from "@/components/Quotes";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Overview" };
@@ -31,7 +32,7 @@ export default async function OverviewPage() {
       </div>
       <footer className="row between mono muted" style={{ fontSize: 12 }}>
         <span>{d.sample ? "sample data" : `${d.items.length} institutions connected`} · apexfolios.com</span>
-        <span>read-only · you place every trade</span>
+        <Quotes />
       </footer>
     </main>
   );

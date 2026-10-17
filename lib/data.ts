@@ -143,11 +143,19 @@ export function build(inp: Inputs, sample: boolean, setup: Dashboard["setup"]): 
     .slice(0, 6);
 
   // Heatmap: last 91 days of spending.
-  const heatMap = new Map<string, number>();
-  for (const t of spend) heatMap.set(t.date, (heatMap.get(t.date) ?? 0) + t.amount);
+  const byDay = new Map<string, TxRow[]>();
+  for (const t of spend) byDay.set(t.date, [...(byDay.get(t.date) ?? []), t]);
   const heat = Array.from({ length: 91 }, (_, i) => {
     const day = ymd(new Date(today.getTime() - (90 - i) * 86400000));
-    return { day, amount: Math.round(heatMap.get(day) ?? 0) };
+    const txs = byDay.get(day) ?? [];
+    return {
+      day,
+      amount: Math.round(txs.reduce((s, t) => s + t.amount, 0)),
+      items: txs
+        .slice()
+        .sort((a, b) => b.amount - a.amount)
+        .map((t) => ({ name: t.name, category: t.category, amount: Math.round(t.amount * 100) / 100 })),
+    };
   });
 
   // Net worth series from daily snapshots.
