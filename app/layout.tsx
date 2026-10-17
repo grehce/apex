@@ -3,9 +3,21 @@ import "./globals.css";
 import { THEME_BOOT } from "@/lib/theme";
 
 export const metadata: Metadata = {
-  title: { default: "Apex", template: "%s · Apex" },
-  description: "Every account. One clear view.",
-  robots: { index: false, follow: false },
+  metadataBase: new URL("https://www.apexfolios.com"),
+  title: { default: "Apex — a financial mind, on your side", template: "%s · Apex" },
+  description:
+    "Apex is a personal finance agent fluent in tax, investing and trading. It reads your accounts read-only, shows your whole net worth, and proposes tax-aware plans. No commissions, no kickbacks. By invitation.",
+  applicationName: "Apex",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: "https://www.apexfolios.com",
+    siteName: "Apex",
+    title: "Apex — a financial mind, on your side",
+    description: "A personal finance agent fluent in tax, investing and trading. Read-only, no kickbacks, by invitation.",
+  },
+  twitter: { card: "summary", title: "Apex — a financial mind, on your side", description: "A personal finance agent fluent in tax, investing and trading. Read-only, no kickbacks, by invitation." },
+  robots: { index: true, follow: true },
   other: { "color-scheme": "light dark" },
 };
 

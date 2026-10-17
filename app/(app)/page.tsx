@@ -10,7 +10,20 @@ import { HeatmapCard } from "@/components/overview/HeatmapCard";
 import { Board } from "@/components/overview/Board";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Overview" };
+export const metadata = { title: { absolute: "Apex — a financial mind, on your side" }, alternates: { canonical: "/" } };
+
+// Structured data so search engines and AI assistants can describe Apex accurately.
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Apex",
+  url: "https://www.apexfolios.com",
+  applicationCategory: "FinanceApplication",
+  operatingSystem: "Web",
+  description:
+    "A personal finance agent fluent in tax, investing and trading. Read-only account access through Plaid, whole net worth in one place, tax-aware plans. No commissions or kickbacks. By invitation.",
+  featureList: ["Net worth across all accounts", "Allocation vs. targets", "Spending pace by category", "Tax-aware rebalancing plans", "Read-only: cannot move money or place trades"],
+};
 
 export default async function OverviewPage() {
   // Signed out: public demo with sample data. Signed in: that account's own data.
@@ -20,6 +33,8 @@ export default async function OverviewPage() {
 
   return (
     <main className="shell">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
+      <h1 className="sr-only">Apex — your net worth, portfolio and spending in one place</h1>
       <SampleBanner d={d} signedIn={Boolean(email)} />
       <CommandBar answers={d.answers} />
       <Board
