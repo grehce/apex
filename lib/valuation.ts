@@ -28,8 +28,9 @@ export function rentcast(apiKey: string, fetchImpl: typeof fetch = fetch): Valua
       }
       // 404 / 400: the address wasn't found or there weren't enough comparable sales.
       if (r.status === 404 || r.status === 400) return null;
-      if (r.status === 401 || r.status === 403) throw new ValuationError("Automatic estimates are misconfigured (API key rejected).");
-      if (r.status === 429) throw new ValuationError("This month's estimate quota is used up. Enter your own value for now.");
+      if (r.status === 401) throw new ValuationError("RentCast didn't recognize the API key (401). Check RENTCAST_API_KEY in Vercel matches the key in your RentCast API dashboard, then redeploy.");
+      if (r.status === 403) throw new ValuationError("RentCast accepted the key but refused the request (403) — usually no API plan selected, a billing issue, or key restrictions. Check your RentCast API dashboard.");
+      if (r.status === 429) throw new ValuationError("RentCast is rate-limiting requests. Try again in a minute.");
       if (!r.ok) throw new ValuationError("The valuation service had an error. Try again, or enter your own value.");
       const j = (await r.json().catch(() => null)) as { price?: unknown; priceRangeLow?: unknown; priceRangeHigh?: unknown; comparables?: unknown[] } | null;
       const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) && v > 0 ? Math.round(v) : null);
@@ -42,9 +43,10 @@ export function rentcast(apiKey: string, fetchImpl: typeof fetch = fetch): Valua
   };
 }
 
-export const valuationConfigured = () => Boolean(process.env.RENTCAST_API_KEY);
+export const valuationConfigured = () => Boolean(process.env.RENTCAST_API_KEY?.trim());
 
 export function valuationProvider(): ValuationProvider | null {
-  const key = process.env.RENTCAST_API_KEY;
+  // Tolerate stray whitespace or quotes pasted into the Vercel field.
+  const key = process.env.RENTCAST_API_KEY?.trim().replace(/^["']|["']$/g, "").trim();
   return key ? rentcast(key) : null;
 }
