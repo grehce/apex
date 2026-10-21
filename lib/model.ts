@@ -17,6 +17,8 @@ export type AccountRow = {
 
 export type ItemRow = {
   itemId: string;
+  institutionId?: string | null;
+  logo?: string | null;
   institution: string;
   status: "ok" | "login_required" | "error";
   lastSyncedAt: string | null;

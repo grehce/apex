@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePlaidLink } from "react-plaid-link";
 import type { ItemRow } from "@/lib/model";
-import { InstitutionMark } from "../Mark";
+import { InstitutionLogo } from "../InstitutionLogo";
 import { AgentAccess } from "./AgentAccess";
 
 type Props = {
@@ -170,7 +170,7 @@ export function SettingsView({ items, sample, setup, plaidEnv, email, demo = fal
             {items.map((item) => (
               <div key={item.itemId} style={{ borderTop: "1px dashed var(--line-dash)", padding: "14px 0", display: "flex", flexDirection: "column", gap: 10 }}>
                 <div className="row" style={{ gap: "12px 16px" }}>
-                  <InstitutionMark name={item.institution} />
+                  <InstitutionLogo name={item.institution} logo={demo ? null : item.logo} />
                   <div style={{ flex: "1 1 200px", minWidth: 0 }}>
                     <div style={{ fontWeight: 600 }}>{item.institution}</div>
                     <div className="mono" style={{ fontSize: 12, color: item.status === "ok" ? "var(--accent-ink)" : "var(--warn)" }}>
