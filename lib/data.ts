@@ -11,6 +11,7 @@ import {
 import { sampleInputs } from "./sample";
 import { manualEntries } from "./schema";
 import { manualAccounts, type ManualEntry } from "./manual-assets";
+import { netWorthTotal } from "./net-worth";
 
 /** Categories that are money moving between your own accounts or income, not spending. */
 const NOT_SPEND = new Set(["TRANSFER_IN", "TRANSFER_OUT", "LOAN_PAYMENTS", "INCOME", "BANK_FEES_REFUND"]);
@@ -116,7 +117,7 @@ function monthKey(day: string) {
 export function build(inp: Inputs, sample: boolean, setup: Dashboard["setup"]): Dashboard {
   const allAccts = [...inp.items.flatMap((i) => i.accounts), ...manualAccounts(inp.manualEntries ?? [])];
   const included = allAccts.filter((a) => a.include);
-  const netWorth = included.reduce((s, a) => s + a.balance, 0);
+  const netWorth = netWorthTotal(inp.items.flatMap((i) => i.accounts), inp.manualEntries ?? []);
 
   // Allocation: investment holdings, plus depository balances counted as cash.
   const byClass = new Map<string, number>(ASSET_CLASSES.map((c) => [c, 0]));

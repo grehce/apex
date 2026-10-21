@@ -1,0 +1,23 @@
+const assert=require('node:assert/strict');
+const {netWorthTotal,saveInclusion}=require('../lib/net-worth.ts');
+const {build}=require('../lib/data.ts');
+const {sampleInputs}=require('../lib/sample.ts');
+const accounts=[{id:'cash',balance:100,include:true},{id:'debt',balance:-40,include:true},{id:'excluded',balance:900,include:false}];
+const manual=[{id:'home',name:'Fixture',kind:'asset',category:'property',value:200,valuationDate:'2026-10-21',archived:false},{id:'manual-debt',name:'Fixture',kind:'liability',category:'other',value:10,valuationDate:'2026-10-21',archived:false},{id:'archived',name:'Fixture',kind:'asset',category:'other',value:999,valuationDate:'2026-10-21',archived:true}];
+assert.equal(netWorthTotal(accounts,manual),250);
+assert.equal(netWorthTotal(accounts,manual,{cash:false}),150);
+assert.equal(netWorthTotal(accounts,manual,{debt:false}),290);
+assert.equal(netWorthTotal(accounts,manual,{excluded:true}),1150);
+assert.equal(netWorthTotal([{id:'a',balance:.1,include:true},{id:'b',balance:.2,include:true}]),.3);
+const inp={items:[{accounts}],manualEntries:manual,holdings:[],txs:[],snapshots:[],today:new Date('2026-10-21')};
+assert.equal(build(inp,false,{db:true,plaid:true,encryption:true}).netWorth,netWorthTotal(accounts,manual));
+const sample=sampleInputs();assert.equal(build(sample,true,{db:false,plaid:false,encryption:false}).netWorth,netWorthTotal(sample.items.flatMap(i=>i.accounts)));
+(async()=>{
+ const lock={current:false};let calls=0,optimistic=false,rolledBack=false,resolve;
+ const pending=saveInclusion(lock,()=>{calls++;return new Promise(r=>{resolve=r})},()=>{optimistic=true},()=>{rolledBack=true});
+ assert.equal(optimistic,true);assert.equal(lock.current,true);
+ assert.equal(await saveInclusion(lock,async()=>{calls++},()=>{},()=>{}),false);assert.equal(calls,1);
+ resolve();assert.equal(await pending,true);assert.equal(lock.current,false);assert.equal(rolledBack,false);
+ await assert.rejects(saveInclusion(lock,async()=>{throw Error('test failure')},()=>{},()=>{rolledBack=true}));assert.equal(rolledBack,true);assert.equal(lock.current,false);
+ console.log('PASS net-worth: shared Overview/sample totals, manual/archive/exclusions, asset/debt toggle directions, immediate optimistic update, serialized races and rollback');
+})().catch(e=>{console.error(e);process.exitCode=1});

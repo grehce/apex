@@ -44,10 +44,13 @@ export async function PATCH(req: Request) {
   if (g instanceof NextResponse) return g;
   const { accountId, include } = (await req.json().catch(() => ({}))) as { accountId?: string; include?: boolean };
   if (!accountId || typeof include !== "boolean") return NextResponse.json({ error: "bad request" }, { status: 400 });
-  await db()
+  const updated = await db()
     .update(accounts)
     .set({ includeInNetWorth: include })
-    .where(and(eq(accounts.accountId, accountId), eq(accounts.userEmail, g.email)));
-  await recordNetWorth(g.email);
+    .where(and(eq(accounts.accountId, accountId), eq(accounts.userEmail, g.email)))
+    .returning({ id: accounts.accountId });
+  if (!updated.length) return NextResponse.json({ error: "not found" }, { status: 404 });
+  try { await recordNetWorth(g.email); }
+  catch { return NextResponse.json({ ok: true, warning: "Inclusion saved. Net-worth history will update on the next successful sync." }); }
   return NextResponse.json({ ok: true });
 }

@@ -19,6 +19,8 @@ export default async function SettingsPage() {
       {demo && <SampleBanner d={d} signedIn={false} />}
       <SettingsView
         items={items}
+        manualEntries={!demo && !d.sample ? d.manualEntries : []}
+        initialNetWorth={d.netWorth}
         sample={demo ? false : d.sample}
         demo={demo}
         setup={d.setup}

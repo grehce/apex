@@ -1,12 +1,17 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePlaidLink } from "react-plaid-link";
 import type { ItemRow } from "@/lib/model";
 import { InstitutionLogo } from "../InstitutionLogo";
 import { AgentAccess } from "./AgentAccess";
+import type { ManualEntry } from "@/lib/manual-assets";
+import { netWorthTotal, saveInclusion } from "@/lib/net-worth";
+import { money } from "@/lib/model";
 
 type Props = {
+  manualEntries: ManualEntry[];
+  initialNetWorth: number;
   items: ItemRow[];
   sample: boolean;
   setup: { plaid: boolean; db: boolean; encryption: boolean };
@@ -32,7 +37,7 @@ function ago(iso: string | null) {
   return `${Math.round(h / 24)} d ago`;
 }
 
-export function SettingsView({ items, sample, setup, plaidEnv, email, demo = false }: Props) {
+export function SettingsView({ items, manualEntries, initialNetWorth, sample, setup, plaidEnv, email, demo = false }: Props) {
   const router = useRouter();
   const ready = demo || (setup.plaid && setup.db && setup.encryption);
   const toSignIn = () => router.push("/signin");
@@ -40,6 +45,18 @@ export function SettingsView({ items, sample, setup, plaidEnv, email, demo = fal
   const [updateItem, setUpdateItem] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  const [inclusionOverrides, setInclusionOverrides] = useState<Record<string, boolean>>({});
+  const [savingInclusion, setSavingInclusion] = useState(false);
+  const inclusionLock = useRef(false);
+  useEffect(() => {
+    if (inclusionLock.current) return;
+    setInclusionOverrides((previous) => {
+      const next = { ...previous };
+      for (const a of items.flatMap((i) => i.accounts)) if (next[a.id] === a.include) delete next[a.id];
+      return next;
+    });
+  }, [items]);
+  const tally = sample ? initialNetWorth : netWorthTotal(items.flatMap((i) => i.accounts), manualEntries, inclusionOverrides);
 
   const onSuccess = useCallback(
     async (publicToken: string | null) => {
@@ -117,12 +134,17 @@ export function SettingsView({ items, sample, setup, plaidEnv, email, demo = fal
 
   async function toggleInclude(accountId: string, include: boolean) {
     if (demo) return toSignIn();
+    if (busy || inclusionLock.current) return;
+    const before = inclusionOverrides;
     try {
-      await post("/api/plaid/item", { accountId, include }, "PATCH");
-      router.refresh();
+      const saved = await saveInclusion(inclusionLock,
+        async () => { const result = await post("/api/plaid/item", { accountId, include }, "PATCH"); if (result.warning) setMsg({ kind: "ok", text: result.warning }); },
+        () => { setSavingInclusion(true); setMsg(null); setInclusionOverrides((current) => ({ ...current, [accountId]: include })); },
+        () => setInclusionOverrides(before));
+      if (saved) router.refresh();
     } catch (e) {
-      setMsg({ kind: "err", text: (e as Error).message });
-    }
+      setMsg({ kind: "err", text: `Inclusion change wasn't saved. ${(e as Error).message}` });
+    } finally { setSavingInclusion(false); }
   }
 
   const accountCount = items.reduce((s, i) => s + i.accounts.length, 0);
@@ -138,9 +160,15 @@ export function SettingsView({ items, sample, setup, plaidEnv, email, demo = fal
             </span>
           </div>
           <div className="row" style={{ gap: 8 }}>
-            {!sample && !demo && <button type="button" className="btn" onClick={syncNow} disabled={!ready || !!busy}>Sync now</button>}
-            <button type="button" className="btn btn-primary" onClick={() => startLink()} disabled={!ready || !!busy}>+ Connect account</button>
+            {!sample && !demo && <button type="button" className="btn" onClick={syncNow} disabled={!ready || !!busy || savingInclusion}>Sync now</button>}
+            <button type="button" className="btn btn-primary" onClick={() => startLink()} disabled={!ready || !!busy || savingInclusion}>+ Connect account</button>
           </div>
+        </div>
+
+        <div aria-live="polite" aria-atomic="true" style={{ padding: "16px 0", display: "flex", flexDirection: "column", gap: 4 }}>
+          <span className="eyebrow">{demo || sample ? "Sample net worth" : "Net worth"}</span>
+          <strong className="mono num" style={{ fontSize: "clamp(26px, 6vw, 36px)" }}>{money(tally)}</strong>
+          <span className="muted" style={{ fontSize: 12 }}>{savingInclusion ? "Saving inclusion preference…" : "Included accounts plus active manual assets, less liabilities. Matches Overview."}</span>
         </div>
 
         <div className="banner dots">
@@ -177,10 +205,12 @@ export function SettingsView({ items, sample, setup, plaidEnv, email, demo = fal
                       {demo ? "Sample institution · fictional balances" : item.status === "ok" ? `synced ${ago(item.lastSyncedAt)}` : item.status === "login_required" ? "login expired — reconnect" : "sync error"}
                     </div>
                   </div>
-                  {item.status !== "ok" && <button type="button" className="btn btn-warn" style={{ minHeight: 36 }} onClick={() => startLink(item.itemId)}>Reconnect</button>}
-                  <button type="button" className="chip" onClick={() => remove(item)}>disconnect</button>
+                  {item.status !== "ok" && <button type="button" className="btn btn-warn" disabled={savingInclusion || !!busy} style={{ minHeight: 36 }} onClick={() => startLink(item.itemId)}>Reconnect</button>}
+                  <button type="button" className="chip" disabled={savingInclusion || !!busy} onClick={() => remove(item)}>disconnect</button>
                 </div>
-                {item.accounts.map((a) => (
+                {item.accounts.map((account) => {
+                  const a = { ...account, include: inclusionOverrides[account.id] ?? account.include };
+                  return (
                   <div key={a.id} className="row" style={{ paddingLeft: 56, gap: 12 }}>
                     <span style={{ flex: "1 1 200px", minWidth: 0, fontSize: 14 }}>
                       {a.name} <span className="mono muted" style={{ fontSize: 12 }}>{a.subtype ?? a.type}{a.mask ? ` ••${a.mask}` : ""}</span>
@@ -188,12 +218,12 @@ export function SettingsView({ items, sample, setup, plaidEnv, email, demo = fal
                     <span className="mono num" style={{ fontSize: 13 }}>{a.balance < 0 ? "−" : ""}${Math.abs(a.balance).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     <span className="row mono muted" style={{ gap: 8, fontSize: 11 }}>
                       in net worth
-                      <button type="button" role="switch" aria-checked={a.include} aria-label={`Include ${a.name} in net worth`} className="switch" style={{ width: 44, height: 26 }} onClick={() => toggleInclude(a.id, !a.include)}>
+                      <button type="button" role="switch" aria-checked={a.include} aria-label={`Include ${a.name} in net worth`} disabled={savingInclusion || !!busy} className="switch" style={{ width: 44, height: 26 }} onClick={() => toggleInclude(a.id, !a.include)}>
                         <span style={{ width: 20, height: 20, left: a.include ? 21 : 3 }} />
                       </button>
                     </span>
                   </div>
-                ))}
+                ); })}
               </div>
             ))}
           </div>
@@ -209,12 +239,12 @@ export function SettingsView({ items, sample, setup, plaidEnv, email, demo = fal
           </div>
           <a href="https://myaccount.google.com/security" target="_blank" rel="noreferrer">Manage in Google</a>
         </div>
-        <div className="list-row">
+        {demo && <div className="list-row">
           <div style={{ flex: "1 1 260px" }}>
             <div style={{ fontWeight: 600 }}>Access list</div>
             <div className="muted" style={{ fontSize: 14 }}>Only approved Google accounts can sign in.</div>
           </div>
-        </div>
+        </div>}
       </section>
 
       <AgentAccess demo={demo} />
