@@ -12,11 +12,11 @@ export function SpendingCard({ rows, dayOfMonth, daysInMonth, postedTotal = 0, p
   const hasLast = rows.some((r) => r.lastMonth > 0);
   const maxThis = Math.max(1, ...rows.map((r) => r.thisMonth));
   const lastName = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() - 1, 15)).toLocaleString("en-US", { month: "long", timeZone: "UTC" });
-  // Sort by how far through last month's total each category already is — longest bar first.
+  // Biggest spend first; the "Everything else" rollup always last.
   const sorted = rows
     .filter((r) => r.thisMonth > 0) // nothing (or net refunds) this month: no bar; the Spending table still lists it
     .map((r) => ({ ...r, p: !hasLast ? (r.thisMonth / maxThis) * 100 : r.lastMonth > 0 ? (r.thisMonth / r.lastMonth) * 100 : 100 }))
-    .sort((a, b) => b.p - a.p || b.thisMonth - a.thisMonth);
+    .sort((a, b) => Number(a.name === "Everything else") - Number(b.name === "Everything else") || b.thisMonth - a.thisMonth);
 
   return (
     <section className="card lift" aria-labelledby="sp-h">
