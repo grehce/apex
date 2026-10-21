@@ -17,6 +17,8 @@ export type AccountRow = {
 };
 
 export type ItemRow = {
+  transactionsState?: "unknown" | "pending" | "ready" | "action_required" | "error";
+  transactionsError?: string | null;
   itemId: string;
   institutionId?: string | null;
   logo?: string | null;
@@ -54,6 +56,7 @@ export type TxRow = {
   name: string;
   category: string;
   account: string;
+  pending?: boolean;
   amount: number; // Plaid sign: positive = money out
 };
 
@@ -75,6 +78,7 @@ export type Dashboard = {
   invested: number;
   allocation: AllocationRow[];
   holdings: HoldingRow[];
+  spending: import("./spending").SpendingSummary;
   spendByCategory: { name: string; thisMonth: number; lastMonth: number }[];
   ledger: TxRow[];
   transactions: TxRow[]; // everything synced in the window (~120 days), newest first

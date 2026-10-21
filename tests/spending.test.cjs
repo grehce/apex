@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict');
+const {summarizeSpending}=require('../lib/spending.ts');
+const now=new Date('2026-10-21T23:30:00Z');let id=0;
+const tx=(amount,category='FOOD_AND_DRINK',date='2026-10-05',pending=false)=>({id:String(id++),amount,category,date,pending,name:'fixture',account:'fixture'});
+const rows=[tx(100),tx(-25),tx(50,'FOOD_AND_DRINK','2026-10-05',true),tx(900,'TRANSFER_OUT'),tx(-900,'INCOME'),tx(500,'LOAN_PAYMENTS'),tx(999,'FOOD_AND_DRINK','2026-10-22'),tx(80,'FOOD_AND_DRINK','2026-09-30'),...Array.from({length:8},(_,i)=>tx(i+1,'CATEGORY_'+i))];
+const s=summarizeSpending(rows,now);
+assert.equal(s.total,111);assert.equal(s.lastTotal,80);assert.equal(s.pendingTotal,50);assert.equal(s.pendingCount,1);
+assert.equal(s.categories.find(c=>c.name==='food and drink').thisMonth,75);
+assert.equal(s.paceCategories.length,7);assert.equal(s.paceCategories.at(-1).name,'Other');
+assert.equal(s.paceCategories.reduce((n,c)=>n+c.thisMonth,0),s.total);
+assert.equal(s.paceCategories.reduce((n,c)=>n+c.lastMonth,0),s.lastTotal);
+assert.equal(summarizeSpending([tx(-10)],now).total,-10);
+assert.equal(summarizeSpending([tx(.1),tx(.2)],now).total,.3);
+assert.equal(summarizeSpending([tx(1,'','2026-09-30')],new Date('2026-10-01T00:00:00Z')).lastTotal,1);
+console.log('PASS spending: posted/pending separation, refunds, transfer exclusions, UTC boundary, future exclusion, full category reconciliation and cents');

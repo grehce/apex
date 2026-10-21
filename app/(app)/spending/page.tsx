@@ -9,17 +9,15 @@ import { prettyCategory } from "@/lib/model";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Spending" };
 
-const NOT_SPEND = new Set(["TRANSFER_IN", "TRANSFER_OUT", "LOAN_PAYMENTS", "INCOME", "BANK_FEES_REFUND"]);
-
 export default async function SpendingPage() {
   const { email, d } = await viewerDashboard();
   const now = new Date(d.asOf);
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const daysInMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0)).getUTCDate();
   const thisM = d.asOf.slice(0, 7);
 
-  const monthSpend = d.transactions.filter((t) => t.amount > 0 && !NOT_SPEND.has(t.category) && t.date.startsWith(thisM));
-  const total = monthSpend.reduce((s, t) => s + t.amount, 0);
-  const lastTotal = d.spendByCategory.reduce((s, c) => s + c.lastMonth, 0);
+  const monthSpend = d.spending.current;
+  const total = d.spending.total;
+  const lastTotal = d.spending.lastTotal;
   const merchants = new Map<string, { amount: number; count: number; category: string }>();
   for (const t of monthSpend) {
     const m = merchants.get(t.name) ?? { amount: 0, count: 0, category: t.category };
@@ -28,7 +26,7 @@ export default async function SpendingPage() {
     merchants.set(t.name, m);
   }
   const topMerchants = [...merchants.entries()].sort((a, b) => b[1].amount - a[1].amount).slice(0, 10);
-  const cats = d.spendByCategory.slice().sort((a, b) => b.thisMonth - a.thisMonth);
+  const cats = d.spending.categories.slice().sort((a, b) => b.thisMonth - a.thisMonth);
 
   return (
     <main className="shell">
@@ -39,7 +37,7 @@ export default async function SpendingPage() {
       />
       <SampleBanner d={d} signedIn={Boolean(email)} />
       <div className="grid-2">
-        <SpendingCard rows={d.spendByCategory} dayOfMonth={now.getDate()} daysInMonth={daysInMonth} />
+        <SpendingCard pendingTotal={d.spending.pendingTotal} postedTotal={d.spending.total} rows={d.spendByCategory} dayOfMonth={now.getUTCDate()} daysInMonth={daysInMonth} />
         <HeatmapCard days={d.heat} />
       </div>
       <div className="grid-2">

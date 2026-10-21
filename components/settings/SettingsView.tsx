@@ -63,9 +63,11 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
       if (!publicToken) return;
       setBusy(updateItem ? "Reconnecting…" : "Fetching accounts…");
       try {
-        if (updateItem) await post("/api/plaid/sync", {});
-        else await post("/api/plaid/exchange", { publicToken });
-        setMsg({ kind: "ok", text: updateItem ? "Reconnected." : "Account connected." });
+        if (updateItem) { await post("/api/plaid/sync", {}); setMsg({ kind: "ok", text: "Reconnected. Check the transaction status below." }); }
+        else {
+          const result = await post("/api/plaid/exchange", { publicToken });
+          setMsg(result.synced === false ? { kind: "err", text: `Account connected, but sync needs attention: ${result.error ?? "SYNC_FAILED"}` } : { kind: "ok", text: result.transactionsPending ? "Account connected. Initial transactions are still loading." : "Account connected." });
+        }
         router.refresh();
       } catch (e) {
         setMsg({ kind: "err", text: (e as Error).message });
@@ -108,8 +110,9 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
     setMsg(null);
     try {
       const j = await post("/api/plaid/sync", {});
-      const failed = (j.results as { ok: boolean }[]).filter((r) => !r.ok).length;
-      setMsg(failed ? { kind: "err", text: `${failed} institution(s) need attention.` } : { kind: "ok", text: "Synced." });
+      const results = j.results as { ok: boolean; pending?: boolean }[];
+      const failed = results.filter((r) => !r.ok).length, pending = results.filter((r) => r.pending).length;
+      setMsg(failed ? { kind: "err", text: `${failed} institution(s) need attention.` } : { kind: "ok", text: pending ? `${pending} institution(s) still waiting for initial transactions.` : "Synced." });
       router.refresh();
     } catch (e) {
       setMsg({ kind: "err", text: (e as Error).message });
@@ -204,6 +207,7 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
                     <div className="mono" style={{ fontSize: 12, color: item.status === "ok" ? "var(--accent-ink)" : "var(--warn)" }}>
                       {demo ? "Sample institution · fictional balances" : item.status === "ok" ? `synced ${ago(item.lastSyncedAt)}` : item.status === "login_required" ? "login expired — reconnect" : "sync error"}
                     </div>
+                    {!demo && item.transactionsState && item.transactionsState !== "ready" && <div className="mono muted" style={{ fontSize: 12 }}>{item.transactionsState === "unknown" ? "Transaction readiness not yet checked" : item.transactionsState === "pending" ? "Initial transactions pending" : `Transactions need attention: ${item.transactionsError ?? item.transactionsState}`}</div>}
                   </div>
                   {item.status !== "ok" && <button type="button" className="btn btn-warn" disabled={savingInclusion || !!busy} style={{ minHeight: 36 }} onClick={() => startLink(item.itemId)}>Reconnect</button>}
                   <button type="button" className="chip" disabled={savingInclusion || !!busy} onClick={() => remove(item)}>disconnect</button>

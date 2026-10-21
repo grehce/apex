@@ -5,16 +5,14 @@ import { plaidConfigured } from "./plaid";
 import { accounts, holdings, netWorthDaily, plaidItems, transactions } from "./schema";
 import { signedBalance } from "./sync";
 import {
-  ASSET_CLASSES, CLASS_COLORS, DEFAULT_TARGETS, classify, isTaxAdvantaged, money, prettyCategory,
+  ASSET_CLASSES, CLASS_COLORS, DEFAULT_TARGETS, classify, isTaxAdvantaged, money,
   type AccountRow, type AllocationRow, type Dashboard, type HoldingRow, type ItemRow, type RangeKey, type Series, type TxRow,
 } from "./model";
 import { sampleInputs } from "./sample";
 import { manualEntries } from "./schema";
 import { manualAccounts, type ManualEntry } from "./manual-assets";
+import { summarizeSpending } from "./spending";
 import { netWorthTotal } from "./net-worth";
-
-/** Categories that are money moving between your own accounts or income, not spending. */
-const NOT_SPEND = new Set(["TRANSFER_IN", "TRANSFER_OUT", "LOAN_PAYMENTS", "INCOME", "BANK_FEES_REFUND"]);
 
 export type Inputs = {
   manualEntries?: ManualEntry[];
@@ -68,6 +66,8 @@ export async function loadDashboard(email: string): Promise<Dashboard> {
   }));
 
   const items: ItemRow[] = itemRows.map((i) => ({
+    transactionsState: i.transactionsState as ItemRow["transactionsState"],
+    transactionsError: i.transactionsError,
     itemId: i.itemId,
     institutionId: i.institutionId,
     institution: i.institutionName,
@@ -96,6 +96,7 @@ export async function loadDashboard(email: string): Promise<Dashboard> {
       name: t.merchant ?? t.name,
       category: t.category ?? "",
       account: a ? `${instByItem.get(a.itemId) ?? ""} ${a.mask ? "••" + a.mask : ""}`.trim() : "",
+      pending: t.pending,
       amount: t.amount,
     };
   });
@@ -131,22 +132,10 @@ export function build(inp: Inputs, sample: boolean, setup: Dashboard["setup"]): 
   // Spending by category, this month vs last month.
   const today = inp.today;
   const thisM = ymd(today).slice(0, 7);
-  const lastD = new Date(today.getFullYear(), today.getMonth() - 1, 15);
-  const lastM = ymd(lastD).slice(0, 7);
-  const spend = inp.txs.filter((t) => t.amount > 0 && !NOT_SPEND.has(t.category));
-  const cat = new Map<string, { thisMonth: number; lastMonth: number }>();
-  for (const t of spend) {
-    const k = prettyCategory(t.category);
-    const e = cat.get(k) ?? { thisMonth: 0, lastMonth: 0 };
-    if (monthKey(t.date) === thisM) e.thisMonth += t.amount;
-    else if (monthKey(t.date) === lastM) e.lastMonth += t.amount;
-    cat.set(k, e);
-  }
-  const spendByCategory = [...cat.entries()]
-    .map(([name, v]) => ({ name, ...v }))
-    .filter((r) => r.thisMonth > 0 || r.lastMonth > 0)
-    .sort((a, b) => b.thisMonth - a.thisMonth)
-    .slice(0, 6);
+  const lastM = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - 1, 1)).toISOString().slice(0, 7);
+  const spending = summarizeSpending(inp.txs, today);
+  const spend = spending.posted;
+  const spendByCategory = spending.paceCategories;
 
   // Heatmap: last 91 days of spending.
   const byDay = new Map<string, TxRow[]>();
@@ -215,6 +204,7 @@ export function build(inp: Inputs, sample: boolean, setup: Dashboard["setup"]): 
     invested,
     allocation,
     holdings: inp.holdings,
+    spending,
     spendByCategory,
     // Overview ledger: the biggest money moves of the last 30 days, largest first.
     ledger: inp.txs

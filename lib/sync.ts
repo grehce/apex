@@ -6,6 +6,7 @@ import { decrypt } from "./crypto";
 import { plaid, plaidErrorCode } from "./plaid";
 import { accounts, holdings, netWorthDaily, plaidItems, transactions, manualEntries } from "./schema";
 import { netWorthTotal } from "./net-worth";
+import { syncTransactions } from "./initial-transactions";
 import type { ManualEntry } from "./manual-assets";
 
 type Item = typeof plaidItems.$inferSelect;
@@ -21,7 +22,7 @@ export async function institutionName(institutionId: string | null | undefined):
 }
 
 /** Pull accounts, holdings and new transactions for one Item and store them. */
-export async function syncItem(item: Item): Promise<{ ok: boolean; error?: string }> {
+export async function syncItem(item: Item): Promise<{ ok: boolean; error?: string; pending?: boolean }> {
   const accessToken = decrypt(item.accessTokenEnc);
   const d = db();
   try {
@@ -79,41 +80,14 @@ export async function syncItem(item: Item): Promise<{ ok: boolean; error?: strin
       }
     }
 
-    // Transactions via /transactions/sync with a stored cursor
-    let cursor = item.txCursor ?? undefined;
-    for (let page = 0; page < 20; page++) {
-      let r;
-      try {
-        r = await plaid().transactionsSync({ access_token: accessToken, cursor, count: 500 });
-      } catch (e) {
-        if (plaidErrorCode(e) === "PRODUCT_NOT_READY") break;
-        throw e;
-      }
-      const upserts = [...r.data.added, ...r.data.modified].map((t) => ({
-        transactionId: t.transaction_id,
-        accountId: t.account_id,
-        userEmail: item.userEmail,
-        date: t.date,
-        name: t.name,
-        merchant: t.merchant_name ?? null,
-        amount: t.amount,
-        category: t.personal_finance_category?.primary ?? null,
-        pending: t.pending,
-      }));
-      for (const row of upserts) {
-        await d.insert(transactions).values(row).onConflictDoUpdate({ target: transactions.transactionId, set: row });
-      }
-      const removed = r.data.removed.map((x) => x.transaction_id).filter(Boolean) as string[];
-      if (removed.length) await d.delete(transactions).where(inArray(transactions.transactionId, removed));
-      cursor = r.data.next_cursor;
-      if (!r.data.has_more) break;
-    }
+    const transactionResult = await syncTransactions(item);
+    if (!transactionResult.ok) return transactionResult;
 
     await d
       .update(plaidItems)
-      .set({ txCursor: cursor ?? null, status: "ok", lastSyncedAt: new Date() })
+      .set({ status: "ok", lastSyncedAt: new Date() })
       .where(eq(plaidItems.itemId, item.itemId));
-    return { ok: true };
+    return { ok: true, pending: transactionResult.pending };
   } catch (e) {
     const code = plaidErrorCode(e);
     const status = code === "ITEM_LOGIN_REQUIRED" ? "login_required" : "error";

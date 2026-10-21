@@ -22,6 +22,11 @@ export const plaidItems = pgTable("plaid_items", {
   institutionId: text("institution_id"),
   institutionName: text("institution_name").notNull(),
   txCursor: text("tx_cursor"),
+  transactionsState: text("transactions_state").notNull().default("unknown"), // pending | ready | action_required | error
+  transactionsRetryAt: timestamp("transactions_retry_at", { withTimezone: true }).notNull().defaultNow(),
+  transactionsLeaseUntil: timestamp("transactions_lease_until", { withTimezone: true }),
+  transactionsLeaseToken: text("transactions_lease_token"),
+  transactionsError: text("transactions_error"),
   status: text("status").notNull().default("ok"), // ok | login_required | error
   lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

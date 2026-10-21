@@ -26,6 +26,7 @@ export async function POST(req: Request) {
   await db()
     .insert(plaidItems)
     .values({
+      transactionsState: "pending",
       itemId,
       userEmail: g.email,
       accessTokenEnc: encrypt(accessToken),
@@ -37,5 +38,5 @@ export async function POST(req: Request) {
   const [row] = await db().select().from(plaidItems).where(eq(plaidItems.itemId, itemId));
   const result = await syncItem(row);
   await recordNetWorth(g.email);
-  return NextResponse.json({ itemId, synced: result.ok });
+  return NextResponse.json({ itemId, synced: result.ok, transactionsPending: result.pending ?? false, error: result.error });
 }

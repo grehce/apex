@@ -26,7 +26,7 @@ export function LedgerCard({ rows }: { rows: TxRow[] }) {
             <span className="mono muted" style={{ fontSize: 12 }}>{r.date.slice(5)}</span>
             <div style={{ minWidth: 0 }}>
               <Scrolly text={r.name} style={{ fontWeight: 500 }} />
-              <Scrolly text={`${prettyCategory(r.category)} · ${r.account}`} className="mono muted" style={{ fontSize: 11 }} />
+              <Scrolly text={`${r.pending ? "pending · " : ""}${prettyCategory(r.category)} · ${r.account}`} className="mono muted" style={{ fontSize: 11 }} />
             </div>
             <span className="mono num" style={{ fontSize: 14, color: r.amount < 0 ? "var(--accent-ink)" : "var(--ink)" }}>
               {r.amount < 0 ? "+" : "−"}{Math.abs(r.amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
