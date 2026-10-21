@@ -4,7 +4,7 @@ import { CountryCode } from "plaid";
 import { db } from "./db";
 import { decrypt } from "./crypto";
 import { plaid, plaidErrorCode } from "./plaid";
-import { accounts, holdings, netWorthDaily, plaidItems, transactions } from "./schema";
+import { accounts, holdings, netWorthDaily, plaidItems, transactions, manualEntries } from "./schema";
 
 type Item = typeof plaidItems.$inferSelect;
 
@@ -126,7 +126,8 @@ export async function recordNetWorth(email: string): Promise<void> {
     .select()
     .from(accounts)
     .where(and(eq(accounts.userEmail, email), eq(accounts.includeInNetWorth, true)));
-  const value = rows.reduce((sum, a) => sum + signedBalance(a.type, a.balanceCurrent), 0);
+  const manual = await d.select().from(manualEntries).where(and(eq(manualEntries.userEmail, email), eq(manualEntries.archived, false)));
+  const value = rows.reduce((sum, a) => sum + signedBalance(a.type, a.balanceCurrent), 0) + manual.reduce((sum, a) => sum + (a.kind === "liability" ? -a.value : a.value), 0);
   const day = new Date().toISOString().slice(0, 10);
   await d
     .insert(netWorthDaily)

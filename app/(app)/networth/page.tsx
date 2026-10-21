@@ -4,13 +4,16 @@ import { FooterNote } from "@/components/FooterNote";
 import { NetWorthCard } from "@/components/overview/NetWorthCard";
 import { DetailHeader, usd } from "@/components/DetailHeader";
 import { InstitutionMark } from "@/components/Mark";
+import { ManualAssets } from "@/components/networth/ManualAssets";
+import { manualAccounts } from "@/lib/manual-assets";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Net worth" };
 
 export default async function NetWorthPage() {
   const { email, d } = await viewerDashboard();
-  const accounts = d.items.flatMap((i) => i.accounts);
+  const linkedAccounts = d.items.flatMap((i) => i.accounts);
+  const accounts = [...linkedAccounts, ...manualAccounts(d.manualEntries)];
   const assets = accounts.filter((a) => a.balance >= 0);
   const debts = accounts.filter((a) => a.balance < 0);
   const sum = (xs: typeof accounts) => xs.filter((a) => a.include).reduce((s, a) => s + a.balance, 0);
@@ -56,6 +59,7 @@ export default async function NetWorthPage() {
       <DetailHeader eyebrow="net_worth" title="Net worth" right={<span className="mono muted" style={{ fontSize: 12 }}>assets {usd(sum(assets), false)} · debts {usd(sum(debts), false)}</span>} />
       <SampleBanner d={d} signedIn={Boolean(email)} />
       <NetWorthCard netWorth={d.netWorth} series={d.series} historyDays={d.historyDays} />
+      <ManualAssets entries={email ? d.manualEntries : []} accounts={email && !d.sample ? linkedAccounts : []} signedIn={Boolean(email)} />
       <div className="grid-2">
         {table(assets, "Assets")}
         {table(debts, "Debts")}

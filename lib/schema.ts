@@ -1,5 +1,19 @@
 import { pgTable, text, timestamp, doublePrecision, boolean, date, primaryKey, index } from "drizzle-orm/pg-core";
 
+/** User-entered USD estimates, separate from all Plaid-owned records. Archive is reversible. */
+export const manualEntries = pgTable("manual_entries", {
+  id: text("id").primaryKey(),
+  userEmail: text("user_email").notNull(),
+  name: text("name").notNull(),
+  kind: text("kind").notNull(),
+  category: text("category").notNull(),
+  value: doublePrecision("value").notNull(),
+  valuationDate: date("valuation_date").notNull(),
+  linkedMortgageId: text("linked_mortgage_id"),
+  archived: boolean("archived").notNull().default(false),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("manual_entries_user_idx").on(t.userEmail)]);
+
 /** One row per Plaid Item (one login at one institution). The access token is encrypted. */
 export const plaidItems = pgTable("plaid_items", {
   itemId: text("item_id").primaryKey(),

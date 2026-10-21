@@ -1,4 +1,5 @@
 // Shared shapes for the dashboard, built either from the database or from sample data.
+import type { ManualEntry } from "./manual-assets";
 
 export type RangeKey = "1M" | "1Y" | "All";
 export type Series = { v: number[]; l: string[] };
@@ -63,6 +64,7 @@ export type HeatDay = {
 };
 
 export type Dashboard = {
+  manualEntries: ManualEntry[];
   sample: boolean;
   setup: { plaid: boolean; db: boolean; encryption: boolean };
   asOf: string;

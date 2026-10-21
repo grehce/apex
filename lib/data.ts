@@ -9,11 +9,14 @@ import {
   type AccountRow, type AllocationRow, type Dashboard, type HoldingRow, type ItemRow, type RangeKey, type Series, type TxRow,
 } from "./model";
 import { sampleInputs } from "./sample";
+import { manualEntries } from "./schema";
+import { manualAccounts, type ManualEntry } from "./manual-assets";
 
 /** Categories that are money moving between your own accounts or income, not spending. */
 const NOT_SPEND = new Set(["TRANSFER_IN", "TRANSFER_OUT", "LOAN_PAYMENTS", "INCOME", "BANK_FEES_REFUND"]);
 
 export type Inputs = {
+  manualEntries?: ManualEntry[];
   items: ItemRow[];
   holdings: HoldingRow[];
   txs: TxRow[];
@@ -36,7 +39,8 @@ export async function loadDashboard(email: string): Promise<Dashboard> {
 
   const d = db();
   const itemRows = await d.select().from(plaidItems).where(eq(plaidItems.userEmail, email));
-  if (itemRows.length === 0) return build(sampleInputs(), true, setup);
+  const manualRows = await d.select({ id: manualEntries.id, name: manualEntries.name, kind: manualEntries.kind, category: manualEntries.category, value: manualEntries.value, valuationDate: manualEntries.valuationDate, archived: manualEntries.archived, linkedMortgageId: manualEntries.linkedMortgageId }).from(manualEntries).where(eq(manualEntries.userEmail, email));
+  if (itemRows.length === 0 && manualRows.length === 0) return build(sampleInputs(), true, setup);
 
   const acctRows = await d.select().from(accounts).where(eq(accounts.userEmail, email));
   const holdRows = await d.select().from(holdings).where(eq(holdings.userEmail, email));
@@ -96,7 +100,7 @@ export async function loadDashboard(email: string): Promise<Dashboard> {
   });
 
   return build(
-    { items, holdings: hold, txs, snapshots: snaps.map((s) => ({ day: s.day, value: s.value })), today: new Date() },
+    { items, manualEntries: manualRows as ManualEntry[], holdings: hold, txs, snapshots: snaps.map((s) => ({ day: s.day, value: s.value })), today: new Date() },
     false,
     setup,
   );
@@ -110,7 +114,7 @@ function monthKey(day: string) {
 }
 
 export function build(inp: Inputs, sample: boolean, setup: Dashboard["setup"]): Dashboard {
-  const allAccts = inp.items.flatMap((i) => i.accounts);
+  const allAccts = [...inp.items.flatMap((i) => i.accounts), ...manualAccounts(inp.manualEntries ?? [])];
   const included = allAccts.filter((a) => a.include);
   const netWorth = included.reduce((s, a) => s + a.balance, 0);
 
@@ -199,6 +203,7 @@ export function build(inp: Inputs, sample: boolean, setup: Dashboard["setup"]): 
   ];
 
   return {
+    manualEntries: inp.manualEntries ?? [],
     sample,
     setup,
     asOf: today.toISOString(),
