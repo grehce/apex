@@ -7,12 +7,11 @@ import { InstitutionLogo } from "../InstitutionLogo";
 import { AgentAccess } from "./AgentAccess";
 import { ManualAssets } from "../networth/ManualAssets";
 import { HomeSheet } from "./HomeSheet";
-import { dollars, equity, type Address } from "@/lib/property";
+import { dollars, equity, type Address, type LoanDetails } from "@/lib/property";
 import type { ManualEntry } from "@/lib/manual-assets";
 import { netWorthTotal, saveInclusion } from "@/lib/net-worth";
 import { money } from "@/lib/model";
 
-export type LoanDetails = { ratePct: number | null; rateType: string | null; loanType: string | null; loanTerm: string | null; maturityDate: string | null; nextPayment: number | null; nextPaymentDue: string | null; escrowBalance: number | null; monthlyInterest: number | null; interestOnly: boolean };
 const shortDate = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 
 type Props = {
@@ -74,7 +73,7 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
       if (!publicToken) return;
       setBusy(updateItem ? "Reconnecting…" : "Fetching accounts…");
       try {
-        if (updateItem) { await post("/api/plaid/sync", {}); setMsg({ kind: "ok", text: consenting ? "Loan details shared — see them under your mortgage." : "Reconnected. Check the transaction status below." }); setConsenting(false); }
+        if (updateItem) { await post("/api/plaid/sync", {}); setMsg({ kind: "ok", text: consenting ? "Loan details shared — see your home card below." : "Reconnected. Check the transaction status below." }); setConsenting(false); }
         else {
           const result = await post("/api/plaid/exchange", { publicToken });
           setMsg(result.synced === false ? { kind: "err", text: `Account connected, but sync needs attention: ${result.error ?? "SYNC_FAILED"}` } : { kind: "ok", text: result.transactionsPending ? "Account connected. Initial transactions are still loading." : "Account connected." });
@@ -244,41 +243,11 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
                       </button>
                     </span>
                   </div>
-                  {a.subtype === "mortgage" && !demo && !sample && !(a.id in loanDetails) && !(a.id in mortgageAddresses) && homeFor !== a.id && (
-                    <div className="home-link inner">
-                      <span style={{ flex: "1 1 220px", minWidth: 0, fontSize: 13 }}>
-                        <strong>Loan details not shared.</strong> <span className="muted">Rate, loan type and property address. Apex re-opens this {item.institution} connection to ask — nothing is erased.</span>
+                  {a.subtype === "mortgage" && !demo && !sample && home && homeFor !== a.id && (
+                    <div className="home-link" style={{ paddingTop: 2, paddingBottom: 2 }}>
+                      <span className="mono muted" style={{ fontSize: 12 }}>
+                        secures {addresses[home.id]?.street ?? home.name} · <a href={`#home-${home.id}`}>home &amp; loan details ↓</a>
                       </span>
-                      <button type="button" className="btn btn-sm" disabled={!ready || !!busy || savingInclusion} onClick={() => startLink(item.itemId, "liabilities")}>Share loan details</button>
-                    </div>
-                  )}
-                  {a.subtype === "mortgage" && !demo && !sample && loanDetails[a.id] && homeFor !== a.id && (() => {
-                    const l = loanDetails[a.id];
-                    const facts = [
-                      l.ratePct != null ? `${l.ratePct}%${l.rateType ? ` ${l.rateType}` : ""}` : null,
-                      l.loanTerm, l.loanType,
-                      l.nextPayment != null ? `next payment ${money(l.nextPayment)}${l.nextPaymentDue ? ` due ${shortDate(l.nextPaymentDue)}` : ""}` : null,
-                      l.maturityDate ? `matures ${shortDate(l.maturityDate)}` : null,
-                      l.escrowBalance != null ? `escrow ${money(l.escrowBalance)}` : null,
-                    ].filter(Boolean);
-                    return (
-                      <div className="home-link inner" style={{ flexDirection: "column", alignItems: "flex-start", gap: 4 }}>
-                        <span className="eyebrow">Loan details · from {item.institution}</span>
-                        <span className="mono" style={{ fontSize: 12 }}>{facts.length ? facts.join(" · ") : "Shared, but the servicer sent no details yet"}</span>
-                        {l.interestOnly && l.monthlyInterest != null && (
-                          <span style={{ fontSize: 13 }}><strong>Looks interest-only.</strong> <span className="muted">One month&apos;s interest at this rate is {money(l.monthlyInterest)} — the whole payment — so the balance isn&apos;t going down.</span></span>
-                        )}
-                      </div>
-                    );
-                  })()}
-                  {a.subtype === "mortgage" && !demo && !sample && home && eq && homeFor !== a.id && (
-                    <div className="home-link inner">
-                      <span style={{ flex: "1 1 220px", minWidth: 0 }}>
-                        Secures <strong>{addresses[home.id]?.street ?? home.name}</strong>
-                        <span className="mono muted" style={{ fontSize: 12 }}> · {dollars(home.value)}{home.valuationSource === "estimate" ? " est." : ""}</span>
-                      </span>
-                      <span className="mono num" style={{ fontSize: 13 }}>equity <strong>{dollars(eq.equity)}</strong>{eq.ltv != null ? <span className="muted"> · LTV {Math.round(eq.ltv * 100)}%</span> : null}</span>
-                      <button type="button" className="chip" disabled={!!busy} onClick={() => setHomeFor(a.id)}>edit home</button>
                     </div>
                   )}
                   {a.subtype === "mortgage" && !home && homeFor !== a.id && (
@@ -286,6 +255,7 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
                       <span style={{ flex: "1 1 220px", minWidth: 0 }}>
                         <strong>Home value not added.</strong> <span className="muted">Net worth counts this mortgage but not the home it pays for.</span>
                       </span>
+                      {!demo && !sample && !(a.id in loanDetails) && <button type="button" className="btn btn-sm" disabled={!ready || !!busy || savingInclusion} onClick={() => startLink(item.itemId, "liabilities")}>Share loan details</button>}
                       <button type="button" className="btn" style={{ minHeight: 36 }} disabled={!!busy} onClick={() => (demo ? toSignIn() : setHomeFor(a.id))}>Add home</button>
                     </div>
                   )}
@@ -302,7 +272,8 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
         )}
       </section>
 
-      <ManualAssets entries={manualEntries} accounts={allMortgages} signedIn={!demo} addresses={addresses} estimatesEnabled={estimatesEnabled} />
+      <ManualAssets entries={manualEntries} accounts={allMortgages} signedIn={!demo} addresses={addresses} estimatesEnabled={estimatesEnabled}
+        loanDetails={loanDetails} onShareLoan={(itemId: string) => startLink(itemId, "liabilities")} shareDisabled={!ready || !!busy || savingInclusion} />
 
       <section id="security" aria-labelledby="s-h" className="card" style={{ gap: 10 }}>
         <h2 id="s-h">Sign-in &amp; security</h2>

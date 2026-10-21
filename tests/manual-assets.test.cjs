@@ -36,7 +36,7 @@ const fakeDb={
 };
 const moduleMock={exports:{}};
 const source=ts.transpileModule(fs.readFileSync('app/api/manual-assets/route.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
-const replacements={'next/server':{NextResponse},'@/auth':{currentEmail:async()=>email},'@/lib/db':{db:()=>fakeDb,dbConfigured:()=>true},'@/lib/schema':schema,'@/lib/manual-assets':{sameOrigin,validateManualEntry},'@/lib/sync':{recordNetWorth:async()=>{snapshots++}},'@/lib/crypto':{encrypt:(t)=>'enc:'+t}};
+const replacements={'next/server':{NextResponse},'@/auth':{currentEmail:async()=>email},'@/lib/db':{db:()=>fakeDb,dbConfigured:()=>true},'@/lib/schema':schema,'@/lib/manual-assets':require('../lib/manual-assets.ts'),'@/lib/sync':{recordNetWorth:async()=>{snapshots++}},'@/lib/crypto':{encrypt:(t)=>'enc:'+t}};
 vm.runInNewContext(source,{exports:moduleMock.exports,module:moduleMock,Request,require:p=>replacements[p]??require(p)});
 const routes=moduleMock.exports;
 const req=(body,origin='https://www.apexfolios.com')=>new Request('https://www.apexfolios.com/api/manual-assets',{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify(body)});
@@ -58,5 +58,9 @@ const req=(body,origin='https://www.apexfolios.com')=>new Request('https://www.a
  const saved=inserted.at(-1);assert.equal(saved.address,undefined);assert.match(saved.addressEnc,/^enc:/);assert.equal(saved.valuationSource,'estimate');assert.equal(typeof saved.lastValuedAt.getTime(),'number');
  assert.equal(history.at(-1).source,'estimate');assert.equal(history.at(-1).value,1000000);assert.equal(history.at(-1).low,950000);
  assert.equal((await routes.POST(req({...home,address:null}))).status,400);
+ // Reset date: its own small update, owner-scoped, validated.
+ assert.equal((await routes.PATCH(req({id:'owned-entry',rateResetDate:'2029-06-01'}))).status,200);assert.equal(whereParams[1],email);
+ assert.equal((await routes.PATCH(req({id:'owned-entry',rateResetDate:'2029-02-30'}))).status,400);
+ assert.equal((await routes.PATCH(req({id:'foreign-entry',rateResetDate:'2029-06-01'}))).status,404);
  console.log('PASS manual entries: validation, totals, linked mortgage counted once, archive/restore, auth/origin, cross-user rejection, owned association, no delete');
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -5,7 +5,7 @@ import { currentEmail } from "@/auth";
 import { db, dbConfigured } from "@/lib/db";
 import { manualEntries, accounts, propertyValuations } from "@/lib/schema";
 import { encrypt } from "@/lib/crypto";
-import { sameOrigin, validateManualEntry } from "@/lib/manual-assets";
+import { sameOrigin, validateManualEntry, validateResetDate } from "@/lib/manual-assets";
 import { recordNetWorth } from "@/lib/sync";
 
 async function authorize(req: Request) {
@@ -56,6 +56,14 @@ export async function PATCH(req: Request) {
   if (email instanceof NextResponse) return email;
   const body = await req.json().catch(() => null);
   if (!body || typeof body.id !== "string" || body.id.length > 100) return NextResponse.json({ error: "Entry ID required" }, { status: 400 });
+  // Just the mortgage reset date on a home: { id, rateResetDate }.
+  if ("rateResetDate" in body && Object.keys(body).length === 2) {
+    let rateResetDate;
+    try { rateResetDate = validateResetDate(body.rateResetDate); } catch (e) { return NextResponse.json({ error: (e as Error).message }, { status: 400 }); }
+    const done = await db().update(manualEntries).set({ rateResetDate, updatedAt: new Date() }).where(and(eq(manualEntries.id, body.id), eq(manualEntries.userEmail, email), eq(manualEntries.category, "property"))).returning({ id: manualEntries.id });
+    if (!done.length) return NextResponse.json({ error: "not found" }, { status: 404 });
+    return NextResponse.json({ ok: true });
+  }
   let fields: Fields | null = null;
   try { if (typeof body.archived !== "boolean") fields = validateManualEntry(body); } catch (e) { return NextResponse.json({ error: (e as Error).message }, { status: 400 }); }
   if (fields && !await validMortgage(email, fields.linkedMortgageId)) return NextResponse.json({ error: "Linked mortgage not found" }, { status: 400 });

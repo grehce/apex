@@ -3,7 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AccountRow } from "@/lib/model";
 import type { ManualEntry } from "@/lib/manual-assets";
-import { dollars, type Address } from "@/lib/property";
+import { dollars, type Address, type LoanDetails } from "@/lib/property";
+import { HomeCard } from "../settings/HomeCard";
 import { money } from "@/lib/model";
 import { HomeSheet } from "../settings/HomeSheet";
 
@@ -17,13 +18,16 @@ type Props = {
   signedIn: boolean;
   addresses?: Record<string, Address>;
   estimatesEnabled?: boolean;
+  loanDetails?: Record<string, LoanDetails>;
+  onShareLoan?: (itemId: string) => void;
+  shareDisabled?: boolean;
 };
 
 /**
  * Things Plaid can't see. Homes get their own flow (address → estimate → mortgage);
  * everything else is a simple dated value.
  */
-export function ManualAssets({ entries, accounts, signedIn, addresses = {}, estimatesEnabled = false }: Props) {
+export function ManualAssets({ entries, accounts, signedIn, addresses = {}, estimatesEnabled = false, loanDetails = {}, onShareLoan, shareDisabled }: Props) {
   const router = useRouter();
   const [draft, setDraft] = useState<Draft | null>(null);
   const [home, setHome] = useState<{ entryId?: string } | null>(null);
@@ -79,7 +83,12 @@ export function ManualAssets({ entries, accounts, signedIn, addresses = {}, esti
     </form>}
 
     {entries.length === 0 && !home && !draft && <p className="muted">Nothing added yet.</p>}
-    {entries.map((e) => {
+    {entries.filter(isHome).filter((e) => home?.entryId !== e.id).map((e) => {
+      const mortgage = mortgages.find((m) => m.id === e.linkedMortgageId) ?? null;
+      return <HomeCard key={e.id} entry={e} address={addresses[e.id] ?? null} mortgage={mortgage} loan={mortgage ? loanDetails[mortgage.id] ?? null : null}
+        signedIn={signedIn} busy={busy} onEdit={() => edit(e)} onArchive={() => void save({ id: e.id, archived: !e.archived }, "PATCH")} onShareLoan={onShareLoan} shareDisabled={shareDisabled} />;
+    })}
+    {entries.filter((e) => !isHome(e)).map((e) => {
       const addr = addresses[e.id];
       const estimate = e.valuationSource === "estimate";
       return <div key={e.id} className="row between" style={{ padding: "12px 0", gap: 12, borderTop: "1px dashed var(--line-dash)", opacity: e.archived ? .65 : 1 }}>

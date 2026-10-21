@@ -5,7 +5,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const ts = require('typescript');
-const { validateAddress, fromPlaidAddress, equity, needsRevalue, formatAddress } = require('../lib/property.ts');
+const { validateAddress, fromPlaidAddress, equity, needsRevalue, formatAddress, monthsUntil, shopFrom } = require('../lib/property.ts');
+const { validateResetDate } = require('../lib/manual-assets.ts');
 const { validateManualEntry } = require('../lib/manual-assets.ts');
 const { rentcast, ValuationError } = require('../lib/valuation.ts');
 const { runTool } = require('../lib/agent.ts');
@@ -21,6 +22,14 @@ assert.deepEqual(equity(1000000, 400000), { equity: 600000, ltv: 0.4 });
 assert.equal(needsRevalue(null), true);
 assert.equal(needsRevalue(new Date('2026-10-01'), new Date('2026-10-21')), false);
 assert.equal(needsRevalue(new Date('2026-09-20'), new Date('2026-10-21')), true);
+
+// Mortgage reset date: countdown and when to start shopping.
+assert.equal(monthsUntil('2029-06-01', new Date('2026-10-21T12:00:00Z')), 31);
+assert.equal(monthsUntil('2026-11-25', new Date('2026-10-21T12:00:00Z')), 1);
+assert.ok(monthsUntil('2026-01-01', new Date('2026-10-21T12:00:00Z')) < 0);
+assert.equal(shopFrom('2029-06-01'), '2028-12-01');
+assert.equal(validateResetDate('2029-06-01'), '2029-06-01'); assert.equal(validateResetDate(null), null); assert.equal(validateResetDate(''), null);
+for (const bad of ['2029-02-30', '29-06-01', 5, '2099-01-01']) assert.throws(() => validateResetDate(bad));
 
 // Home entries
 const home = { name: '1 Fixture Way', kind: 'asset', category: 'property', value: 1000000, valuationDate: day, address: addr };

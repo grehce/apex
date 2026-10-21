@@ -319,3 +319,15 @@ select.select { appearance: none; -webkit-appearance: none; background-image: ur
 .cat-link:hover { color: var(--accent-ink); border-bottom-color: var(--accent); }
 .cat-name { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
 .cat-ico { display: inline-grid; place-items: center; width: 26px; height: 26px; flex: none; border-radius: var(--r-ctl); background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--line); }
+
+/* Home card: value · mortgage · equity, loan details, rate reset */
+.home-card { display: flex; flex-direction: column; gap: 14px; padding: 18px; border: 1px solid var(--line); border-radius: var(--r-inner); background: var(--surface); scroll-margin-top: 80px; }
+.home-card:target { box-shadow: 0 0 0 2px var(--accent); }
+.home-figures { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.home-figures > div { display: flex; flex-direction: column; gap: 4px; padding: 12px; background: var(--surface-2); border-radius: var(--r-inner); min-width: 0; }
+.home-figures strong { font-size: clamp(16px, 3.4vw, 20px); letter-spacing: -0.02em; }
+@media (max-width: 560px) { .home-figures { grid-template-columns: 1fr; } }
+.home-loan { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px dashed var(--line-dash); }
+.home-reset { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 12px 14px; border-radius: var(--r-inner); background: var(--surface-2); }
+.home-reset.is-soon { background: var(--accent-tint); }
+.home-reset.is-now { background: var(--warn-tint); box-shadow: inset 3px 0 0 var(--warn); }

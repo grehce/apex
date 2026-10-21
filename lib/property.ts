@@ -53,3 +53,21 @@ export function needsRevalue(lastValuedAt: Date | string | null | undefined, now
 export function dollars(n: number): string {
   return `${n < 0 ? "−" : ""}$${Math.round(Math.abs(n)).toLocaleString("en-US")}`;
 }
+
+/** What a mortgage servicer shared through Plaid, prepared for display. */
+export type LoanDetails = { ratePct: number | null; rateType: string | null; loanType: string | null; loanTerm: string | null; maturityDate: string | null; nextPayment: number | null; nextPaymentDue: string | null; escrowBalance: number | null; monthlyInterest: number | null; interestOnly: boolean };
+
+/** Months from `from` until `to` (YYYY-MM-DD), rounded down; negative once passed. */
+export function monthsUntil(to: string, from = new Date()): number {
+  const t = new Date(`${to}T12:00:00Z`);
+  let m = (t.getUTCFullYear() - from.getUTCFullYear()) * 12 + (t.getUTCMonth() - from.getUTCMonth());
+  if (t.getUTCDate() < from.getUTCDate()) m -= 1;
+  return m;
+}
+
+/** When to start shopping for a new rate: 6 months before the reset. */
+export function shopFrom(reset: string): string {
+  const d = new Date(`${reset}T12:00:00Z`);
+  d.setUTCMonth(d.getUTCMonth() - 6);
+  return d.toISOString().slice(0, 10);
+}

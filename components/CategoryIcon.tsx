@@ -2,7 +2,7 @@
 import { categoryIcon, type IconKey } from "@/lib/categories";
 
 const PATHS: Record<IconKey, string> = {
-  food: "M4 2v5a2 2 0 0 0 2 2v5M6 2v4M8 2v5a2 2 0 0 1-2 2M12 2c-1.2 0-2 1.6-2 4s.8 3 2 3v5",
+  food: "M3.5 2v4a2 2 0 0 0 4 0V2M5.5 2v12M11.5 14V2c1.4.8 2 2.6 2 5.5h-2",
   bag: "M3 5h10l-1 9H4L3 5zM6 5V4a2 2 0 0 1 4 0v1",
   wrench: "M10.5 2.5a3 3 0 0 0-3.7 3.9L2.5 10.7a1.4 1.4 0 0 0 2 2l4.3-4.3a3 3 0 0 0 3.9-3.7l-1.8 1.8-1.6-.4-.4-1.6 1.6-1.9z",
   bolt: "M9 1.5 3.5 9H8l-1 5.5L12.5 7H8l1-5.5z",

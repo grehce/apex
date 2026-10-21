@@ -18,6 +18,8 @@ export const manualEntries = pgTable("manual_entries", {
   estimateComps: integer("estimate_comps"),
   valuationProvider: text("valuation_provider"),
   lastValuedAt: timestamp("last_valued_at", { withTimezone: true }),
+  // Homes: when the mortgage's interest-only period or fixed rate ends (member-entered; Plaid doesn't report it).
+  rateResetDate: date("rate_reset_date"),
   archived: boolean("archived").notNull().default(false),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index("manual_entries_user_idx").on(t.userEmail)]);
