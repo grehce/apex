@@ -1,5 +1,6 @@
 // Shared shapes for the dashboard, built either from the database or from sample data.
 import type { ManualEntry } from "./manual-assets";
+import { categoryLabel } from "./categories";
 
 export type RangeKey = "1M" | "1Y" | "All";
 export type Series = { v: number[]; l: string[]; est?: number }; // est: fraction of the x-axis (from the left) that is estimated, not recorded
@@ -129,7 +130,7 @@ export function money(n: number, digits = 2): string {
   return (n < 0 ? "−$" : "$") + s;
 }
 
+/** Friendly display name for a category ("FOOD_AND_DRINK" → "Food & drink"). */
 export function prettyCategory(c: string | null | undefined): string {
-  if (!c) return "uncategorized";
-  return c.toLowerCase().replace(/_/g, " ");
+  return categoryLabel(c);
 }

@@ -2,6 +2,7 @@
 import { money } from "@/lib/model";
 import { useMounted } from "../hooks";
 import { Scrolly } from "../Scrolly";
+import { CategoryIcon } from "../CategoryIcon";
 
 type Row = { name: string; thisMonth: number; lastMonth: number };
 
@@ -29,17 +30,20 @@ export function SpendingCard({ rows, dayOfMonth, daysInMonth, postedTotal = 0, p
         <p className="muted" style={{ margin: 0 }}>No spending synced yet.</p>
       ) : (
         // One shared grid: every row's bar is the same width, so the pace tick lines up across categories.
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,120px) minmax(48px,1fr) max-content", alignItems: "center", gap: "14px 14px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,170px) minmax(48px,1fr) max-content", alignItems: "center", gap: "14px 14px" }}>
           {sorted.map((r, i) => {
             const over = hasLast && r.lastMonth > 0 && r.p > 100;
             // Fixed monthly bills (the mortgage) are paid all at once, so being "ahead of pace" means nothing.
-            const fixed = r.name === "mortgage";
+            const fixed = r.name.toLowerCase() === "mortgage";
             const hot = hasLast && !over && !fixed && r.lastMonth > 0 && r.p > pace * 1.4;
             return (
               <div key={r.name} style={{ display: "contents" }}>
-                {r.name === "Everything else"
-                  ? <Scrolly text={r.name} style={{ fontSize: 14 }} />
-                  : <a className="cat-link" href={`/ledger?category=${encodeURIComponent(r.name)}${month ? `&month=${month}` : ""}`} title={`See ${r.name} transactions`}><Scrolly text={r.name} style={{ fontSize: 14 }} /></a>}
+                <span className="cat-name">
+                  <span className="cat-ico"><CategoryIcon name={r.name} /></span>
+                  {r.name === "Everything else"
+                    ? <Scrolly text={r.name} style={{ fontSize: 14 }} />
+                    : <a className="cat-link" href={`/ledger?category=${encodeURIComponent(r.name)}${month ? `&month=${month}` : ""}`} title={`See ${r.name} transactions`}><Scrolly text={r.name} style={{ fontSize: 14 }} /></a>}
+                </span>
                 <div className="bar-track hatch" style={{ overflow: "visible" }}>
                   <div className="bar-fill" style={{ width: `${mounted ? Math.max(0, Math.min(100, r.p)) : 0}%`, background: over ? "var(--warn)" : hot ? "var(--brass)" : "var(--accent)", transitionDelay: `${i * 90}ms` }} />
                   {hasLast && <div aria-hidden="true" style={{ position: "absolute", left: `${pace}%`, top: -4, bottom: -4, width: 2, background: "var(--ink)", opacity: 0.25 }} />}

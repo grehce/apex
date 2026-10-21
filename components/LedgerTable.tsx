@@ -11,7 +11,7 @@ export function LedgerTable({ rows, initialCategory = "", initialMonth = "" }: {
   const [q, setQ] = useState("");
   const [f, setF] = useState<F>("all");
   // A drill-down link passes the category's display name; match it to the raw category.
-  const [cat, setCat] = useState(() => rows.find((r) => prettyCategory(r.category) === initialCategory.toLowerCase())?.category ?? "");
+  const [cat, setCat] = useState(() => rows.find((r) => prettyCategory(r.category).toLowerCase() === initialCategory.toLowerCase())?.category ?? "");
   const [month, setMonth] = useState(initialMonth);
   const [limit, setLimit] = useState(50);
   const [sort, setSort] = useState<"largest" | "newest">("largest");
@@ -24,7 +24,7 @@ export function LedgerTable({ rows, initialCategory = "", initialMonth = "" }: {
         (f === "all" || (f === "in" ? r.amount < 0 : r.amount > 0)) &&
         (!cat || r.category === cat) &&
         (!month || r.date.startsWith(month)) &&
-        (!needle || r.name.toLowerCase().includes(needle) || prettyCategory(r.category).includes(needle) || r.account.toLowerCase().includes(needle)),
+        (!needle || r.name.toLowerCase().includes(needle) || prettyCategory(r.category).toLowerCase().includes(needle) || r.account.toLowerCase().includes(needle)),
     ).sort((a, b) => (sort === "largest" ? Math.abs(b.amount) - Math.abs(a.amount) : 0) || (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
   }, [rows, q, f, cat, month, sort]);
   const inSum = filtered.filter((r) => r.amount < 0).reduce((s, r) => s - r.amount, 0);

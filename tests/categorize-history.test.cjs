@@ -53,8 +53,8 @@ assert.equal(ex.mpay.name, 'Mortgage payment'); assert.equal(ex.mrcv.name, 'Mort
 assert.equal(ex.mpay.category, 'MORTGAGE'); assert.equal(ex.mrcv.category, 'LOAN_PAYMENTS'); // cash side counts as spending, loan side doesn't
 assert.equal(ex.tj.name, "Trader Joe's"); assert.equal(ex.wsj.name, 'Wall Street Journal');
 const sx = summarizeSpending(extra, new Date('2026-10-21T12:00:00Z'));
-assert.equal(sx.cardCredits, 25); assert.equal(sx.categories.find((c) => c.name === 'mortgage').thisMonth, 3596.84); assert.ok(!sx.categories.some((c) => c.name === 'card credits'));
-assert.ok(sx.categories.every((c) => c.name !== 'entertainment' || c.thisMonth >= 0));
+assert.equal(sx.cardCredits, 25); assert.equal(sx.categories.find((c) => c.name === 'Mortgage').thisMonth, 3596.84); assert.ok(!sx.categories.some((c) => c.name === 'Card credits'));
+assert.ok(sx.categories.every((c) => c.name !== 'Entertainment' || c.thisMonth >= 0));
 
 // Spending only counts real purchases now.
 const s = summarizeSpending(categorizeTransactions(rows, kinds), new Date('2026-10-21T12:00:00Z'));

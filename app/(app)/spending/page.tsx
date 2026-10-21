@@ -5,6 +5,7 @@ import { SpendingCard } from "@/components/overview/SpendingCard";
 import { HeatmapCard } from "@/components/overview/HeatmapCard";
 import { DetailHeader, usd } from "@/components/DetailHeader";
 import { prettyCategory } from "@/lib/model";
+import { CategoryIcon } from "@/components/CategoryIcon";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Spending" };
@@ -53,7 +54,7 @@ export default async function SpendingPage() {
                   const ch = c.lastMonth ? ((c.thisMonth - c.lastMonth) / c.lastMonth) * 100 : null;
                   return (
                     <tr key={c.name}>
-                      <td><a className="cat-link" href={ledgerHref(c.name, thisM)}>{c.name}</a></td>
+                      <td><span className="cat-name"><span className="cat-ico"><CategoryIcon name={c.name} /></span><a className="cat-link" href={ledgerHref(c.name, thisM)}>{c.name}</a></span></td>
                       <td className="r mono num"><a className="cat-link" href={ledgerHref(c.name, thisM)}>{usd(c.thisMonth)}</a></td>
                       <td className="r mono num muted"><a className="cat-link" href={ledgerHref(c.name, lastM)}>{usd(c.lastMonth)}</a></td>
                       <td className="r mono" style={{ fontSize: 12 }}>{ch === null ? "new" : `${ch >= 0 ? "+" : ""}${ch.toFixed(0)}%`}</td>
