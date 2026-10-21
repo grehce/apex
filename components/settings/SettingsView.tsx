@@ -240,9 +240,11 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
                     </span>
                   </div>
                   {a.subtype === "mortgage" && !demo && !sample && !(a.id in mortgageAddresses) && homeFor !== a.id && (
-                    <div className="home-link" style={{ paddingTop: 0, paddingBottom: 0 }}>
-                      <span className="muted" style={{ flex: "1 1 220px", minWidth: 0, fontSize: 12 }}>Rate, loan type and property address aren&apos;t shared yet. Apex re-opens this {item.institution} connection to ask — nothing is erased.</span>
-                      <button type="button" className="chip" disabled={!ready || !!busy || savingInclusion} onClick={() => startLink(item.itemId, "liabilities")}>share loan details</button>
+                    <div className="home-link inner">
+                      <span style={{ flex: "1 1 220px", minWidth: 0, fontSize: 13 }}>
+                        <strong>Loan details not shared.</strong> <span className="muted">Rate, loan type and property address. Apex re-opens this {item.institution} connection to ask — nothing is erased.</span>
+                      </span>
+                      <button type="button" className="btn btn-sm" disabled={!ready || !!busy || savingInclusion} onClick={() => startLink(item.itemId, "liabilities")}>Share loan details</button>
                     </div>
                   )}
                   {a.subtype === "mortgage" && !demo && !sample && home && eq && homeFor !== a.id && (
