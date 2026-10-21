@@ -6,7 +6,7 @@ const rows=[tx(100),tx(-25),tx(50,'FOOD_AND_DRINK','2026-10-05',true),tx(900,'TR
 const s=summarizeSpending(rows,now);
 assert.equal(s.total,111);assert.equal(s.lastTotal,80);assert.equal(s.pendingTotal,50);assert.equal(s.pendingCount,1);
 assert.equal(s.categories.find(c=>c.name==='food and drink').thisMonth,75);
-assert.equal(s.paceCategories.length,7);assert.equal(s.paceCategories.at(-1).name,'Other');
+assert.equal(s.paceCategories.length,7);assert.equal(s.paceCategories.at(-1).name,'Everything else');
 assert.equal(s.paceCategories.reduce((n,c)=>n+c.thisMonth,0),s.total);
 assert.equal(s.paceCategories.reduce((n,c)=>n+c.lastMonth,0),s.lastTotal);
 assert.equal(summarizeSpending([tx(-10)],now).total,-10);

@@ -34,6 +34,27 @@ assert.doesNotMatch(Object.values(out).map((t) => t.name).join(' '), /INDN|Test 
 assert.equal(cleanName('TOTALLY PLAIN NAME'), 'Totally Plain Name');
 assert.equal(rows[1].category, 'OTHER'); // input not mutated
 
+// Card perks, refunds that offset their purchase, pharmacies, mortgage naming.
+const extra = categorizeTransactions([
+  tx('perk', 'card', '2026-10-07', 'Platinum Digital Entertainment Credit', 'ENTERTAINMENT', -25),
+  tx('ucr', 'card', '2026-09-21', 'Uber', 'ENTERTAINMENT', -9.99),
+  tx('uone', 'card', '2026-09-20', 'Uber', 'GENERAL_SERVICES', 9.99),
+  tx('cvs', 'card', '2026-10-08', 'Cvs', 'MEDICAL', 10.04),
+  tx('mpay', 'bank', '2026-10-01', 'JPMORGAN CHASE CHASE ACH PPD', 'OTHER', 3596.84),
+  tx('mrcv', 'loan', '2026-10-01', 'Payment', 'LOAN_PAYMENTS', -3596.84),
+  tx('tj', 'card', '2026-10-02', "Trader Joe's", 'FOOD_AND_DRINK', 20),
+  tx('wsj', 'card', '2026-10-03', 'Aplpay D J*Wsj', 'GENERAL_MERCHANDISE', 38.99),
+], { ...kinds, loan: 'loan' }, { loan: 'mortgage' });
+const ex = Object.fromEntries(extra.map((t) => [t.id, t]));
+assert.equal(ex.perk.category, 'CARD_CREDITS');
+assert.equal(ex.ucr.category, 'GENERAL_SERVICES'); // credit offsets the Uber charge it reverses
+assert.equal(ex.cvs.category, 'GENERAL_MERCHANDISE'); assert.equal(ex.cvs.name, 'CVS');
+assert.equal(ex.mpay.name, 'Mortgage payment'); assert.equal(ex.mrcv.name, 'Mortgage payment');
+assert.equal(ex.tj.name, "Trader Joe's"); assert.equal(ex.wsj.name, 'Wall Street Journal');
+const sx = summarizeSpending(extra, new Date('2026-10-21T12:00:00Z'));
+assert.equal(sx.cardCredits, 25); assert.ok(!sx.categories.some((c) => c.name === 'card credits'));
+assert.ok(sx.categories.every((c) => c.name !== 'entertainment' || c.thisMonth >= 0));
+
 // Spending only counts real purchases now.
 const s = summarizeSpending(categorizeTransactions(rows, kinds), new Date('2026-10-21T12:00:00Z'));
 assert.equal(s.total, 101.21);
@@ -67,4 +88,12 @@ const sched = estimateHistory({ accounts: [accounts[0], accounts[3]], txs: [{ ac
 const year = sched.find((p) => p.day === '2025-11-01'), last = sched.at(-1);
 assert.equal(last.value, 1000 - 100000);
 assert.ok(year.value < 1000 - 100000 - 4000 && year.value > 1000 - 100000 - 12000, `a year back the loan was a few thousand higher, got ${year.value}`);
+// With a known rate, a mortgage payment only reduces the loan by its principal part.
+const loanAcct = { id: 'loan', balance: -120000, include: true, type: 'loan', subtype: 'mortgage' };
+const cash = { id: 'bank', balance: 10000, include: true, type: 'depository', subtype: 'checking' };
+const payTx = [{ accountId: 'bank', date: '2026-10-01', amount: 1000 }, { accountId: 'loan', date: '2026-10-01', amount: -1000 }];
+const noRate = estimateHistory({ accounts: [cash, loanAcct], txs: payTx, manualTotal: 0, snapshots: [], today });
+const withRate = estimateHistory({ accounts: [cash, loanAcct], txs: payTx, manualTotal: 0, snapshots: [], today, mortgages: [{ accountId: 'loan', ratePct: 6, monthlyPayment: 0 }] });
+assert.equal(noRate[0].value, noRate.at(-1).value); // without a rate the payment looks net-neutral
+assert.equal(Math.round(withRate.at(-1).value - withRate[0].value), -600); // $600 of the $1,000 was interest (120k × 6% / 12)
 console.log('PASS categorize + history: own-account transfers, card payments, income, merchants, clean names, spending totals, backward replay, snapshots win, mortgage schedule');

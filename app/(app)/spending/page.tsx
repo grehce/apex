@@ -14,6 +14,8 @@ export default async function SpendingPage() {
   const now = new Date(d.asOf);
   const daysInMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0)).getUTCDate();
   const thisM = d.asOf.slice(0, 7);
+  const lastM = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1)).toISOString().slice(0, 7);
+  const ledgerHref = (cat: string, month: string) => `/ledger?category=${encodeURIComponent(cat)}&month=${month}`;
 
   const monthSpend = d.spending.current;
   const total = d.spending.total;
@@ -37,7 +39,7 @@ export default async function SpendingPage() {
       />
       <SampleBanner d={d} signedIn={Boolean(email)} />
       <div className="grid-2">
-        <SpendingCard pendingTotal={d.spending.pendingTotal} postedTotal={d.spending.total} rows={d.spendByCategory} dayOfMonth={now.getUTCDate()} daysInMonth={daysInMonth} />
+        <SpendingCard pendingTotal={d.spending.pendingTotal} postedTotal={d.spending.total} rows={d.spendByCategory} dayOfMonth={now.getUTCDate()} daysInMonth={daysInMonth} cardCredits={d.spending.cardCredits} month={d.asOf.slice(0, 7)} />
         <HeatmapCard days={d.heat} />
       </div>
       <div className="grid-2">
@@ -51,9 +53,9 @@ export default async function SpendingPage() {
                   const ch = c.lastMonth ? ((c.thisMonth - c.lastMonth) / c.lastMonth) * 100 : null;
                   return (
                     <tr key={c.name}>
-                      <td>{c.name}</td>
-                      <td className="r mono num">{usd(c.thisMonth)}</td>
-                      <td className="r mono num muted">{usd(c.lastMonth)}</td>
+                      <td><a className="cat-link" href={ledgerHref(c.name, thisM)}>{c.name}</a></td>
+                      <td className="r mono num"><a className="cat-link" href={ledgerHref(c.name, thisM)}>{usd(c.thisMonth)}</a></td>
+                      <td className="r mono num muted"><a className="cat-link" href={ledgerHref(c.name, lastM)}>{usd(c.lastMonth)}</a></td>
                       <td className="r mono" style={{ fontSize: 12 }}>{ch === null ? "new" : `${ch >= 0 ? "+" : ""}${ch.toFixed(0)}%`}</td>
                     </tr>
                   );

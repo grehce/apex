@@ -41,7 +41,7 @@ export default async function OverviewPage() {
         tiles={[
           { id: "networth", title: "Net worth", href: "/networth", wide: true, node: <NetWorthCard netWorth={d.netWorth} series={d.series} historyDays={d.historyDays} estimatedDays={d.estimatedDays} /> },
           { id: "allocation", title: "Allocation", href: "/portfolio", node: <AllocationCard rows={d.allocation} invested={d.invested} /> },
-          { id: "spending", title: "Spending pace", href: "/spending", node: <SpendingCard pendingTotal={d.spending.pendingTotal} postedTotal={d.spending.total} rows={d.spendByCategory} dayOfMonth={now.getUTCDate()} daysInMonth={daysInMonth} /> },
+          { id: "spending", title: "Spending pace", href: "/spending", node: <SpendingCard pendingTotal={d.spending.pendingTotal} postedTotal={d.spending.total} rows={d.spendByCategory} dayOfMonth={now.getUTCDate()} daysInMonth={daysInMonth} cardCredits={d.spending.cardCredits} month={d.asOf.slice(0, 7)} /> },
           { id: "ledger", title: "Ledger", href: "/ledger", node: <LedgerCard rows={d.ledger} /> },
           { id: "daily", title: "Daily spend", href: "/spending", node: <HeatmapCard days={d.heat} /> },
         ]}

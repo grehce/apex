@@ -31,7 +31,17 @@ export function estimateHistory(opts: {
   const todayDay = ymd(today.getTime());
   const included = accounts.filter((a) => a.include);
   const ids = new Set(included.map((a) => a.id));
-  const posted = txs.filter((t) => !t.pending && t.accountId && ids.has(t.accountId) && t.date <= todayDay);
+  const schedules = new Map(mortgages.filter((m) => m.ratePct > 0).map((m) => [m.accountId, m]));
+  const balanceOf = new Map(included.map((a) => [a.id, a.balance]));
+  // A payment into a loan only reduces what's owed by its principal part; the interest part is a real cost.
+  // With a known rate, count just the principal (payment − balance × monthly rate) on the loan side.
+  const principalOnly = (t: HistTx): HistTx => {
+    const m = t.accountId ? schedules.get(t.accountId) : undefined;
+    if (!m || t.amount >= 0) return t;
+    const interest = Math.abs(balanceOf.get(t.accountId!) ?? 0) * (m.ratePct / 100 / 12);
+    return { ...t, amount: -Math.max(0, Math.abs(t.amount) - interest) };
+  };
+  const posted = txs.filter((t) => !t.pending && t.accountId && ids.has(t.accountId) && t.date <= todayDay).map(principalOnly);
   const earliestTx = posted.reduce<string | null>((m, t) => (m === null || t.date < m ? t.date : m), null);
   const earliestSnap = snapshots.reduce<string | null>((m, s) => (m === null || s.day < m ? s.day : m), null);
   const floor = ymd(today.getTime() - MAX_HISTORY_DAYS * DAY);
@@ -44,7 +54,6 @@ export function estimateHistory(opts: {
   const byDay = new Map<string, number>();
   for (const t of posted) byDay.set(t.date, (byDay.get(t.date) ?? 0) + Math.round(t.amount * 100));
 
-  const schedules = new Map(mortgages.filter((m) => m.ratePct > 0 && m.monthlyPayment > 0).map((m) => [m.accountId, m]));
   const txAccounts = new Set(posted.map((t) => t.accountId!));
   const now = included.reduce((s, a) => s + Math.round(a.balance * 100), 0) + Math.round(manualTotal * 100);
 
@@ -60,7 +69,7 @@ export function estimateHistory(opts: {
     const monthsBack = (Date.parse(todayDay + "T00:00:00Z") - t) / (DAY * 30.4375);
     for (const a of included) {
       const m = schedules.get(a.id);
-      if (!m || txAccounts.has(a.id)) continue;
+      if (!m || !(m.monthlyPayment > 0) || txAccounts.has(a.id)) continue;
       const r = m.ratePct / 100 / 12;
       let owed = Math.abs(a.balance);
       for (let k = 0; k < Math.floor(monthsBack); k++) owed = (owed + m.monthlyPayment) / (1 + r);

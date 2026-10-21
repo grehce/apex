@@ -5,10 +5,14 @@ import { prettyCategory } from "@/lib/model";
 
 type F = "all" | "in" | "out";
 
-export function LedgerTable({ rows }: { rows: TxRow[] }) {
+const monthLabel = (m: string) => new Date(`${m}-15T00:00:00Z`).toLocaleString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+
+export function LedgerTable({ rows, initialCategory = "", initialMonth = "" }: { rows: TxRow[]; initialCategory?: string; initialMonth?: string }) {
   const [q, setQ] = useState("");
   const [f, setF] = useState<F>("all");
-  const [cat, setCat] = useState("");
+  // A drill-down link passes the category's display name; match it to the raw category.
+  const [cat, setCat] = useState(() => rows.find((r) => prettyCategory(r.category) === initialCategory.toLowerCase())?.category ?? "");
+  const [month, setMonth] = useState(initialMonth);
   const [limit, setLimit] = useState(50);
   const [sort, setSort] = useState<"largest" | "newest">("largest");
 
@@ -19,9 +23,10 @@ export function LedgerTable({ rows }: { rows: TxRow[] }) {
       (r) =>
         (f === "all" || (f === "in" ? r.amount < 0 : r.amount > 0)) &&
         (!cat || r.category === cat) &&
+        (!month || r.date.startsWith(month)) &&
         (!needle || r.name.toLowerCase().includes(needle) || prettyCategory(r.category).includes(needle) || r.account.toLowerCase().includes(needle)),
     ).sort((a, b) => (sort === "largest" ? Math.abs(b.amount) - Math.abs(a.amount) : 0) || (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
-  }, [rows, q, f, cat, sort]);
+  }, [rows, q, f, cat, month, sort]);
   const inSum = filtered.filter((r) => r.amount < 0).reduce((s, r) => s - r.amount, 0);
   const outSum = filtered.filter((r) => r.amount > 0).reduce((s, r) => s + r.amount, 0);
   const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -50,8 +55,14 @@ export function LedgerTable({ rows }: { rows: TxRow[] }) {
           ))}
         </div>
       </div>
+      {month && (
+        <div className="row" style={{ gap: 8 }}>
+          <button type="button" className="chip" aria-pressed="true" onClick={() => setMonth("")} aria-label={`Remove ${monthLabel(month)} filter`}>{monthLabel(month)} ×</button>
+          <span className="mono muted" style={{ fontSize: 12 }}>includes pending; transfers and payments show here but aren&apos;t counted as spending</span>
+        </div>
+      )}
       <div className="mono muted" style={{ fontSize: 12 }} aria-live="polite">
-        {filtered.length} transactions · in +{fmt(inSum)} · out −{fmt(outSum)}
+        {filtered.length} transactions · in +{fmt(inSum)} · out −{fmt(outSum)}{cat ? ` · net ${outSum - inSum >= 0 ? "−" : "+"}${fmt(Math.abs(outSum - inSum))}` : ""}
       </div>
       <div className="table-wrap">
         <table className="data t-ledger">

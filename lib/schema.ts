@@ -46,6 +46,8 @@ export const mortgageDetails = pgTable("mortgage_details", {
   nextPayment: doublePrecision("next_payment"),
   nextPaymentDue: date("next_payment_due"),
   escrowBalance: doublePrecision("escrow_balance"),
+  loanType: text("loan_type"), // e.g. "Conventional"
+  loanTerm: text("loan_term"), // e.g. "30 year"
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index("mortgage_details_user_idx").on(t.userEmail)]);
 

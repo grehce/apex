@@ -110,7 +110,8 @@ export async function loadDashboard(email: string): Promise<Dashboard> {
 
   // Apex's own clean-up on top of Plaid: own-account transfers, card payments, income, merchant keywords, names.
   const kinds = Object.fromEntries(acctRows.map((a) => [a.accountId, a.type]));
-  const cleaned = categorizeTransactions(txs, kinds);
+  const subtypes = Object.fromEntries(acctRows.map((a) => [a.accountId, a.subtype]));
+  const cleaned = categorizeTransactions(txs, kinds, subtypes);
 
   // Estimated history: every posted transaction (not just the 120-day window) replayed backwards.
   const histSince = new Date(Date.now() - MAX_HISTORY_DAYS * 86400000).toISOString().slice(0, 10);
@@ -122,7 +123,7 @@ export async function loadDashboard(email: string): Promise<Dashboard> {
   const snapshots = snaps.map((s) => ({ day: s.day, value: s.value }));
   const history = estimateHistory({
     accounts: acctList, txs: histTx, manualTotal, snapshots, today: new Date(),
-    mortgages: loans.filter((l) => l.ratePct != null && l.payment != null).map((l) => ({ accountId: l.accountId, ratePct: l.ratePct!, monthlyPayment: l.payment! })),
+    mortgages: loans.filter((l) => l.ratePct != null).map((l) => ({ accountId: l.accountId, ratePct: l.ratePct!, monthlyPayment: l.payment ?? 0 })),
   });
 
   return build(

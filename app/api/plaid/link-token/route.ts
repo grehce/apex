@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   const g = await guard(req);
   if (g instanceof NextResponse) return g;
 
-  const body = (await req.json().catch(() => ({}))) as { itemId?: string };
+  const body = (await req.json().catch(() => ({}))) as { itemId?: string; consent?: "liabilities" };
   // Plaid wants a stable, non-PII user id.
   const clientUserId = createHash("sha256").update(g.email).digest("hex").slice(0, 32);
 
@@ -36,7 +36,9 @@ export async function POST(req: Request) {
     // Must exactly match a redirect URI registered in the Plaid Dashboard.
     ...(plaidEnv() === "production" ? { redirect_uri: process.env.PLAID_REDIRECT_URI || `${new URL(req.url).origin}/oauth` } : {}),
     ...(accessToken
-      ? { access_token: accessToken }
+      ? // Update mode. With consent: "liabilities", the existing connection is asked to also share
+        // mortgage details — nothing is erased and the account ids stay the same.
+        { access_token: accessToken, ...(body.consent === "liabilities" ? { additional_consented_products: [Products.Liabilities] } : {}) }
       // Ask for 24 months of transactions (Plaid's maximum) so net worth history can be rebuilt.
       // Liabilities is consent-only here: Plaid bills it only once /liabilities/get is called,
       // and sync calls it only on Items that actually hold a mortgage.

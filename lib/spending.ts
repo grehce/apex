@@ -1,5 +1,6 @@
 import { prettyCategory, type TxRow } from "./model";
-const NOT_SPEND = new Set(["TRANSFER_IN", "TRANSFER_OUT", "LOAN_PAYMENTS", "INCOME"]);
+// CARD_CREDITS: card perks (e.g. a monthly streaming credit) are reported separately, not netted into a category.
+const NOT_SPEND = new Set(["TRANSFER_IN", "TRANSFER_OUT", "LOAN_PAYMENTS", "INCOME", "CARD_CREDITS"]);
 const sum = (rows: TxRow[]) => rows.reduce((s, t) => s + Math.round(t.amount * 100), 0) / 100;
 export function summarizeSpending(rows: TxRow[], now: Date) {
   const today = now.toISOString().slice(0, 10), thisMonth = today.slice(0, 7);
@@ -16,8 +17,13 @@ export function summarizeSpending(rows: TxRow[], now: Date) {
     map.set(name, c);
   }
   const categories = [...map.values()].map(c => ({ ...c, thisMonth: c.thisMonth / 100, lastMonth: c.lastMonth / 100 })).sort((a,b) => b.thisMonth - a.thisMonth || a.name.localeCompare(b.name));
-  const paceCategories = categories.slice(0, 6);
-  if (categories.length > 6) paceCategories.push({ name: "Other", thisMonth: categories.slice(6).reduce((s,c)=>s+Math.round(c.thisMonth*100),0)/100, lastMonth: categories.slice(6).reduce((s,c)=>s+Math.round(c.lastMonth*100),0)/100 });
-  return { posted, current, categories, paceCategories, total: sum(current), lastTotal: sum(previous), pendingTotal: sum(pending), pendingCount: pending.length };
+  // Pace bars: the six biggest categories that net to spending this month; everything else (including
+  // categories where refunds outweigh purchases) rolls into one bar so the bars still add up to the total.
+  const positive = categories.filter(c => c.thisMonth > 0);
+  const paceCategories = positive.slice(0, 6);
+  const rest = categories.filter(c => !paceCategories.includes(c));
+  if (rest.length) paceCategories.push({ name: "Everything else", thisMonth: rest.reduce((s,c)=>s+Math.round(c.thisMonth*100),0)/100, lastMonth: rest.reduce((s,c)=>s+Math.round(c.lastMonth*100),0)/100 });
+  const credits = rows.filter(t => !t.pending && t.category === "CARD_CREDITS" && t.date <= today && t.date.startsWith(thisMonth));
+  return { posted, current, categories, paceCategories, total: sum(current), lastTotal: sum(previous), pendingTotal: sum(pending), pendingCount: pending.length, cardCredits: -sum(credits), cardCreditCount: credits.length };
 }
 export type SpendingSummary = ReturnType<typeof summarizeSpending>;

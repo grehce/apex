@@ -18,7 +18,8 @@ export default async function SettingsPage() {
   // Decrypted only here, for the signed-in owner; addresses never reach the dashboard model, API or agent.
   const homes = email && !d.sample ? await homeContext(email) : { addresses: {}, mortgages: {} };
   const mortgageAddresses = Object.fromEntries(Object.values(homes.mortgages).map((m) => [m.accountId, m.address]));
-  const mortgageRates = Object.fromEntries(Object.values(homes.mortgages).filter((m) => m.interestRatePct != null).map((m) => [m.accountId, `${m.interestRatePct}%${m.interestRateType ? ` ${m.interestRateType}` : ""}`]));
+  // "30 year · Conventional · 3.125% fixed" — whatever Plaid shared.
+  const mortgageRates = Object.fromEntries(Object.values(homes.mortgages).map((m) => [m.accountId, [m.loanTerm, m.loanType, m.interestRatePct != null ? `${m.interestRatePct}%${m.interestRateType ? ` ${m.interestRateType}` : ""}` : null].filter(Boolean).join(" · ")]).filter(([, label]) => label));
   return (
     <main className="shell" style={{ gap: 20 }}>
       {demo && <SampleBanner d={d} signedIn={false} />}

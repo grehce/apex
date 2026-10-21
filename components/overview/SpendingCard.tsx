@@ -5,7 +5,7 @@ import { Scrolly } from "../Scrolly";
 
 type Row = { name: string; thisMonth: number; lastMonth: number };
 
-export function SpendingCard({ rows, dayOfMonth, daysInMonth, postedTotal = 0, pendingTotal = 0 }: { rows: Row[]; dayOfMonth: number; daysInMonth: number; postedTotal?: number; pendingTotal?: number }) {
+export function SpendingCard({ rows, dayOfMonth, daysInMonth, postedTotal = 0, pendingTotal = 0, cardCredits = 0, month }: { rows: Row[]; dayOfMonth: number; daysInMonth: number; postedTotal?: number; pendingTotal?: number; cardCredits?: number; month?: string }) {
   const mounted = useMounted();
   const pace = (dayOfMonth / daysInMonth) * 100;
   // Without last month's spending there's nothing to pace against: show this month's split instead.
@@ -14,6 +14,7 @@ export function SpendingCard({ rows, dayOfMonth, daysInMonth, postedTotal = 0, p
   const lastName = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() - 1, 15)).toLocaleString("en-US", { month: "long", timeZone: "UTC" });
   // Sort by how far through last month's total each category already is — longest bar first.
   const sorted = rows
+    .filter((r) => r.thisMonth > 0) // nothing (or net refunds) this month: no bar; the Spending table still lists it
     .map((r) => ({ ...r, p: !hasLast ? (r.thisMonth / maxThis) * 100 : r.lastMonth > 0 ? (r.thisMonth / r.lastMonth) * 100 : 100 }))
     .sort((a, b) => b.p - a.p || b.thisMonth - a.thisMonth);
 
@@ -23,17 +24,20 @@ export function SpendingCard({ rows, dayOfMonth, daysInMonth, postedTotal = 0, p
         <h2 id="sp-h">Spending pace</h2>
         <span className="mono muted" style={{ fontSize: 12 }}>day {dayOfMonth}/{daysInMonth} · {Math.round(pace)}%</span>
       </div>
-      <p className="note">Posted this month {money(postedTotal)} · pending {money(pendingTotal)} (separate)</p>
+      <p className="note">Posted this month {money(postedTotal)} · pending {money(pendingTotal)} (separate){cardCredits > 0 ? <> · <a href={`/ledger?category=${encodeURIComponent("card credits")}${month ? `&month=${month}` : ""}`}>card credits −{money(cardCredits)}</a> (not counted)</> : null}</p>
       {sorted.length === 0 ? (
         <p className="muted" style={{ margin: 0 }}>No spending synced yet.</p>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        // One shared grid: every row's bar is the same width, so the pace tick lines up across categories.
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,120px) minmax(48px,1fr) max-content", alignItems: "center", gap: "14px 14px" }}>
           {sorted.map((r, i) => {
             const over = hasLast && r.lastMonth > 0 && r.p > 100;
             const hot = hasLast && !over && r.lastMonth > 0 && r.p > pace * 1.4;
             return (
-              <div key={r.name} style={{ display: "grid", gridTemplateColumns: "minmax(0,120px) minmax(48px,1fr) auto", alignItems: "center", gap: 14 }}>
-                <Scrolly text={r.name} style={{ fontSize: 14 }} />
+              <div key={r.name} style={{ display: "contents" }}>
+                {r.name === "Everything else"
+                  ? <Scrolly text={r.name} style={{ fontSize: 14 }} />
+                  : <a className="cat-link" href={`/ledger?category=${encodeURIComponent(r.name)}${month ? `&month=${month}` : ""}`} title={`See ${r.name} transactions`}><Scrolly text={r.name} style={{ fontSize: 14 }} /></a>}
                 <div className="bar-track hatch" style={{ overflow: "visible" }}>
                   <div className="bar-fill" style={{ width: `${mounted ? Math.max(0, Math.min(100, r.p)) : 0}%`, background: over ? "var(--warn)" : hot ? "var(--brass)" : "var(--accent)", transitionDelay: `${i * 90}ms` }} />
                   {hasLast && <div aria-hidden="true" style={{ position: "absolute", left: `${pace}%`, top: -4, bottom: -4, width: 2, background: "var(--ink)", opacity: 0.25 }} />}
