@@ -27,7 +27,7 @@ export function ManualAssets({ entries, accounts, signedIn }: { entries: ManualE
     } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   }
   function edit(e: ManualEntry) { setError(""); setDraft({ id: e.id, name: e.name, kind: e.kind, category: e.category, value: String(e.value), valuationDate: e.valuationDate, linkedMortgageId: e.linkedMortgageId ?? "", liabilityConfirmed: false }); }
-  return <section className="card" aria-label="Manual assets and liabilities">
+  return <section id="manual-assets" className="card" aria-label="Manual assets and liabilities">
     <div className="row between"><h2>Manual assets &amp; liabilities</h2><button className="btn" disabled={busy} onClick={() => signedIn ? (setError(""), setDraft(blank())) : router.push("/signin")}>Add manual asset</button></div>
     <p className="muted">Enter a property&apos;s full estimated value, not equity. A linked mortgage is already counted separately; do not add it again. Estimates are in USD and are not automatic valuations.</p>
     {signedIn && suggestions.map((a) => <div className="row between" key={a.id} style={{ padding: "12px 0", gap: 12 }}>
