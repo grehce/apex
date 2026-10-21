@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AccountRow } from "@/lib/model";
 import type { ManualEntry } from "@/lib/manual-assets";
-import { dollars, equity, monthsUntil, shopFrom, type Address, type LoanDetails } from "@/lib/property";
+import { dollars, equity, likelyResetDates, monthsUntil, shopFrom, type Address, type LoanDetails } from "@/lib/property";
 
 const longDate = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 const monthYear = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
@@ -57,6 +57,7 @@ export function HomeCard({ entry, address, mortgage, loan, signedIn, busy, onEdi
     loan.interestOnly ? "interest-only" : null,
     loan.loanTerm, loan.loanType,
     loan.nextPayment != null ? `${dollars(loan.nextPayment)}/mo${loan.nextPaymentDue ? `, next ${longDate(loan.nextPaymentDue)}` : ""}` : null,
+    loan.originationDate ? `since ${monthYear(loan.originationDate)}` : null,
     loan.maturityDate ? `matures ${monthYear(loan.maturityDate)}` : null,
   ].filter(Boolean) as string[] : [];
 
@@ -121,7 +122,15 @@ export function HomeCard({ entry, address, mortgage, loan, signedIn, busy, onEdi
             ) : editingReset || !resetDate ? (
               <>
                 <label style={{ flex: "1 1 240px", minWidth: 0, fontSize: 13, display: "flex", flexDirection: "column", gap: 6 }}>
-                  <span><strong>{loan?.interestOnly ? "When does the interest-only period end?" : "When does the rate reset?"}</strong> <span className="muted">It&apos;s in your loan documents (often 5, 7 or 10 years after closing). Apex will remind you to shop rates 6 months before.</span></span>
+                  <span><strong>{loan?.interestOnly ? "When does the interest-only period end?" : "When does the rate reset?"}</strong> <span className="muted">Plaid doesn&apos;t report it — check your Chase mortgage statement or closing documents (often 5, 7 or 10 years after closing). Apex will remind you to shop rates 6 months before.</span></span>
+                  {loan?.interestOnly && loan.originationDate && likelyResetDates(loan.originationDate).length > 0 && (
+                    <span className="row" style={{ gap: 6 }}>
+                      <span className="mono muted" style={{ fontSize: 11 }}>typical for a loan from {monthYear(loan.originationDate)} — confirm on your statement:</span>
+                      {likelyResetDates(loan.originationDate).map((o) => (
+                        <button key={o.years} type="button" className="chip" aria-pressed={reset === o.date} disabled={!signedIn} onClick={() => setReset(o.date)}>{o.years}-yr IO · {monthYear(o.date)}</button>
+                      ))}
+                    </span>
+                  )}
                   <input type="date" value={reset} min="1990-01-01" max="2075-12-31" onChange={(e) => setReset(e.target.value)} disabled={!signedIn} style={{ maxWidth: 200, padding: "8px 10px", border: "1px solid var(--line)", borderRadius: 6, font: "inherit", background: "var(--surface)", color: "var(--ink)" }} />
                 </label>
                 <div className="row" style={{ gap: 8 }}>

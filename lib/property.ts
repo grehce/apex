@@ -55,7 +55,20 @@ export function dollars(n: number): string {
 }
 
 /** What a mortgage servicer shared through Plaid, prepared for display. */
-export type LoanDetails = { ratePct: number | null; rateType: string | null; loanType: string | null; loanTerm: string | null; maturityDate: string | null; nextPayment: number | null; nextPaymentDue: string | null; escrowBalance: number | null; monthlyInterest: number | null; interestOnly: boolean };
+export type LoanDetails = { ratePct: number | null; rateType: string | null; loanType: string | null; loanTerm: string | null; maturityDate: string | null; nextPayment: number | null; nextPaymentDue: string | null; escrowBalance: number | null; originationDate?: string | null; monthlyInterest: number | null; interestOnly: boolean };
+
+/**
+ * Likely interest-only end dates: 5, 7 or 10 years after the loan started. Only future dates are
+ * returned — a loan that's interest-only today can't have an IO period that already ended.
+ * These are typical structures, not facts; the member confirms one.
+ */
+export function likelyResetDates(originationDate: string, now = new Date()): { years: number; date: string }[] {
+  return [5, 7, 10].map((years) => {
+    const d = new Date(`${originationDate}T12:00:00Z`);
+    d.setUTCFullYear(d.getUTCFullYear() + years);
+    return { years, date: d.toISOString().slice(0, 10) };
+  }).filter((o) => o.date > now.toISOString().slice(0, 10));
+}
 
 /** Months from `from` until `to` (YYYY-MM-DD), rounded down; negative once passed. */
 export function monthsUntil(to: string, from = new Date()): number {

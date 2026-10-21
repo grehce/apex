@@ -25,7 +25,7 @@ export default async function SettingsPage() {
     const bal = balances.get(m.accountId) ?? 0;
     const interest = m.interestRatePct != null ? (bal * m.interestRatePct) / 100 / 12 : null;
     const interestOnly = interest != null && m.nextPayment != null && interest > 0 && Math.abs(m.nextPayment - interest) / interest < 0.01;
-    return [m.accountId, { ratePct: m.interestRatePct, rateType: m.interestRateType, loanType: m.loanType, loanTerm: m.loanTerm, maturityDate: m.maturityDate, nextPayment: m.nextPayment, nextPaymentDue: m.nextPaymentDue, escrowBalance: m.escrowBalance, monthlyInterest: interest, interestOnly }];
+    return [m.accountId, { ratePct: m.interestRatePct, rateType: m.interestRateType, loanType: m.loanType, loanTerm: m.loanTerm, maturityDate: m.maturityDate, nextPayment: m.nextPayment, nextPaymentDue: m.nextPaymentDue, escrowBalance: m.escrowBalance, originationDate: m.originationDate, monthlyInterest: interest, interestOnly }];
   }));
   return (
     <main className="shell" style={{ gap: 20 }}>

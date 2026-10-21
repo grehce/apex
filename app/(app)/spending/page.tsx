@@ -40,7 +40,7 @@ export default async function SpendingPage() {
       />
       <SampleBanner d={d} signedIn={Boolean(email)} />
       <div className="grid-2">
-        <SpendingCard pendingTotal={d.spending.pendingTotal} postedTotal={d.spending.total} rows={d.spendByCategory} dayOfMonth={now.getUTCDate()} daysInMonth={daysInMonth} cardCredits={d.spending.cardCredits} month={d.asOf.slice(0, 7)} />
+        <SpendingCard pendingTotal={d.spending.pendingTotal} postedTotal={d.spending.total} rows={d.spending.categories} dayOfMonth={now.getUTCDate()} daysInMonth={daysInMonth} cardCredits={d.spending.cardCredits} month={d.asOf.slice(0, 7)} />
         <HeatmapCard days={d.heat} />
       </div>
       <div className="grid-2">

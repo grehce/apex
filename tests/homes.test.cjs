@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const ts = require('typescript');
-const { validateAddress, fromPlaidAddress, equity, needsRevalue, formatAddress, monthsUntil, shopFrom } = require('../lib/property.ts');
+const { validateAddress, fromPlaidAddress, equity, needsRevalue, formatAddress, monthsUntil, shopFrom, likelyResetDates } = require('../lib/property.ts');
 const { validateResetDate } = require('../lib/manual-assets.ts');
 const { validateManualEntry } = require('../lib/manual-assets.ts');
 const { rentcast, ValuationError } = require('../lib/valuation.ts');
@@ -28,6 +28,8 @@ assert.equal(monthsUntil('2029-06-01', new Date('2026-10-21T12:00:00Z')), 31);
 assert.equal(monthsUntil('2026-11-25', new Date('2026-10-21T12:00:00Z')), 1);
 assert.ok(monthsUntil('2026-01-01', new Date('2026-10-21T12:00:00Z')) < 0);
 assert.equal(shopFrom('2029-06-01'), '2028-12-01');
+assert.deepEqual(likelyResetDates('2020-09-01', new Date('2026-10-21T12:00:00Z')), [{ years: 7, date: '2027-09-01' }, { years: 10, date: '2030-09-01' }]); // 5-yr already passed, so it's not offered
+assert.equal(likelyResetDates('2022-09-01', new Date('2026-10-21T12:00:00Z')).length, 3);
 assert.equal(validateResetDate('2029-06-01'), '2029-06-01'); assert.equal(validateResetDate(null), null); assert.equal(validateResetDate(''), null);
 for (const bad of ['2029-02-30', '29-06-01', 5, '2099-01-01']) assert.throws(() => validateResetDate(bad));
 

@@ -126,6 +126,7 @@ async function syncMortgages(item: Item, accessToken: string): Promise<void> {
       escrowBalance: m.escrow_balance ?? null,
       loanType: m.loan_type_description ?? null,
       loanTerm: m.loan_term ?? null,
+      originationDate: m.origination_date ?? null,
       updatedAt: new Date(),
     };
     await d.insert(mortgageDetails).values(row).onConflictDoUpdate({ target: mortgageDetails.accountId, set: row });
