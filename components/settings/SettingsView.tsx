@@ -12,6 +12,9 @@ import type { ManualEntry } from "@/lib/manual-assets";
 import { netWorthTotal, saveInclusion } from "@/lib/net-worth";
 import { money } from "@/lib/model";
 
+export type LoanDetails = { ratePct: number | null; rateType: string | null; loanType: string | null; loanTerm: string | null; maturityDate: string | null; nextPayment: number | null; nextPaymentDue: string | null; escrowBalance: number | null; monthlyInterest: number | null; interestOnly: boolean };
+const shortDate = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+
 type Props = {
   manualEntries: ManualEntry[];
   initialNetWorth: number;
@@ -22,7 +25,7 @@ type Props = {
   demo?: boolean; // signed out: browse sample accounts; any action goes to sign up / log in
   addresses?: Record<string, Address>; // decrypted home addresses by manual entry id
   mortgageAddresses?: Record<string, Address | null>; // Plaid Liabilities property address by mortgage account id
-  mortgageRates?: Record<string, string>; // "6.25% fixed" by mortgage account id
+  loanDetails?: Record<string, LoanDetails>; // what the servicer shared via Plaid, by mortgage account id
   estimatesEnabled?: boolean;
 };
 
@@ -43,7 +46,7 @@ function ago(iso: string | null) {
   return `${Math.round(h / 24)} d ago`;
 }
 
-export function SettingsView({ items, manualEntries, initialNetWorth, sample, setup, email, demo = false, addresses = {}, mortgageAddresses = {}, mortgageRates = {}, estimatesEnabled = false }: Props) {
+export function SettingsView({ items, manualEntries, initialNetWorth, sample, setup, email, demo = false, addresses = {}, mortgageAddresses = {}, loanDetails = {}, estimatesEnabled = false }: Props) {
   const router = useRouter();
   const ready = demo || (setup.plaid && setup.db && setup.encryption);
   const toSignIn = () => router.push("/signin");
@@ -54,6 +57,7 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
   const [inclusionOverrides, setInclusionOverrides] = useState<Record<string, boolean>>({});
   const [savingInclusion, setSavingInclusion] = useState(false);
   const [homeFor, setHomeFor] = useState<string | null>(null); // mortgage account id whose home sheet is open
+  const [consenting, setConsenting] = useState(false); // update mode opened to share loan details
   const inclusionLock = useRef(false);
   useEffect(() => {
     if (inclusionLock.current) return;
@@ -70,7 +74,7 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
       if (!publicToken) return;
       setBusy(updateItem ? "Reconnecting…" : "Fetching accounts…");
       try {
-        if (updateItem) { await post("/api/plaid/sync", {}); setMsg({ kind: "ok", text: "Reconnected. Check the transaction status below." }); }
+        if (updateItem) { await post("/api/plaid/sync", {}); setMsg({ kind: "ok", text: consenting ? "Loan details shared — see them under your mortgage." : "Reconnected. Check the transaction status below." }); setConsenting(false); }
         else {
           const result = await post("/api/plaid/exchange", { publicToken });
           setMsg(result.synced === false ? { kind: "err", text: `Account connected, but sync needs attention: ${result.error ?? "SYNC_FAILED"}` } : { kind: "ok", text: result.transactionsPending ? "Account connected. Initial transactions are still loading." : "Account connected." });
@@ -84,7 +88,7 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
         setUpdateItem(null);
       }
     },
-    [router, updateItem],
+    [router, updateItem, consenting],
   );
 
   const { open, ready: linkReady } = usePlaidLink({
@@ -103,6 +107,7 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
     try {
       const j = await post("/api/plaid/link-token", itemId ? { itemId, ...(consent ? { consent } : {}) } : {});
       setUpdateItem(itemId ?? null);
+      setConsenting(consent === "liabilities");
       // Saved so Link can resume on /oauth after a bank's own sign-in page.
       try { sessionStorage.setItem("apex.plaid.link", JSON.stringify({ token: j.linkToken, itemId: itemId ?? null })); } catch { /* ignore */ }
       setToken(j.linkToken);
@@ -229,7 +234,7 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
                   <Fragment key={a.id}>
                   <div className="row" style={{ paddingLeft: 56, gap: 12 }}>
                     <span style={{ flex: "1 1 200px", minWidth: 0, fontSize: 14 }}>
-                      {a.name} <span className="mono muted" style={{ fontSize: 12 }}>{a.subtype ?? a.type}{a.mask ? ` ••${a.mask}` : ""}{mortgageRates[a.id] ? ` · ${mortgageRates[a.id]}` : ""}</span>
+                      {a.name} <span className="mono muted" style={{ fontSize: 12 }}>{a.subtype ?? a.type}{a.mask ? ` ••${a.mask}` : ""}</span>
                     </span>
                     <span className="mono num" style={{ fontSize: 13 }}>{a.balance < 0 ? "−" : ""}${Math.abs(a.balance).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     <span className="row mono muted" style={{ gap: 8, fontSize: 11 }}>
@@ -239,7 +244,7 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
                       </button>
                     </span>
                   </div>
-                  {a.subtype === "mortgage" && !demo && !sample && !(a.id in mortgageAddresses) && homeFor !== a.id && (
+                  {a.subtype === "mortgage" && !demo && !sample && !(a.id in loanDetails) && !(a.id in mortgageAddresses) && homeFor !== a.id && (
                     <div className="home-link inner">
                       <span style={{ flex: "1 1 220px", minWidth: 0, fontSize: 13 }}>
                         <strong>Loan details not shared.</strong> <span className="muted">Rate, loan type and property address. Apex re-opens this {item.institution} connection to ask — nothing is erased.</span>
@@ -247,6 +252,25 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
                       <button type="button" className="btn btn-sm" disabled={!ready || !!busy || savingInclusion} onClick={() => startLink(item.itemId, "liabilities")}>Share loan details</button>
                     </div>
                   )}
+                  {a.subtype === "mortgage" && !demo && !sample && loanDetails[a.id] && homeFor !== a.id && (() => {
+                    const l = loanDetails[a.id];
+                    const facts = [
+                      l.ratePct != null ? `${l.ratePct}%${l.rateType ? ` ${l.rateType}` : ""}` : null,
+                      l.loanTerm, l.loanType,
+                      l.nextPayment != null ? `next payment ${money(l.nextPayment)}${l.nextPaymentDue ? ` due ${shortDate(l.nextPaymentDue)}` : ""}` : null,
+                      l.maturityDate ? `matures ${shortDate(l.maturityDate)}` : null,
+                      l.escrowBalance != null ? `escrow ${money(l.escrowBalance)}` : null,
+                    ].filter(Boolean);
+                    return (
+                      <div className="home-link inner" style={{ flexDirection: "column", alignItems: "flex-start", gap: 4 }}>
+                        <span className="eyebrow">Loan details · from {item.institution}</span>
+                        <span className="mono" style={{ fontSize: 12 }}>{facts.length ? facts.join(" · ") : "Shared, but the servicer sent no details yet"}</span>
+                        {l.interestOnly && l.monthlyInterest != null && (
+                          <span style={{ fontSize: 13 }}><strong>Looks interest-only.</strong> <span className="muted">One month&apos;s interest at this rate is {money(l.monthlyInterest)} — the whole payment — so the balance isn&apos;t going down.</span></span>
+                        )}
+                      </div>
+                    );
+                  })()}
                   {a.subtype === "mortgage" && !demo && !sample && home && eq && homeFor !== a.id && (
                     <div className="home-link inner">
                       <span style={{ flex: "1 1 220px", minWidth: 0 }}>

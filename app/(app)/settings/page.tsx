@@ -18,8 +18,15 @@ export default async function SettingsPage() {
   // Decrypted only here, for the signed-in owner; addresses never reach the dashboard model, API or agent.
   const homes = email && !d.sample ? await homeContext(email) : { addresses: {}, mortgages: {} };
   const mortgageAddresses = Object.fromEntries(Object.values(homes.mortgages).map((m) => [m.accountId, m.address]));
-  // "30 year · Conventional · 3.125% fixed" — whatever Plaid shared.
-  const mortgageRates = Object.fromEntries(Object.values(homes.mortgages).map((m) => [m.accountId, [m.loanTerm, m.loanType, m.interestRatePct != null ? `${m.interestRatePct}%${m.interestRateType ? ` ${m.interestRateType}` : ""}` : null].filter(Boolean).join(" · ")]).filter(([, label]) => label));
+  // What the servicer shared through Plaid, shown under each mortgage. Interest-only is inferred when the
+  // monthly payment equals one month's interest on the balance (within 1%).
+  const balances = new Map(items.flatMap((i) => i.accounts).map((a) => [a.id, Math.abs(a.balance)]));
+  const loanDetails = Object.fromEntries(Object.values(homes.mortgages).map((m) => {
+    const bal = balances.get(m.accountId) ?? 0;
+    const interest = m.interestRatePct != null ? (bal * m.interestRatePct) / 100 / 12 : null;
+    const interestOnly = interest != null && m.nextPayment != null && interest > 0 && Math.abs(m.nextPayment - interest) / interest < 0.01;
+    return [m.accountId, { ratePct: m.interestRatePct, rateType: m.interestRateType, loanType: m.loanType, loanTerm: m.loanTerm, maturityDate: m.maturityDate, nextPayment: m.nextPayment, nextPaymentDue: m.nextPaymentDue, escrowBalance: m.escrowBalance, monthlyInterest: interest, interestOnly }];
+  }));
   return (
     <main className="shell" style={{ gap: 20 }}>
       {demo && <SampleBanner d={d} signedIn={false} />}
@@ -33,7 +40,7 @@ export default async function SettingsPage() {
         email={email ?? "you@example.com"}
         addresses={homes.addresses}
         mortgageAddresses={mortgageAddresses}
-        mortgageRates={mortgageRates}
+        loanDetails={loanDetails}
         estimatesEnabled={!demo && valuationConfigured()}
       />
     </main>
