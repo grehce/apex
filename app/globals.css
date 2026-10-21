@@ -288,3 +288,29 @@ table.data tr:hover td { background: var(--row-hover); }
 .manual-entry-form input[type="checkbox"] { align-self: flex-start; }
 select.select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%23636863' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 12px; cursor: pointer; }
 :root[data-theme="dark"] select.select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%238e968f' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+
+/* Homes: the add/edit sheet, the estimate readout and the home ↔ mortgage pairing */
+.home-sheet { display: flex; flex-direction: column; gap: 14px; border: 1px solid var(--line); }
+.home-address { display: grid; grid-template-columns: minmax(0, 2fr) 72px minmax(0, 1fr); gap: 12px; }
+.home-address .span-all { grid-column: 1 / -1; }
+@media (max-width: 520px) { .home-address { grid-template-columns: minmax(0, 1fr) 72px; } .home-address label:last-child { grid-column: 1 / -1; } }
+.home-estimate { display: flex; flex-direction: column; gap: 8px; padding: 16px; border: 1px solid var(--line); border-radius: var(--r-inner); background-color: var(--surface); }
+.range { position: relative; height: 14px; margin-top: 4px; }
+.range-track { position: absolute; left: 0; right: 0; top: 6px; height: 2px; background: repeating-linear-gradient(90deg, var(--line-strong) 0 6px, transparent 6px 10px); }
+.range-mark { position: absolute; top: 0; width: 2px; height: 14px; margin-left: -1px; background: var(--accent); }
+.seg-choice { display: flex; flex-wrap: wrap; gap: 8px; }
+.seg-choice .chip[aria-checked="true"] { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+.seg-choice .chip:disabled { opacity: .45; cursor: not-allowed; }
+.home-pair { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 16px; font-size: 13px; padding: 12px 14px; border-top: 1px dashed var(--line-dash); }
+.home-pair strong { font-size: 14px; }
+.home-link { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-left: 56px; padding: 10px 14px; border-radius: var(--r-inner); font-size: 13px; }
+@media (max-width: 520px) { .home-link { margin-left: 0; } }
+.type-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.type-tile { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px 16px; text-align: left; border: 1px solid var(--line); border-radius: var(--r-inner); background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; transition: border-color 200ms; }
+.type-tile:hover { border-color: var(--border-hover); }
+.type-tile:disabled { opacity: .5; cursor: not-allowed; }
+.type-tile strong { font-size: 15px; }
+@media (max-width: 520px) { .home-sheet-wrap { margin-left: 0 !important; } }
+.home-pair > :nth-child(even) { text-align: right; white-space: nowrap; }
+.home-estimate .row.between { flex-wrap: nowrap; gap: 8px; }
+.home-estimate .row.between span:nth-child(2) { text-align: center; }

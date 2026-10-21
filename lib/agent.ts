@@ -25,6 +25,7 @@ How you work
 
 Your boundaries
 - You are read-only. You cannot move money, place trades or change settings. The member places any trades themselves.
+- The home is illiquid: count it in net worth, never in rebalancing or allocation. Do not suggest cash-out refinancing, HELOCs or borrowing against it to invest. An automated estimate is not an appraisal; say so when it matters.
 - Do not recommend leverage, margin, options strategies, crypto speculation, private placements or other exotic or high-risk products. If asked, explain the risks plainly and steer back to diversified, low-cost approaches.
 - Do not recommend specific individual stocks or claim to predict markets. You may discuss broad asset classes and low-cost diversified funds the member already holds.
 - You have no special or non-public market data. Never imply otherwise.
@@ -67,6 +68,11 @@ export const TOOLS: Anthropic.Tool[] = [
     },
   },
   {
+    name: "get_home",
+    description: "The member's home (primary residence) if they added one: value, whether it's an automated estimate (with likely range) or their own figure, the mortgage it secures, equity and loan-to-value. The home is illiquid and counts in net worth only.",
+    input_schema: { type: "object", properties: {} },
+  },
+  {
     name: "get_plans",
     description: "Apex's calculated rebalancing plans from current holdings and targets: A = route new contributions only (no sells), B = tax-aware (trade only inside tax-advantaged accounts), C = full rebalance now (may realize taxable gains). Returns trades, max drift after, and realized taxable gains.",
     input_schema: { type: "object", properties: {} },
@@ -97,6 +103,24 @@ export function runTool(name: string, input: Record<string, unknown>, d: Dashboa
       const limit = Math.min(200, Math.max(1, Number(input.limit) || 50));
       const rows = d.transactions.filter((t) => (!since || t.date >= since) && (!until || t.date <= until) && (!cat || t.category === cat));
       return { total_matching: rows.length, sum_out: r2(rows.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0)), sum_in: r2(-rows.filter((t) => t.amount < 0).reduce((s, t) => s + t.amount, 0)), rows: rows.slice(0, limit).map((t) => ({ date: t.date, name: t.name, category: t.category, amount: t.amount })) };
+    }
+    case "get_home": {
+      const loans = d.items.flatMap((i) => i.accounts.map((a) => ({ ...a, institution: i.institution })));
+      const homes = d.manualEntries.filter((e) => !e.archived && e.kind === "asset" && e.category === "property");
+      if (!homes.length) return { homes: [], note: "No home added. The member can add one in Settings." };
+      return {
+        homes: homes.map((h) => {
+          const loan = loans.find((a) => a.id === h.linkedMortgageId);
+          const owed = loan ? Math.abs(loan.balance) : null;
+          return {
+            value: r2(h.value), valued: h.valuationSource === "estimate" ? "automated estimate" : "member's own figure", as_of: h.valuationDate,
+            estimate_range: h.valuationSource === "estimate" && h.estimateLow != null && h.estimateHigh != null ? { low: r2(h.estimateLow), high: r2(h.estimateHigh) } : null,
+            mortgage: loan ? { lender: loan.institution, balance: r2(owed!) } : null,
+            equity: r2(h.value - (owed ?? 0)), loan_to_value_percent: owed != null && h.value > 0 ? Math.round((owed / h.value) * 1000) / 10 : null,
+          };
+        }),
+        note: "Illiquid. Never part of rebalancing plans or the investment allocation.",
+      };
     }
     case "get_plans":
       return {

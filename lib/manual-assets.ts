@@ -1,6 +1,12 @@
 import type { AccountRow } from "./model";
+import { validateAddress, type Address } from "./property";
 
-export type ManualEntry = { id: string; name: string; kind: "asset" | "liability"; category: "property" | "mortgage" | "other"; value: number; valuationDate: string; archived: boolean; linkedMortgageId?: string | null };
+export type ManualEntry = {
+  id: string; name: string; kind: "asset" | "liability"; category: "property" | "mortgage" | "other"; value: number; valuationDate: string; archived: boolean; linkedMortgageId?: string | null;
+  // Homes only. The address is present only where it has been decrypted for Settings.
+  valuationSource?: "manual" | "estimate"; estimateLow?: number | null; estimateHigh?: number | null; estimateComps?: number | null; valuationProvider?: string | null; lastValuedAt?: string | null;
+  address?: Address | null;
+};
 
 export function validateManualEntry(input: unknown, today = new Date().toISOString().slice(0, 10)) {
   const x = input as Partial<ManualEntry> & { liabilityConfirmed?: boolean };
@@ -13,7 +19,18 @@ export function validateManualEntry(input: unknown, today = new Date().toISOStri
   if (typeof x.valuationDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(x.valuationDate) || !Number.isFinite(Date.parse(x.valuationDate)) || new Date(x.valuationDate).toISOString().slice(0, 10) !== x.valuationDate || x.valuationDate < "1900-01-01" || x.valuationDate > today) throw new Error("Enter a valid valuation date, no later than today");
   if (x.kind === "liability" && x.liabilityConfirmed !== true) throw new Error("Confirm this debt is not already included in linked accounts");
   if (x.linkedMortgageId != null && (typeof x.linkedMortgageId !== "string" || x.linkedMortgageId.length > 200 || x.kind !== "asset" || x.category !== "property")) throw new Error("Only property assets can be associated with a linked mortgage");
-  return { name, kind: x.kind, category: x.category as ManualEntry["category"], value: x.value, valuationDate: x.valuationDate, linkedMortgageId: x.linkedMortgageId || null };
+  const home = x.kind === "asset" && x.category === "property";
+  if (!home && (x.address != null || x.valuationSource === "estimate")) throw new Error("Only homes can have an address or an automatic estimate");
+  const address = home && x.address != null ? validateAddress(x.address) : null;
+  const source = x.valuationSource === "estimate" ? "estimate" : "manual";
+  let estimate = { estimateLow: null as number | null, estimateHigh: null as number | null, estimateComps: null as number | null, valuationProvider: null as string | null };
+  if (source === "estimate") {
+    if (!address) throw new Error("An automatic estimate needs the home's address");
+    const lo = x.estimateLow, hi = x.estimateHigh, comps = x.estimateComps;
+    if (typeof lo !== "number" || typeof hi !== "number" || !Number.isFinite(lo) || !Number.isFinite(hi) || lo < 0 || lo > x.value || hi < x.value) throw new Error("Estimate range doesn't match the value; get a fresh estimate");
+    estimate = { estimateLow: lo, estimateHigh: hi, estimateComps: typeof comps === "number" && Number.isInteger(comps) && comps >= 0 && comps < 1000 ? comps : null, valuationProvider: typeof x.valuationProvider === "string" ? x.valuationProvider.slice(0, 40) : null };
+  }
+  return { name, kind: x.kind, category: x.category as ManualEntry["category"], value: x.value, valuationDate: x.valuationDate, linkedMortgageId: x.linkedMortgageId || null, address, valuationSource: source as "manual" | "estimate", ...estimate };
 }
 
 export function manualAccounts(entries: ManualEntry[]): AccountRow[] {

@@ -1,3 +1,6 @@
 {
-  "crons": [{ "path": "/api/cron/initial-transactions", "schedule": "0 8 * * *" }]
+  "crons": [
+    { "path": "/api/cron/initial-transactions", "schedule": "0 8 * * *" },
+    { "path": "/api/cron/revalue-homes", "schedule": "17 14 * * *" }
+  ]
 }

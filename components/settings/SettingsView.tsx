@@ -1,11 +1,13 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePlaidLink } from "react-plaid-link";
 import type { ItemRow } from "@/lib/model";
 import { InstitutionLogo } from "../InstitutionLogo";
 import { AgentAccess } from "./AgentAccess";
 import { ManualAssets } from "../networth/ManualAssets";
+import { HomeSheet } from "./HomeSheet";
+import { dollars, equity, type Address } from "@/lib/property";
 import type { ManualEntry } from "@/lib/manual-assets";
 import { netWorthTotal, saveInclusion } from "@/lib/net-worth";
 import { money } from "@/lib/model";
@@ -18,6 +20,10 @@ type Props = {
   setup: { plaid: boolean; db: boolean; encryption: boolean };
   email: string;
   demo?: boolean; // signed out: browse sample accounts; any action goes to sign up / log in
+  addresses?: Record<string, Address>; // decrypted home addresses by manual entry id
+  mortgageAddresses?: Record<string, Address | null>; // Plaid Liabilities property address by mortgage account id
+  mortgageRates?: Record<string, string>; // "6.25% fixed" by mortgage account id
+  estimatesEnabled?: boolean;
 };
 
 async function post(url: string, body: unknown, method = "POST") {
@@ -37,7 +43,7 @@ function ago(iso: string | null) {
   return `${Math.round(h / 24)} d ago`;
 }
 
-export function SettingsView({ items, manualEntries, initialNetWorth, sample, setup, email, demo = false }: Props) {
+export function SettingsView({ items, manualEntries, initialNetWorth, sample, setup, email, demo = false, addresses = {}, mortgageAddresses = {}, mortgageRates = {}, estimatesEnabled = false }: Props) {
   const router = useRouter();
   const ready = demo || (setup.plaid && setup.db && setup.encryption);
   const toSignIn = () => router.push("/signin");
@@ -47,6 +53,7 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
   const [inclusionOverrides, setInclusionOverrides] = useState<Record<string, boolean>>({});
   const [savingInclusion, setSavingInclusion] = useState(false);
+  const [homeFor, setHomeFor] = useState<string | null>(null); // mortgage account id whose home sheet is open
   const inclusionLock = useRef(false);
   useEffect(() => {
     if (inclusionLock.current) return;
@@ -151,6 +158,8 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
   }
 
   const accountCount = items.reduce((s, i) => s + i.accounts.length, 0);
+  const allMortgages = demo || sample ? [] : items.flatMap((i) => i.accounts).filter((a) => a.subtype === "mortgage");
+  const homeForMortgage = (id: string) => manualEntries.find((e) => !e.archived && e.kind === "asset" && e.category === "property" && e.linkedMortgageId === id);
 
   return (
     <div className="stack" style={{ gap: 20 }}>
@@ -214,10 +223,13 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
                 </div>
                 {item.accounts.map((account) => {
                   const a = { ...account, include: inclusionOverrides[account.id] ?? account.include };
+                  const home = a.subtype === "mortgage" ? homeForMortgage(a.id) : undefined;
+                  const eq = home ? equity(home.value, Math.abs(a.balance)) : null;
                   return (
-                  <div key={a.id} className="row" style={{ paddingLeft: 56, gap: 12 }}>
+                  <Fragment key={a.id}>
+                  <div className="row" style={{ paddingLeft: 56, gap: 12 }}>
                     <span style={{ flex: "1 1 200px", minWidth: 0, fontSize: 14 }}>
-                      {a.name} <span className="mono muted" style={{ fontSize: 12 }}>{a.subtype ?? a.type}{a.mask ? ` ••${a.mask}` : ""}</span>
+                      {a.name} <span className="mono muted" style={{ fontSize: 12 }}>{a.subtype ?? a.type}{a.mask ? ` ••${a.mask}` : ""}{mortgageRates[a.id] ? ` · ${mortgageRates[a.id]}` : ""}</span>
                     </span>
                     <span className="mono num" style={{ fontSize: 13 }}>{a.balance < 0 ? "−" : ""}${Math.abs(a.balance).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     <span className="row mono muted" style={{ gap: 8, fontSize: 11 }}>
@@ -227,6 +239,30 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
                       </button>
                     </span>
                   </div>
+                  {a.subtype === "mortgage" && !demo && !sample && home && eq && homeFor !== a.id && (
+                    <div className="home-link inner">
+                      <span style={{ flex: "1 1 220px", minWidth: 0 }}>
+                        Secures <strong>{addresses[home.id]?.street ?? home.name}</strong>
+                        <span className="mono muted" style={{ fontSize: 12 }}> · {dollars(home.value)}{home.valuationSource === "estimate" ? " est." : ""}</span>
+                      </span>
+                      <span className="mono num" style={{ fontSize: 13 }}>equity <strong>{dollars(eq.equity)}</strong>{eq.ltv != null ? <span className="muted"> · LTV {Math.round(eq.ltv * 100)}%</span> : null}</span>
+                      <button type="button" className="chip" disabled={!!busy} onClick={() => setHomeFor(a.id)}>edit home</button>
+                    </div>
+                  )}
+                  {a.subtype === "mortgage" && !home && homeFor !== a.id && (
+                    <div className="home-link inner hatch">
+                      <span style={{ flex: "1 1 220px", minWidth: 0 }}>
+                        <strong>Home value not added.</strong> <span className="muted">Net worth counts this mortgage but not the home it pays for.</span>
+                      </span>
+                      <button type="button" className="btn" style={{ minHeight: 36 }} disabled={!!busy} onClick={() => (demo ? toSignIn() : setHomeFor(a.id))}>Add home</button>
+                    </div>
+                  )}
+                  {homeFor === a.id && (
+                    <div style={{ marginLeft: 56 }} className="home-sheet-wrap">
+                      <HomeSheet mortgages={allMortgages} fixedMortgageId={a.id} prefill={mortgageAddresses[a.id] ?? null} entry={home} entryAddress={home ? addresses[home.id] ?? null : null} estimatesEnabled={estimatesEnabled} onClose={() => setHomeFor(null)} />
+                    </div>
+                  )}
+                  </Fragment>
                 ); })}
               </div>
             ))}
@@ -234,7 +270,7 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
         )}
       </section>
 
-      <ManualAssets entries={manualEntries} accounts={demo || sample ? [] : items.flatMap((item) => item.accounts)} signedIn={!demo} />
+      <ManualAssets entries={manualEntries} accounts={allMortgages} signedIn={!demo} addresses={addresses} estimatesEnabled={estimatesEnabled} />
 
       <section id="security" aria-labelledby="s-h" className="card" style={{ gap: 10 }}>
         <h2 id="s-h">Sign-in &amp; security</h2>

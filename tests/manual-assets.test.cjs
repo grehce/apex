@@ -27,16 +27,16 @@ assert.equal(build({...input,manualEntries:[{...entries[0],archived:true}]},fals
 assert.equal(sameOrigin(new Request('https://www.apexfolios.com/api/manual-assets',{headers:{origin:'https://evil.example'}})),false);
 assert.equal(sameOrigin(new Request('https://www.apexfolios.com/api/manual-assets',{headers:{origin:'null'}})),false);
 assert.equal(sameOrigin(new Request('https://www.apexfolios.com/api/manual-assets',{headers:{origin:'http://www.apexfolios.com'}})),false);
-let email=null,writes=0,snapshots=0,whereParams=[];
+let email=null,writes=0,snapshots=0,whereParams=[];const history=[],inserted=[];
 const dialect=new PgDialect();
 const fakeDb={
- insert:()=>({values:async()=>{writes++}}),
+ insert:(table)=>({values:(row)=>{if(table===schema.propertyValuations){history.push(row);return {onConflictDoUpdate:async()=>{}}}inserted.push(row);writes++;return Promise.resolve()}}),
  select:()=>({from:()=>({where:async(condition)=>{const q=dialect.sqlToQuery(condition);return q.params.includes('owned-mortgage')&&q.params.includes(email)?[{id:'owned-mortgage'}]:[]}})}),
  update:()=>({set:()=>({where:(condition)=>{whereParams=dialect.sqlToQuery(condition).params;return {returning:async()=>{if(whereParams[0]==='owned-entry'&&whereParams[1]===email){writes++;return [{id:'owned-entry'}]}return []}}}})})
 };
 const moduleMock={exports:{}};
 const source=ts.transpileModule(fs.readFileSync('app/api/manual-assets/route.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
-const replacements={'next/server':{NextResponse},'@/auth':{currentEmail:async()=>email},'@/lib/db':{db:()=>fakeDb,dbConfigured:()=>true},'@/lib/schema':schema,'@/lib/manual-assets':{sameOrigin,validateManualEntry},'@/lib/sync':{recordNetWorth:async()=>{snapshots++}}};
+const replacements={'next/server':{NextResponse},'@/auth':{currentEmail:async()=>email},'@/lib/db':{db:()=>fakeDb,dbConfigured:()=>true},'@/lib/schema':schema,'@/lib/manual-assets':{sameOrigin,validateManualEntry},'@/lib/sync':{recordNetWorth:async()=>{snapshots++}},'@/lib/crypto':{encrypt:(t)=>'enc:'+t}};
 vm.runInNewContext(source,{exports:moduleMock.exports,module:moduleMock,Request,require:p=>replacements[p]??require(p)});
 const routes=moduleMock.exports;
 const req=(body,origin='https://www.apexfolios.com')=>new Request('https://www.apexfolios.com/api/manual-assets',{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify(body)});
@@ -52,5 +52,11 @@ const req=(body,origin='https://www.apexfolios.com')=>new Request('https://www.a
  assert.equal((await routes.PATCH(req({id:'owned-entry',archived:true}))).status,200);
  assert.equal((await routes.PATCH(req({id:'owned-entry',archived:false}))).status,200);
  assert.equal(snapshots,4);assert.equal(routes.DELETE,undefined);
+ // A home with an automatic estimate: address stored encrypted, valuation history recorded.
+ const home={name:'1 Fixture Way',kind:'asset',category:'property',value:1000000,valuationDate:day,address:{street:'1 Fixture Way',city:'Testville',region:'CA',postalCode:'94000'},valuationSource:'estimate',estimateLow:950000,estimateHigh:1050000,estimateComps:5,valuationProvider:'RentCast'};
+ assert.equal((await routes.POST(req(home))).status,201);
+ const saved=inserted.at(-1);assert.equal(saved.address,undefined);assert.match(saved.addressEnc,/^enc:/);assert.equal(saved.valuationSource,'estimate');assert.equal(typeof saved.lastValuedAt.getTime(),'number');
+ assert.equal(history.at(-1).source,'estimate');assert.equal(history.at(-1).value,1000000);assert.equal(history.at(-1).low,950000);
+ assert.equal((await routes.POST(req({...home,address:null}))).status,400);
  console.log('PASS manual entries: validation, totals, linked mortgage counted once, archive/restore, auth/origin, cross-user rejection, owned association, no delete');
 })().catch(e=>{console.error(e);process.exitCode=1});

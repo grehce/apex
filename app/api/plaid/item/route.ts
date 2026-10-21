@@ -4,7 +4,7 @@ import { guard } from "@/lib/api";
 import { plaid } from "@/lib/plaid";
 import { db } from "@/lib/db";
 import { decrypt } from "@/lib/crypto";
-import { accounts, holdings, plaidItems, transactions } from "@/lib/schema";
+import { accounts, holdings, mortgageDetails, plaidItems, transactions } from "@/lib/schema";
 import { recordNetWorth } from "@/lib/sync";
 
 /** Disconnect an institution: revoke at Plaid, then erase its data here. */
@@ -31,6 +31,7 @@ export async function DELETE(req: Request) {
   if (ids.length) {
     await d.delete(holdings).where(inArray(holdings.accountId, ids));
     await d.delete(transactions).where(inArray(transactions.accountId, ids));
+    await d.delete(mortgageDetails).where(inArray(mortgageDetails.accountId, ids));
     await d.delete(accounts).where(inArray(accounts.accountId, ids));
   }
   await d.delete(plaidItems).where(eq(plaidItems.itemId, itemId));

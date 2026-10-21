@@ -2,9 +2,10 @@ import "server-only";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { CountryCode } from "plaid";
 import { db } from "./db";
-import { decrypt } from "./crypto";
+import { decrypt, encrypt } from "./crypto";
 import { plaid, plaidErrorCode } from "./plaid";
-import { accounts, holdings, netWorthDaily, plaidItems, transactions, manualEntries } from "./schema";
+import { accounts, holdings, netWorthDaily, plaidItems, transactions, manualEntries, mortgageDetails } from "./schema";
+import { fromPlaidAddress } from "./property";
 import { netWorthTotal } from "./net-worth";
 import { syncTransactions } from "./initial-transactions";
 import type { ManualEntry } from "./manual-assets";
@@ -48,6 +49,11 @@ export async function syncItem(item: Item): Promise<{ ok: boolean; error?: strin
         set: { ...row, includeInNetWorth: sql`${accounts.includeInNetWorth}` },
       });
     }
+
+    // Mortgage details (Plaid Liabilities) — only for Items that hold a mortgage, so other Items never
+    // pick up the Liabilities subscription. Best-effort: older Items may not have consented.
+    // Set PLAID_LIABILITIES=off to stop these calls (e.g. on a paid Plaid plan where Liabilities is billed).
+    if (process.env.PLAID_LIABILITIES !== "off" && acc.data.accounts.some((a) => String(a.subtype) === "mortgage")) await syncMortgages(item, accessToken);
 
     // Investment holdings (only if this Item has investment accounts)
     if (acc.data.accounts.some((a) => String(a.type) === "investment")) {
@@ -93,6 +99,34 @@ export async function syncItem(item: Item): Promise<{ ok: boolean; error?: strin
     const status = code === "ITEM_LOGIN_REQUIRED" ? "login_required" : "error";
     await d.update(plaidItems).set({ status }).where(eq(plaidItems.itemId, item.itemId));
     return { ok: false, error: code ?? "SYNC_FAILED" };
+  }
+}
+
+async function syncMortgages(item: Item, accessToken: string): Promise<void> {
+  let r;
+  try {
+    r = await plaid().liabilitiesGet({ access_token: accessToken });
+  } catch {
+    return; // ADDITIONAL_CONSENT_REQUIRED, PRODUCTS_NOT_SUPPORTED, etc. — the member can still type the address.
+  }
+  const d = db();
+  for (const m of r.data.liabilities.mortgage ?? []) {
+    const address = fromPlaidAddress(m.property_address);
+    const row = {
+      accountId: m.account_id,
+      itemId: item.itemId,
+      userEmail: item.userEmail,
+      propertyAddressEnc: address ? encrypt(JSON.stringify(address)) : null,
+      originationPrincipal: m.origination_principal_amount ?? null,
+      interestRatePct: m.interest_rate?.percentage ?? null,
+      interestRateType: m.interest_rate?.type ?? null,
+      maturityDate: m.maturity_date ?? null,
+      nextPayment: m.next_monthly_payment ?? null,
+      nextPaymentDue: m.next_payment_due_date ?? null,
+      escrowBalance: m.escrow_balance ?? null,
+      updatedAt: new Date(),
+    };
+    await d.insert(mortgageDetails).values(row).onConflictDoUpdate({ target: mortgageDetails.accountId, set: row });
   }
 }
 

@@ -38,7 +38,8 @@ export async function loadDashboard(email: string): Promise<Dashboard> {
 
   const d = db();
   const itemRows = await d.select().from(plaidItems).where(eq(plaidItems.userEmail, email));
-  const manualRows = await d.select({ id: manualEntries.id, name: manualEntries.name, kind: manualEntries.kind, category: manualEntries.category, value: manualEntries.value, valuationDate: manualEntries.valuationDate, archived: manualEntries.archived, linkedMortgageId: manualEntries.linkedMortgageId }).from(manualEntries).where(eq(manualEntries.userEmail, email));
+  const manualRowsRaw = await d.select({ id: manualEntries.id, name: manualEntries.name, kind: manualEntries.kind, category: manualEntries.category, value: manualEntries.value, valuationDate: manualEntries.valuationDate, archived: manualEntries.archived, linkedMortgageId: manualEntries.linkedMortgageId, valuationSource: manualEntries.valuationSource, estimateLow: manualEntries.estimateLow, estimateHigh: manualEntries.estimateHigh, estimateComps: manualEntries.estimateComps, valuationProvider: manualEntries.valuationProvider, lastValuedAt: manualEntries.lastValuedAt }).from(manualEntries).where(eq(manualEntries.userEmail, email));
+  const manualRows = manualRowsRaw.map((m) => ({ ...m, lastValuedAt: m.lastValuedAt ? m.lastValuedAt.toISOString() : null }));
   if (itemRows.length === 0 && manualRows.length === 0) return build(sampleInputs(), true, setup);
 
   const acctRows = await d.select().from(accounts).where(eq(accounts.userEmail, email));

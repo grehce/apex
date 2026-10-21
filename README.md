@@ -26,6 +26,9 @@ Personal finance and investment intelligence — net worth, spending and portfol
 | Plaid keys — start with **Sandbox** | dashboard.plaid.com → Developers → Keys | `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_ENV=sandbox` |
 | Postgres | Vercel → Storage → Neon (or neon.tech) | `DATABASE_URL` |
 | Token encryption key | `openssl rand -base64 32` | `ENCRYPTION_KEY` |
+| Home value estimates (optional; free tier 50/month) | rentcast.io → API dashboard | `RENTCAST_API_KEY` |
+| Cron secret for monthly home revaluation | `openssl rand -base64 32` | `CRON_SECRET` |
+| Mortgage address prefill via Plaid Liabilities (default on; free in Sandbox/Trial) | — | `PLAID_LIABILITIES=off` to disable |
 
 Google OAuth **authorized redirect URIs**:
 
@@ -72,6 +75,8 @@ lib/schema.ts           tables: plaid_items, accounts, holdings, transactions, n
 lib/sync.ts             Plaid → database sync (accounts, holdings, /transactions/sync)
 lib/data.ts             builds the dashboard model (real or sample)
 lib/plans.ts            deterministic rebalancing plans for the agent
+lib/property.ts         home address/estimate helpers; lib/valuation.ts = RentCast behind a provider interface
+app/api/property/       home value estimate preview; app/api/cron/revalue-homes = monthly re-estimate (vercel.json)
 app/(app)/              overview, agent, settings pages
 app/api/plaid/          link-token, exchange, sync, item (disconnect / include toggle)
 ```
