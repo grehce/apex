@@ -33,7 +33,7 @@ export default async function SpendingPage() {
       <DetailHeader
         eyebrow="spending"
         title="Spending"
-        right={<span className="mono muted" style={{ fontSize: 12 }}>this month {usd(total, false)} · last month {usd(lastTotal, false)}</span>}
+        right={<span className="mono muted" style={{ fontSize: 12 }}>this month {usd(total, false)} · last month {lastTotal ? usd(lastTotal, false) : "not synced yet"}</span>}
       />
       <SampleBanner d={d} signedIn={Boolean(email)} />
       <div className="grid-2">

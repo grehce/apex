@@ -57,7 +57,7 @@ export default async function NetWorthPage() {
     <main className="shell">
       <DetailHeader eyebrow="net_worth" title="Net worth" right={<span className="mono muted" style={{ fontSize: 12 }}>assets {usd(sum(assets), false)} · debts {usd(sum(debts), false)}</span>} />
       <SampleBanner d={d} signedIn={Boolean(email)} />
-      <NetWorthCard netWorth={d.netWorth} series={d.series} historyDays={d.historyDays} />
+      <NetWorthCard netWorth={d.netWorth} series={d.series} historyDays={d.historyDays} estimatedDays={d.estimatedDays} />
       <div className="grid-2">
         {table(assets, "Assets")}
         {table(debts, "Debts")}

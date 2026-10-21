@@ -110,17 +110,26 @@ export function HomeSheet({ mortgages, fixedMortgageId, prefill, entry, entryAdd
         <label>ZIP<input autoComplete="postal-code" inputMode="numeric" maxLength={10} value={address.postalCode} onChange={(e) => setField("postalCode", e.target.value)} /></label>
       </div>
 
-      {estimatesEnabled && (
-        <div className="row" style={{ gap: 10 }}>
-          <button type="button" className="btn btn-primary" disabled={!addressFilled || !!busy} onClick={() => void getEstimate()}>
-            {busy === "estimate" ? "Estimating…" : estimate ? "Refresh estimate" : "Get estimate"}
-          </button>
-          <span className="muted" style={{ fontSize: 12, flex: "1 1 220px" }}>Apex sends only this address to RentCast to estimate the value — nothing else about you.</span>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, paddingTop: 4 }}>
+        <span className="eyebrow">Value</span>
+        <div className="seg-choice" role="radiogroup" aria-label="How to value this home">
+          {estimatesEnabled && <button type="button" role="radio" aria-checked={mode === "estimate"} className="chip" onClick={() => setMode("estimate")}>Automatic estimate</button>}
+          <button type="button" role="radio" aria-checked={mode === "manual"} className="chip" onClick={() => setMode("manual")}>My own value</button>
         </div>
-      )}
+        {estimatesEnabled && mode === "estimate" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
+            <button type="button" className="btn btn-sm" disabled={!addressFilled || !!busy} onClick={() => void getEstimate()}>
+              {busy === "estimate" ? "Estimating…" : estimate ? "Refresh estimate" : "Get estimate"}
+            </button>
+            <span className="muted" style={{ fontSize: 12 }}>
+              Only this address is sent to <a href="https://www.rentcast.io" target="_blank" rel="noopener noreferrer">RentCast</a> — nothing else about you. Re-estimated monthly once saved.
+            </span>
+          </div>
+        )}
+      </div>
       {estimateNote && <p role="status" className="mono" style={{ fontSize: 13, color: "var(--warn)" }}>{estimateNote}</p>}
 
-      {estimate && (
+      {mode === "estimate" && estimate && (
         <div className="home-estimate dots">
           <span className="eyebrow">Estimated value</span>
           <strong className="mono num" style={{ fontSize: "clamp(24px, 5vw, 32px)" }}>{money(estimate.value)}</strong>
@@ -131,17 +140,12 @@ export function HomeSheet({ mortgages, fixedMortgageId, prefill, entry, entryAdd
             <span>{money(estimate.low)}</span><span>{money(estimate.high)}</span>
           </div>
           <span className="muted" style={{ fontSize: 12 }}>
-            Likely range shown. {estimate.comps ? `Based on ${estimate.comps} comparable nearby sales and listings` : "Automated estimate"} · {estimate.provider} · {estimate.asOf}. An estimate, not an appraisal.
+            Likely range shown. {estimate.comps ? `Based on ${estimate.comps} comparable nearby sales and listings` : "Automated estimate"} · {estimate.provider === "RentCast" ? <a href="https://www.rentcast.io" target="_blank" rel="noopener noreferrer">RentCast</a> : estimate.provider} · {estimate.asOf}. An estimate, not an appraisal.
           </span>
         </div>
       )}
 
-      <div className="seg-choice" role="radiogroup" aria-label="How to value this home">
-        <button type="button" role="radio" aria-checked={mode === "estimate"} className="chip" disabled={!estimate} onClick={() => setMode("estimate")}>Use estimate</button>
-        <button type="button" role="radio" aria-checked={mode === "manual"} className="chip" onClick={() => setMode("manual")}>Use my own value</button>
-      </div>
 
-      {mode === "estimate" && estimate && <span className="muted" style={{ fontSize: 12, marginTop: -6 }}>Apex re-estimates monthly, so your net worth tracks the market.</span>}
       {mode === "manual" && (
         <div className="manual-entry-form grid-2" style={{ gap: 16 }}>
           <label>Full current value (USD) — not equity<input type="number" min="0" max="1000000000000" step="1000" required value={ownValue} onChange={(e) => setOwnValue(e.target.value)} placeholder="e.g. from a recent appraisal or purchase" /></label>

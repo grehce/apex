@@ -37,9 +37,10 @@ export async function POST(req: Request) {
     ...(plaidEnv() === "production" ? { redirect_uri: process.env.PLAID_REDIRECT_URI || `${new URL(req.url).origin}/oauth` } : {}),
     ...(accessToken
       ? { access_token: accessToken }
+      // Ask for 24 months of transactions (Plaid's maximum) so net worth history can be rebuilt.
       // Liabilities is consent-only here: Plaid bills it only once /liabilities/get is called,
       // and sync calls it only on Items that actually hold a mortgage.
-      : { products: [Products.Transactions], optional_products: [Products.Investments], additional_consented_products: [Products.Liabilities] }),
+      : { products: [Products.Transactions], optional_products: [Products.Investments], additional_consented_products: [Products.Liabilities], transactions: { days_requested: 730 } }),
   });
   return NextResponse.json({ linkToken: r.data.link_token });
 }

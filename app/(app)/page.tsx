@@ -39,7 +39,7 @@ export default async function OverviewPage() {
       <CommandBar answers={d.answers} />
       <Board
         tiles={[
-          { id: "networth", title: "Net worth", href: "/networth", wide: true, node: <NetWorthCard netWorth={d.netWorth} series={d.series} historyDays={d.historyDays} /> },
+          { id: "networth", title: "Net worth", href: "/networth", wide: true, node: <NetWorthCard netWorth={d.netWorth} series={d.series} historyDays={d.historyDays} estimatedDays={d.estimatedDays} /> },
           { id: "allocation", title: "Allocation", href: "/portfolio", node: <AllocationCard rows={d.allocation} invested={d.invested} /> },
           { id: "spending", title: "Spending pace", href: "/spending", node: <SpendingCard pendingTotal={d.spending.pendingTotal} postedTotal={d.spending.total} rows={d.spendByCategory} dayOfMonth={now.getUTCDate()} daysInMonth={daysInMonth} /> },
           { id: "ledger", title: "Ledger", href: "/ledger", node: <LedgerCard rows={d.ledger} /> },

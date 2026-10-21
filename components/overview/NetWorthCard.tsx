@@ -6,7 +6,7 @@ import { useMounted, useTween } from "../hooks";
 
 const KEYS: RangeKey[] = ["1M", "1Y", "All"];
 
-export function NetWorthCard({ netWorth, series, historyDays }: { netWorth: number; series: Record<RangeKey, Series>; historyDays: number }) {
+export function NetWorthCard({ netWorth, series, historyDays, estimatedDays = 0 }: { netWorth: number; series: Record<RangeKey, Series>; historyDays: number; estimatedDays?: number }) {
   const [range, setRange] = useState<RangeKey>("1Y");
   const [hover, setHover] = useState<number | null>(null);
   const mounted = useMounted();
@@ -24,6 +24,9 @@ export function NetWorthCard({ netWorth, series, historyDays }: { netWorth: numb
   const pct = first ? (delta / Math.abs(first)) * 100 : 0;
   const money = Math.abs(disp).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const dot = money.lastIndexOf(".");
+  const est = s.est ?? 0; // fraction of the x-axis that is estimated
+  const estX = Math.round(est * 1000);
+  const flat = s.v.every((v) => v === s.v[0]);
   const ticks = s.l.length <= 6 ? s.l : [0, 0.25, 0.5, 0.75, 1].map((f) => s.l[Math.round(f * (s.l.length - 1))]);
 
   return (
@@ -35,9 +38,13 @@ export function NetWorthCard({ netWorth, series, historyDays }: { netWorth: numb
             {disp < 0 ? "−" : ""}${money.slice(0, dot)}
             <span className="mono" style={{ fontSize: "clamp(20px, 5vw, 32px)", fontWeight: 500, letterSpacing: "-0.02em", color: "var(--faint)" }}>{money.slice(dot)}</span>
           </div>
-          <span className="pill" style={{ alignSelf: "flex-start", background: up ? "var(--accent-tint)" : "var(--warn-tint)", color: up ? "var(--accent-ink)" : "var(--warn)" }}>
-            {up ? "▲ +" : "▼ −"}${Math.abs(delta).toLocaleString("en-US", { maximumFractionDigits: 0 })} {up ? "+" : ""}{pct.toFixed(1)}% {range.toLowerCase()}
-          </span>
+          {flat && historyDays <= 1 && !estimatedDays ? (
+            <span className="pill" style={{ alignSelf: "flex-start", background: "var(--surface-2)", color: "var(--muted)" }}>history starts today</span>
+          ) : (
+            <span className="pill" style={{ alignSelf: "flex-start", background: up ? "var(--accent-tint)" : "var(--warn-tint)", color: up ? "var(--accent-ink)" : "var(--warn)" }}>
+              {up ? "▲ +" : "▼ −"}${Math.abs(delta).toLocaleString("en-US", { maximumFractionDigits: 0 })} {up ? "+" : ""}{pct.toFixed(1)}% {range.toLowerCase()}{est > 0 ? " · partly est." : ""}
+            </span>
+          )}
         </div>
         <div role="group" aria-label="Time range" className="seg" style={{ width: 200 }}>
           <span aria-hidden="true" className="seg-pill" style={{ left: 4 + KEYS.indexOf(range) * 64, width: 64 }} />
@@ -51,9 +58,13 @@ export function NetWorthCard({ netWorth, series, historyDays }: { netWorth: numb
         <span>
           {hover === null
             ? "hover to scrub ↔"
-            : `x=${s.l[hover]}  y=${kfmt(s.v[hover])}  Δ=${s.v[hover] - first >= 0 ? "+" : ""}${kfmt(s.v[hover] - first)}`}
+            : `x=${s.l[hover]}  y=${kfmt(s.v[hover])}  Δ=${s.v[hover] - first >= 0 ? "+" : ""}${kfmt(s.v[hover] - first)}${hover / Math.max(1, s.v.length - 1) < est ? "  est." : ""}`}
         </span>
-        <span>{historyDays < 30 ? `${historyDays} day${historyDays === 1 ? "" : "s"} of history · grows with each sync` : `${s.v.length} pts`}</span>
+        <span>
+          {estimatedDays > 0
+            ? <>{est > 0 && <><span aria-hidden="true" style={{ borderTop: "2px dashed var(--accent)", display: "inline-block", width: 16, verticalAlign: "middle", marginRight: 6 }} />estimated from transactions · </>}{historyDays} day{historyDays === 1 ? "" : "s"} recorded</>
+            : historyDays < 30 ? `${historyDays} day${historyDays === 1 ? "" : "s"} of history · grows with each sync` : `${s.v.length} pts`}
+        </span>
       </div>
 
       <div
@@ -70,7 +81,16 @@ export function NetWorthCard({ netWorth, series, historyDays }: { netWorth: numb
           {[16, 92, 168].map((y) => <line key={y} x1="0" y1={y} x2="1000" y2={y} stroke="var(--chart-grid)" strokeDasharray="3 5" vectorEffect="non-scaling-stroke" />)}
           <line x1="0" y1="244" x2="1000" y2="244" stroke="var(--chart-base)" vectorEffect="non-scaling-stroke" />
           <path d={g.area} fill="var(--accent)" fillOpacity={0.08} style={{ d: `path('${g.area}')`, transition: "d 700ms var(--ease)" } as React.CSSProperties} />
+          <defs>
+            <clipPath id="nw-est"><rect x="0" y="-20" width={estX} height="300" /></clipPath>
+            <clipPath id="nw-rec"><rect x={estX} y="-20" width={1000 - estX} height="300" /></clipPath>
+          </defs>
+          {estX > 0 && (
+            <path d={g.line} fill="none" stroke="var(--accent)" strokeWidth={2} strokeDasharray="5 5" strokeOpacity={0.75} vectorEffect="non-scaling-stroke" clipPath="url(#nw-est)" style={{ d: `path('${g.line}')`, transition: "d 700ms var(--ease)" } as React.CSSProperties} />
+          )}
+          {estX > 0 && estX < 1000 && <line x1={estX} y1="16" x2={estX} y2="244" stroke="var(--line-strong)" strokeDasharray="2 4" vectorEffect="non-scaling-stroke" />}
           <path
+            clipPath={estX > 0 ? "url(#nw-rec)" : undefined}
             d={g.line}
             pathLength={1}
             fill="none"

@@ -16,7 +16,11 @@ export function AllocationCard({ rows, invested }: { rows: AllocationRow[]; inve
     return (
       <section className="card lift" aria-labelledby="al-h">
         <h2 id="al-h">Allocation</h2>
-        <p className="muted" style={{ margin: 0 }}>Connect a brokerage or retirement account to see your allocation.</p>
+        <p className="muted" style={{ margin: 0 }}>Connect a brokerage or retirement account to see how your investments are split, and how far they&apos;ve drifted from target.</p>
+        <div className="row" style={{ gap: 10 }}>
+          <a className="btn btn-sm" href="/settings#connections">Connect a brokerage →</a>
+        </div>
+        <p className="note" style={{ margin: 0 }}>Some brokerages, including Charles Schwab, approve new apps on Plaid separately — it can take a while before they appear in the connect list. Your other accounts work in the meantime.</p>
       </section>
     );
   }

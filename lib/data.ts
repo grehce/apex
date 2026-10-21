@@ -2,7 +2,7 @@ import "server-only";
 import { desc, eq, gte, and } from "drizzle-orm";
 import { db, dbConfigured } from "./db";
 import { plaidConfigured } from "./plaid";
-import { accounts, holdings, netWorthDaily, plaidItems, transactions } from "./schema";
+import { accounts, holdings, mortgageDetails, netWorthDaily, plaidItems, transactions } from "./schema";
 import { signedBalance } from "./sync";
 import {
   ASSET_CLASSES, CLASS_COLORS, DEFAULT_TARGETS, classify, isTaxAdvantaged, money,
@@ -11,6 +11,8 @@ import {
 import { sampleInputs } from "./sample";
 import { manualEntries } from "./schema";
 import { manualAccounts, type ManualEntry } from "./manual-assets";
+import { categorizeTransactions } from "./categorize";
+import { estimateHistory, MAX_HISTORY_DAYS, type HistPoint } from "./history";
 import { summarizeSpending } from "./spending";
 import { netWorthTotal } from "./net-worth";
 
@@ -20,6 +22,8 @@ export type Inputs = {
   holdings: HoldingRow[];
   txs: TxRow[];
   snapshots: { day: string; value: number }[];
+  /** Daily history including estimated days; when absent the chart uses recorded snapshots only. */
+  history?: HistPoint[];
   today: Date;
 };
 
@@ -93,6 +97,8 @@ export async function loadDashboard(email: string): Promise<Dashboard> {
     const a = acctById.get(t.accountId);
     return {
       id: t.transactionId,
+      accountId: t.accountId,
+      raw: t.name,
       date: t.date,
       name: t.merchant ?? t.name,
       category: t.category ?? "",
@@ -102,8 +108,25 @@ export async function loadDashboard(email: string): Promise<Dashboard> {
     };
   });
 
+  // Apex's own clean-up on top of Plaid: own-account transfers, card payments, income, merchant keywords, names.
+  const kinds = Object.fromEntries(acctRows.map((a) => [a.accountId, a.type]));
+  const cleaned = categorizeTransactions(txs, kinds);
+
+  // Estimated history: every posted transaction (not just the 120-day window) replayed backwards.
+  const histSince = new Date(Date.now() - MAX_HISTORY_DAYS * 86400000).toISOString().slice(0, 10);
+  const [histTx, loans] = await Promise.all([
+    d.select({ accountId: transactions.accountId, date: transactions.date, amount: transactions.amount, pending: transactions.pending }).from(transactions).where(and(eq(transactions.userEmail, email), gte(transactions.date, histSince))),
+    d.select({ accountId: mortgageDetails.accountId, ratePct: mortgageDetails.interestRatePct, payment: mortgageDetails.nextPayment }).from(mortgageDetails).where(eq(mortgageDetails.userEmail, email)),
+  ]);
+  const manualTotal = manualAccounts(manualRows as ManualEntry[]).reduce((s, a) => s + a.balance, 0);
+  const snapshots = snaps.map((s) => ({ day: s.day, value: s.value }));
+  const history = estimateHistory({
+    accounts: acctList, txs: histTx, manualTotal, snapshots, today: new Date(),
+    mortgages: loans.filter((l) => l.ratePct != null && l.payment != null).map((l) => ({ accountId: l.accountId, ratePct: l.ratePct!, monthlyPayment: l.payment! })),
+  });
+
   return build(
-    { items, manualEntries: manualRows as ManualEntry[], holdings: hold, txs, snapshots: snaps.map((s) => ({ day: s.day, value: s.value })), today: new Date() },
+    { items, manualEntries: manualRows as ManualEntry[], holdings: hold, txs: cleaned, snapshots, history, today: new Date() },
     false,
     setup,
   );
@@ -154,26 +177,32 @@ export function build(inp: Inputs, sample: boolean, setup: Dashboard["setup"]): 
     };
   });
 
-  // Net worth series from daily snapshots.
-  const snaps = inp.snapshots.length ? inp.snapshots : [{ day: ymd(today), value: netWorth }];
+  // Net worth series: recorded daily snapshots, plus estimated days before them when available.
+  const hist: HistPoint[] = inp.history?.length ? inp.history : (inp.snapshots.length ? inp.snapshots : [{ day: ymd(today), value: netWorth }]).map((p) => ({ ...p, est: false }));
+  const snaps = hist;
   const series = {} as Record<RangeKey, Series>;
   const ranges: [RangeKey, number][] = [["1M", 31], ["1Y", 366], ["All", 100000]];
   for (const [k, days] of ranges) {
     const cutoff = ymd(new Date(today.getTime() - days * 86400000));
-    let pts = snaps.filter((s) => s.day >= cutoff);
+    const all = hist.filter((s) => s.day >= cutoff);
+    let pts = all;
     if (pts.length > 60) {
       const step = (pts.length - 1) / 59;
-      pts = Array.from({ length: 60 }, (_, i) => pts[Math.round(i * step)]);
+      pts = Array.from({ length: 60 }, (_, i) => all[Math.round(i * step)]);
     }
-    if (pts.length < 2) pts = [pts[0] ?? { day: ymd(today), value: netWorth }, { day: ymd(today), value: netWorth }];
+    if (pts.length < 2) pts = [pts[0] ?? { day: ymd(today), value: netWorth, est: false }, { day: ymd(today), value: netWorth, est: false }];
+    const lastEst = all.reduce((m, p, i) => (p.est ? i : m), -1);
     series[k] = {
       v: pts.map((p) => Math.round(p.value * 100) / 100),
       l: pts.map((p) => {
         const [y, m, dd] = p.day.split("-");
-        return k === "1M" ? `${m}/${dd}` : `${m}/${y.slice(2)}`;
+        // Short histories label by day so ticks don't repeat the same month.
+        return k === "1M" || all.length <= 92 ? `${m}/${dd}` : `${m}/${y.slice(2)}`;
       }),
+      est: lastEst < 0 || all.length < 2 ? 0 : Math.min(1, (lastEst + 1) / (all.length - 1)),
     };
   }
+  const estimatedDays = hist.filter((p) => p.est).length;
 
   // Command bar answers, computed from the same data.
   const monthSpend = spend.filter((t) => monthKey(t.date) === thisM);
@@ -185,7 +214,7 @@ export function build(inp: Inputs, sample: boolean, setup: Dashboard["setup"]): 
     { q: "spend where month=this | sum", value: money(monthSpend.reduce((s, t) => s + t.amount, 0)), sub: `${monthSpend.length} transactions this month` },
     { q: "income where month=last | sum", value: money(-income.reduce((s, t) => s + t.amount, 0)), sub: `${income.length} deposits categorized as income` },
     { q: "spend | group cat | top 1", value: top ? top.name : "—", sub: top ? `${money(top.thisMonth)} this month · ${money(top.lastMonth)} last month` : "no spending yet" },
-    { q: `networth --since ${first?.day ?? ymd(today)}`, value: (delta >= 0 ? "+" : "") + money(delta, 0), sub: `${snaps.length} daily snapshots recorded` },
+    { q: `networth --since ${first?.day ?? ymd(today)}`, value: (delta >= 0 ? "+" : "") + money(delta, 0), sub: estimatedDays ? `${snaps.length - estimatedDays} recorded + ${estimatedDays} estimated days` : `${snaps.length} daily snapshots recorded` },
     { q: "networth", value: money(netWorth, 0), sub: `across ${included.length} accounts` },
     { q: "spend where month=last | sum", value: money(spend.filter((t) => monthKey(t.date) === lastM).reduce((s, t) => s + t.amount, 0)), sub: "all of last month" },
     { q: "spend | avg per day", value: money(heat.reduce((s, h) => s + h.amount, 0) / heat.length), sub: "over the last 13 weeks" },
@@ -200,7 +229,8 @@ export function build(inp: Inputs, sample: boolean, setup: Dashboard["setup"]): 
     asOf: today.toISOString(),
     netWorth,
     series,
-    historyDays: snaps.length,
+    historyDays: snaps.length - estimatedDays,
+    estimatedDays,
     items: inp.items,
     invested,
     allocation,

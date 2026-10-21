@@ -2,7 +2,7 @@
 import type { ManualEntry } from "./manual-assets";
 
 export type RangeKey = "1M" | "1Y" | "All";
-export type Series = { v: number[]; l: string[] };
+export type Series = { v: number[]; l: string[]; est?: number }; // est: fraction of the x-axis (from the left) that is estimated, not recorded
 
 export type AccountRow = {
   id: string;
@@ -58,6 +58,8 @@ export type TxRow = {
   account: string;
   pending?: boolean;
   amount: number; // Plaid sign: positive = money out
+  accountId?: string;
+  raw?: string; // raw bank description, used for categorization rules
 };
 
 export type HeatDay = {
@@ -73,6 +75,7 @@ export type Dashboard = {
   asOf: string;
   netWorth: number;
   series: Record<RangeKey, Series>;
+  estimatedDays: number; // days of reconstructed (not recorded) history behind the chart
   historyDays: number;
   items: ItemRow[];
   invested: number;

@@ -314,3 +314,4 @@ select.select { appearance: none; -webkit-appearance: none; background-image: ur
 .home-pair > :nth-child(even) { text-align: right; white-space: nowrap; }
 .home-estimate .row.between { flex-wrap: nowrap; gap: 8px; }
 .home-estimate .row.between span:nth-child(2) { text-align: center; }
+.btn-sm { min-height: 36px; padding: 0 14px; font-size: 13px; }
