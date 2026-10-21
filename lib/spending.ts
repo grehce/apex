@@ -17,10 +17,10 @@ export function summarizeSpending(rows: TxRow[], now: Date) {
     map.set(name, c);
   }
   const categories = [...map.values()].map(c => ({ ...c, thisMonth: c.thisMonth / 100, lastMonth: c.lastMonth / 100 })).sort((a,b) => b.thisMonth - a.thisMonth || a.name.localeCompare(b.name));
-  // Pace bars: the six biggest categories that net to spending this month; everything else (including
+  // Pace bars: the five biggest categories that net to spending this month; everything else (including
   // categories where refunds outweigh purchases) rolls into one bar so the bars still add up to the total.
   const positive = categories.filter(c => c.thisMonth > 0);
-  const paceCategories = positive.slice(0, 6);
+  const paceCategories = positive.slice(0, 5);
   const rest = categories.filter(c => !paceCategories.includes(c));
   if (rest.length) paceCategories.push({ name: "Everything else", thisMonth: rest.reduce((s,c)=>s+Math.round(c.thisMonth*100),0)/100, lastMonth: rest.reduce((s,c)=>s+Math.round(c.lastMonth*100),0)/100 });
   const credits = rows.filter(t => !t.pending && t.category === "CARD_CREDITS" && t.date <= today && t.date.startsWith(thisMonth));
