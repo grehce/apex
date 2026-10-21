@@ -128,6 +128,9 @@ export function categorizeTransactions<T extends CatTx>(txs: T[], kinds: AcctKin
     const debtSide = (id: string | undefined) => (id ? kinds[id] === "credit" || kinds[id] === "loan" : false);
     if (pair) {
       category = debtSide(pair.to) ? "LOAN_PAYMENTS" : t.amount > 0 ? "TRANSFER_OUT" : "TRANSFER_IN";
+      // Mortgage payments count as spending (the full payment, as on the bank statement); only the
+      // cash side does — the matching credit on the loan account stays a loan payment.
+      if (subtypes[pair.to] === "mortgage" && t.amount > 0) category = "MORTGAGE";
     } else if (t.amount < 0 && debtSide(t.accountId) && CARD_CREDIT.test(text)) {
       category = "CARD_CREDITS";
     } else if (PHARMACY.test(text) && category !== "TRANSFER_IN" && category !== "TRANSFER_OUT") {
@@ -138,6 +141,8 @@ export function categorizeTransactions<T extends CatTx>(txs: T[], kinds: AcctKin
       category = "LOAN_PAYMENTS";
     } else if (t.amount < 0 && debtSide(t.accountId) && /PAYMENT|THANK YOU|AUTOPAY/i.test(text)) {
       category = "LOAN_PAYMENTS"; // payment received on a card or loan
+    } else if (t.amount > 0 && /(MORTGAGE|MTG PMT|HOME LOAN)/i.test(text) && (UNCATEGORIZED.has(category) || category === "LOAN_PAYMENTS") && !debtSide(t.accountId)) {
+      category = "MORTGAGE";
     } else if (t.amount > 0 && LOAN_PAYMENT.test(text) && UNCATEGORIZED.has(category)) {
       category = "LOAN_PAYMENTS";
     } else if (UNCATEGORIZED.has(category) && BANK_TRANSFER.test(text)) {
@@ -154,7 +159,7 @@ export function categorizeTransactions<T extends CatTx>(txs: T[], kinds: AcctKin
   // Refunds and merchant credits take the category of the purchase they reverse (same merchant,
   // within 60 days), so a $9.99 credit from a merchant offsets that merchant's $9.99 charge.
   const day = (d: string) => Date.parse(d + "T00:00:00Z") / 86400000;
-  const SETTLED = new Set(["INCOME", "LOAN_PAYMENTS", "TRANSFER_IN", "TRANSFER_OUT", "CARD_CREDITS"]);
+  const SETTLED = new Set(["INCOME", "LOAN_PAYMENTS", "TRANSFER_IN", "TRANSFER_OUT", "CARD_CREDITS", "MORTGAGE"]);
   const purchases = first.filter((t) => t.amount > 0 && !SETTLED.has(t.category));
   const key = (n: string) => n.replace(/^Refund · /, "").toLowerCase();
   return first.map((t) => {

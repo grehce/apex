@@ -32,7 +32,9 @@ export function SpendingCard({ rows, dayOfMonth, daysInMonth, postedTotal = 0, p
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0,120px) minmax(48px,1fr) max-content", alignItems: "center", gap: "14px 14px" }}>
           {sorted.map((r, i) => {
             const over = hasLast && r.lastMonth > 0 && r.p > 100;
-            const hot = hasLast && !over && r.lastMonth > 0 && r.p > pace * 1.4;
+            // Fixed monthly bills (the mortgage) are paid all at once, so being "ahead of pace" means nothing.
+            const fixed = r.name === "mortgage";
+            const hot = hasLast && !over && !fixed && r.lastMonth > 0 && r.p > pace * 1.4;
             return (
               <div key={r.name} style={{ display: "contents" }}>
                 {r.name === "Everything else"
@@ -52,7 +54,7 @@ export function SpendingCard({ rows, dayOfMonth, daysInMonth, postedTotal = 0, p
       )}
       <p className="note" style={{ marginTop: 20 }}>
         {hasLast
-          ? "Posted spending, less refunds, vs. all of last month. Transfers, income and loan payments are excluded. The tick marks how far through the month we are."
+          ? "Posted spending, less refunds, vs. all of last month. Mortgage payments count in full; transfers, income and card or other loan payments are excluded. The tick marks how far through the month we are."
           : `No ${lastName} spending synced yet, so bars show this month's split by category. Pace vs. last month starts once a full month is in. Transfers, income and loan payments are excluded.`}
       </p>
     </section>
