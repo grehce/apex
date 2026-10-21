@@ -5,6 +5,7 @@ import { usePlaidLink } from "react-plaid-link";
 import type { ItemRow } from "@/lib/model";
 import { InstitutionLogo } from "../InstitutionLogo";
 import { AgentAccess } from "./AgentAccess";
+import { ManualAssets } from "../networth/ManualAssets";
 import type { ManualEntry } from "@/lib/manual-assets";
 import { netWorthTotal, saveInclusion } from "@/lib/net-worth";
 import { money } from "@/lib/model";
@@ -15,7 +16,6 @@ type Props = {
   items: ItemRow[];
   sample: boolean;
   setup: { plaid: boolean; db: boolean; encryption: boolean };
-  plaidEnv: string;
   email: string;
   demo?: boolean; // signed out: browse sample accounts; any action goes to sign up / log in
 };
@@ -37,7 +37,7 @@ function ago(iso: string | null) {
   return `${Math.round(h / 24)} d ago`;
 }
 
-export function SettingsView({ items, manualEntries, initialNetWorth, sample, setup, plaidEnv, email, demo = false }: Props) {
+export function SettingsView({ items, manualEntries, initialNetWorth, sample, setup, email, demo = false }: Props) {
   const router = useRouter();
   const ready = demo || (setup.plaid && setup.db && setup.encryption);
   const toSignIn = () => router.push("/signin");
@@ -156,7 +156,7 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <h1 id="c-h" style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.03em" }}>Connections</h1>
             <span className="mono muted" style={{ fontSize: 12 }}>
-              {demo ? "Sample data · fictional institutions, accounts and balances" : `${sample ? "no accounts connected yet" : `${items.length} institutions · ${accountCount} accounts`} · plaid ${plaidEnv}`}
+              {demo ? "Sample data · fictional institutions, accounts and balances" : (sample ? "no accounts connected yet" : `${items.length} institutions · ${accountCount} accounts`)}
             </span>
           </div>
           <div className="row" style={{ gap: 8 }}>
@@ -229,6 +229,8 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
           </div>
         )}
       </section>
+
+      <ManualAssets entries={manualEntries} accounts={demo || sample ? [] : items.flatMap((item) => item.accounts)} signedIn={!demo} />
 
       <section id="security" aria-labelledby="s-h" className="card" style={{ gap: 10 }}>
         <h2 id="s-h">Sign-in &amp; security</h2>

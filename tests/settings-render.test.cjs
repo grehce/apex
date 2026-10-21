@@ -4,6 +4,7 @@ const replacements={
  'next/navigation':{useRouter:()=>({push:()=>{},refresh:()=>{}})},
  'react-plaid-link':{usePlaidLink:()=>({open:()=>{},ready:false})},
  '../InstitutionLogo':{InstitutionLogo:()=>null},'./AgentAccess':{AgentAccess:()=>null},
+ '../networth/ManualAssets':{ManualAssets:()=>React.createElement('section',{id:'manual-assets'},'Fixture assets section')},
  '@/lib/net-worth':require('../lib/net-worth.ts'),'@/lib/model':require('../lib/model.ts')
 };
 const m={exports:{}};
@@ -12,6 +13,7 @@ const account={id:'cash',itemId:'item',institution:'Fixture Bank',name:'Fixture 
 const props={items:[{itemId:'item',institution:'Fixture Bank',status:'ok',lastSyncedAt:null,accounts:[account]}],manualEntries:[{id:'home',name:'Fixture home',kind:'asset',category:'property',value:200,valuationDate:'2026-10-21',archived:false}],initialNetWorth:300,sample:false,setup:{plaid:true,db:true,encryption:true},plaidEnv:'production',email:'fixture@example.invalid'};
 const signedIn=renderToStaticMarkup(React.createElement(m.exports.SettingsView,props));
 assert.match(signedIn,/\$300\.00/);assert.doesNotMatch(signedIn,/Only approved Google accounts can sign in\./);assert.match(signedIn,/Include Fixture cash in net worth/);
+assert.doesNotMatch(signedIn,/plaid production/);assert.match(signedIn,/id="manual-assets"/);assert.ok(!fs.readFileSync('app/(app)/page.tsx','utf8').includes('/networth#manual-assets'));assert.ok(!fs.readFileSync('app/(app)/networth/page.tsx','utf8').includes('<ManualAssets'));
 const demo=renderToStaticMarkup(React.createElement(m.exports.SettingsView,{...props,manualEntries:[],initialNetWorth:100,demo:true}));
 assert.match(demo,/Sample net worth/);assert.match(demo,/Only approved Google accounts can sign in\./);assert.match(demo,/fictional institutions/);assert.doesNotMatch(demo,/\$300\.00/);
 const empty=renderToStaticMarkup(React.createElement(m.exports.SettingsView,{...props,items:[],manualEntries:[],sample:true,initialNetWorth:123}));assert.match(empty,/Sample net worth/);assert.match(empty,/\$123\.00/);

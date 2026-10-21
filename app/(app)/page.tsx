@@ -8,7 +8,6 @@ import { SpendingCard } from "@/components/overview/SpendingCard";
 import { LedgerCard } from "@/components/overview/LedgerCard";
 import { HeatmapCard } from "@/components/overview/HeatmapCard";
 import { Board } from "@/components/overview/Board";
-import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: { absolute: "Apex — see everything, know your next move" }, alternates: { canonical: "/" } };
@@ -37,10 +36,6 @@ export default async function OverviewPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
       <h1 className="sr-only">Apex — your net worth, portfolio and spending in one place</h1>
       <SampleBanner d={d} signedIn={Boolean(email)} />
-      <div className="row between" style={{ gap: 12 }}>
-        <span className="muted" style={{ fontSize: 13 }}>Have property or other assets outside linked accounts?</span>
-        <Link className="btn" href="/networth#manual-assets">Add property or manual asset</Link>
-      </div>
       <CommandBar answers={d.answers} />
       <Board
         tiles={[
