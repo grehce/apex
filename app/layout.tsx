@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { THEME_BOOT } from "@/lib/theme";
+import { SiteAnalytics } from "@/components/SiteAnalytics";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.apexfolios.com"),
@@ -39,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Google+Sans:wght@500&family=JetBrains+Mono:wght@400;500;600&display=swap"
         />
       </head>
-      <body>{children}</body>
+      <body>{children}<SiteAnalytics /></body>
     </html>
   );
 }

@@ -134,18 +134,18 @@ export function SettingsView({ items, sample, setup, plaidEnv, email, demo = fal
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <h1 id="c-h" style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.03em" }}>Connections</h1>
             <span className="mono muted" style={{ fontSize: 12 }}>
-              {sample ? "no accounts connected yet" : `${items.length} institutions · ${accountCount} accounts`} · plaid {plaidEnv}
+              {demo ? "Sample data · fictional institutions, accounts and balances" : `${sample ? "no accounts connected yet" : `${items.length} institutions · ${accountCount} accounts`} · plaid ${plaidEnv}`}
             </span>
           </div>
           <div className="row" style={{ gap: 8 }}>
-            {!sample && <button type="button" className="btn" onClick={syncNow} disabled={!ready || !!busy}>Sync now</button>}
+            {!sample && !demo && <button type="button" className="btn" onClick={syncNow} disabled={!ready || !!busy}>Sync now</button>}
             <button type="button" className="btn btn-primary" onClick={() => startLink()} disabled={!ready || !!busy}>+ Connect account</button>
           </div>
         </div>
 
         <div className="banner dots">
           <span>
-            Read-only through <strong style={{ color: "var(--ink)" }}>Plaid</strong> · your bank login never reaches Apex · tokens encrypted
+            {demo ? "Demo only — no bank accounts are connected. Sign in to connect your own accounts." : <>Read-only through <strong style={{ color: "var(--ink)" }}>Plaid</strong> · your bank login never reaches Apex · tokens encrypted</>}
           </span>
         </div>
 
@@ -174,7 +174,7 @@ export function SettingsView({ items, sample, setup, plaidEnv, email, demo = fal
                   <div style={{ flex: "1 1 200px", minWidth: 0 }}>
                     <div style={{ fontWeight: 600 }}>{item.institution}</div>
                     <div className="mono" style={{ fontSize: 12, color: item.status === "ok" ? "var(--accent-ink)" : "var(--warn)" }}>
-                      {item.status === "ok" ? `synced ${ago(item.lastSyncedAt)}` : item.status === "login_required" ? "login expired — reconnect" : "sync error"}
+                      {demo ? "Sample institution · fictional balances" : item.status === "ok" ? `synced ${ago(item.lastSyncedAt)}` : item.status === "login_required" ? "login expired — reconnect" : "sync error"}
                     </div>
                   </div>
                   {item.status !== "ok" && <button type="button" className="btn btn-warn" style={{ minHeight: 36 }} onClick={() => startLink(item.itemId)}>Reconnect</button>}

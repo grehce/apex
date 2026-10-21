@@ -4,8 +4,11 @@ import type { Dashboard } from "@/lib/model";
 export function SampleBanner({ d, signedIn = true }: { d: Dashboard; signedIn?: boolean }) {
   if (!d.sample) return null;
 
-  // Signed out: no banner — the footer line and the Sign up / Log in button carry that message.
-  if (!signedIn) return null;
+  if (!signedIn) return (
+    <div className="banner dots" role="status">
+      <span><strong style={{ color: "var(--ink)" }}>Sample data.</strong> All institutions, accounts and balances shown are fictional. <Link href="/signin">Sign in</Link> to connect your own accounts.</span>
+    </div>
+  );
 
   const ready = d.setup.plaid && d.setup.db && d.setup.encryption;
   return (
