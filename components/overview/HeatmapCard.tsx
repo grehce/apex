@@ -74,7 +74,9 @@ export function HeatmapCard({ days }: { days: HeatDay[] }) {
                 onClick={() => setPinned(idx)}
                 style={{
                   width: 16, height: 16, padding: 0, border: 0, borderRadius: 2, cursor: "pointer",
+                  // $0 days are empty (outlined) in both themes; spending fills with a stronger green as it grows.
                   background: LEVELS[level(c.amount)],
+                  outline: level(c.amount) === 0 ? "1px solid var(--heat-empty)" : "none", outlineOffset: -1,
                   boxShadow: sel === idx ? "0 0 0 2px var(--ink)" : pinned === idx ? "0 0 0 2px var(--border-hover)" : "none",
                   transition: "box-shadow 150ms",
                 }}
@@ -86,7 +88,7 @@ export function HeatmapCard({ days }: { days: HeatDay[] }) {
 
       <div className="row mono muted" style={{ gap: 4, fontSize: 11 }}>
         <span style={{ marginRight: 4 }}>less</span>
-        {LEVELS.map((c) => <span key={c} style={{ width: 12, height: 12, borderRadius: 2, background: c }} />)}
+        {LEVELS.map((c, i) => <span key={c} style={{ width: 12, height: 12, borderRadius: 2, background: c, outline: i === 0 ? "1px solid var(--heat-empty)" : "none", outlineOffset: -1 }} />)}
         <span style={{ marginLeft: 4 }}>more</span>
       </div>
 

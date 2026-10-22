@@ -38,7 +38,7 @@
   --chart-grid: #ecede9;
   --chart-base: #dddfda;
   --link-hover: #1c2e26;
-  --heat-0: #eceeea; --heat-1: #d3ded2; --heat-2: #a9bfa9; --heat-3: #6f8a70; --heat-4: #3d5a4c;
+  --heat-0: transparent; --heat-empty: #e1e4de; --heat-1: #d3ded2; --heat-2: #a9bfa9; --heat-3: #6f8a70; --heat-4: #3d5a4c;
   --tip-bg: #17191a;
   color-scheme: light;
   --sans: -apple-system, BlinkMacSystemFont, "Figtree", system-ui, sans-serif;
@@ -87,7 +87,7 @@
   --chart-grid: #232725;
   --chart-base: #2f3431;
   --link-hover: #d3ecdc;
-  --heat-0: #1d2120; --heat-1: #22362b; --heat-2: #2f5a40; --heat-3: #4f8a63; --heat-4: #8cc9a1;
+  --heat-0: transparent; --heat-empty: #2c312e; --heat-1: #213a2c; --heat-2: #275c3d; --heat-3: #2d784a; --heat-4: #3c9a5f;
 }
 
 * { box-sizing: border-box; }
@@ -331,3 +331,9 @@ select.select { appearance: none; -webkit-appearance: none; background-image: ur
 .home-reset { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 12px 14px; border-radius: var(--r-inner); background: var(--surface-2); }
 .home-reset.is-soon { background: var(--accent-tint); }
 .home-reset.is-now { background: var(--warn-tint); box-shadow: inset 3px 0 0 var(--warn); }
+
+/* Institution logos: one tile style for every logo; softened in dark mode so white logos don't glare */
+.inst-logo { display: inline-block; flex: none; box-sizing: border-box; padding: 3px; border-radius: 8px; background: #fff; border: 1px solid var(--line); overflow: hidden; }
+.inst-logo img { border-radius: 5px; }
+:root[data-theme="dark"] .inst-logo { background: #e6e8e4; border-color: #3a403c; }
+:root[data-theme="dark"] .inst-logo img { filter: brightness(.94) saturate(.95); }
