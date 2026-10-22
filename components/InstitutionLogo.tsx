@@ -5,10 +5,10 @@ import { InstitutionMark } from "./Mark";
 import { officialInstitutionLogo } from "@/lib/institution-logo-data";
 
 // Round logos (a mark inside a circle on a white square) look like a cutout inside our square tile.
-// For these, the tile takes the circle's color and the image is enlarged until the circle covers the
-// tile (√2 ≈ 1.42), so it reads like the brand's own app icon: a solid tile with the mark centered.
-const ROUND_MARKS: Record<string, { bg: string; scale: number }> = {
-  "x money": { bg: "#000", scale: 1.45 },
+// For these the inner square takes the circle's color and the image is clipped to its circle, so it
+// reads like the brand's app icon, at the same size as every other logo's artwork.
+const ROUND_MARKS: Record<string, { bg: string }> = {
+  "x money": { bg: "#000" },
 };
 
 export function InstitutionLogo({ name, logo, size = 40 }: { name: string; logo?: string | null; size?: number }) {
@@ -23,10 +23,19 @@ export function InstitutionLogo({ name, logo, size = 40 }: { name: string; logo?
     // eslint-disable-next-line @next/next/no-img-element
     // A uniform tile with breathing room, so logos with different shapes and backgrounds read as a set;
     // in dark mode the tile softens (see .inst-logo in globals.css).
-    <span className={`inst-logo${fill ? " inst-logo-fill" : ""}`} style={{ width: size, height: size, ...(fill ? { background: fill.bg } : {}) }}>
-      <img src={source} alt={`${name} logo`} width={size} height={size}
-        referrerPolicy="no-referrer" onError={() => setFailedLogos((previous) => [...previous, source])}
-        style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", ...(fill && source !== official ? { transform: `scale(${fill.scale})` } : {}) }} />
+    <span className="inst-logo" style={{ width: size, height: size }}>
+      {fill && source !== official ? (
+        // Same frame as every other logo; the mark's circle is trimmed so it merges into a solid inner square.
+        <span className="inst-logo-mark" style={{ background: fill.bg }}>
+          <img src={source} alt={`${name} logo`} width={size} height={size}
+            referrerPolicy="no-referrer" onError={() => setFailedLogos((previous) => [...previous, source])}
+            style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", borderRadius: "50%" }} />
+        </span>
+      ) : (
+        <img src={source} alt={`${name} logo`} width={size} height={size}
+          referrerPolicy="no-referrer" onError={() => setFailedLogos((previous) => [...previous, source])}
+          style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+      )}
     </span>
   );
 }
