@@ -337,3 +337,33 @@ select.select { appearance: none; -webkit-appearance: none; background-image: ur
 .inst-logo img { border-radius: 5px; }
 :root[data-theme="dark"] .inst-logo { background: #e6e8e4; border-color: #3a403c; }
 :root[data-theme="dark"] .inst-logo img { filter: brightness(.94) saturate(.95); }
+
+/* Connections: institution header and account rows that hold up on phones */
+.inst-head { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px 16px; }
+.inst-head > :first-child { flex: none; }
+.inst-head > div:nth-child(2) { flex: 1 1 150px; min-width: 0; }
+.inst-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; flex: none; }
+.acct-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; grid-template-areas: "name meta bal inc"; align-items: center; gap: 4px 10px; padding-left: 56px; font-size: 14px; }
+.acct-name { grid-area: name; min-width: 0; }
+.acct-meta { grid-area: meta; font-size: 12px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acct-bal { grid-area: bal; font-size: 13px; text-align: right; white-space: nowrap; }
+.acct-inc { grid-area: inc; display: inline-flex; align-items: center; gap: 8px; font-size: 11px; }
+@media (max-width: 560px) {
+  .acct-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name bal" "meta inc"; padding-left: 0; gap: 2px 12px; padding-top: 6px; }
+  .acct-inc { justify-self: end; }
+  .acct-inc-label { display: none; }
+  .inst-actions .chip { min-height: 32px; }
+}
+/* Spending table: the change column drops on narrow phones; Ledger shows category under the merchant */
+.ledger-sub { display: none; }
+.date-short { display: none; }
+@media (max-width: 600px) {
+  .ledger-sub { display: block; font-size: 11px; font-weight: 400; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 42vw; }
+  .t-ledger .date-full { display: none; }
+  .t-ledger .date-short { display: inline; }
+  .t-ledger td:nth-child(2) { max-width: 46vw; }
+}
+@media (max-width: 480px) {
+  table.t-cat th:nth-child(4), table.t-cat td:nth-child(4) { display: none; }
+  .ledger-sub-unused { display: block; font-size: 11px; font-weight: 400; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 52vw; }
+}

@@ -47,7 +47,7 @@ export default async function SpendingPage() {
         <section className="card" aria-label="By category">
           <h2>By category</h2>
           <div className="table-wrap">
-            <table className="data">
+            <table className="data t-cat">
               <thead><tr><th>category</th><th className="r">this month</th><th className="r">last month</th><th className="r">change</th></tr></thead>
               <tbody>
                 {cats.map((c) => {

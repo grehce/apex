@@ -213,7 +213,7 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
           <div>
             {items.map((item) => (
               <div key={item.itemId} style={{ borderTop: "1px dashed var(--line-dash)", padding: "14px 0", display: "flex", flexDirection: "column", gap: 10 }}>
-                <div className="row" style={{ gap: "12px 16px" }}>
+                <div className="inst-head">
                   <InstitutionLogo name={item.institution} logo={demo ? null : item.logo} />
                   <div style={{ flex: "1 1 200px", minWidth: 0 }}>
                     <div style={{ fontWeight: 600 }}>{item.institution}</div>
@@ -222,8 +222,10 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
                     </div>
                     {!demo && item.transactionsState && item.transactionsState !== "ready" && <div className="mono muted" style={{ fontSize: 12 }}>{item.transactionsState === "unknown" ? "Transaction readiness not yet checked" : item.transactionsState === "pending" ? "Initial transactions pending" : `Transactions need attention: ${item.transactionsError ?? item.transactionsState}`}</div>}
                   </div>
-                  {item.status !== "ok" && <button type="button" className="btn btn-warn" disabled={savingInclusion || !!busy} style={{ minHeight: 36 }} onClick={() => startLink(item.itemId)}>Reconnect</button>}
-                  <button type="button" className="chip" disabled={savingInclusion || !!busy} onClick={() => remove(item)}>disconnect</button>
+                  <div className="inst-actions">
+                    {item.status !== "ok" && <button type="button" className="btn btn-warn" disabled={savingInclusion || !!busy} style={{ minHeight: 36 }} onClick={() => startLink(item.itemId)}>Reconnect</button>}
+                    <button type="button" className="chip" disabled={savingInclusion || !!busy} onClick={() => remove(item)}>disconnect</button>
+                  </div>
                 </div>
                 {item.accounts.map((account) => {
                   const a = { ...account, include: inclusionOverrides[account.id] ?? account.include };
@@ -231,13 +233,12 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
                   const eq = home ? equity(home.value, Math.abs(a.balance)) : null;
                   return (
                   <Fragment key={a.id}>
-                  <div className="row" style={{ paddingLeft: 56, gap: 12 }}>
-                    <span style={{ flex: "1 1 200px", minWidth: 0, fontSize: 14 }}>
-                      {a.name} <span className="mono muted" style={{ fontSize: 12 }}>{a.subtype ?? a.type}{a.mask ? ` ••${a.mask}` : ""}</span>
-                    </span>
-                    <span className="mono num" style={{ fontSize: 13 }}>{a.balance < 0 ? "−" : ""}${Math.abs(a.balance).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    <span className="row mono muted" style={{ gap: 8, fontSize: 11 }}>
-                      in net worth
+                  <div className="acct-row">
+                    <span className="acct-name">{a.name}</span>
+                    <span className="acct-meta mono muted">{a.subtype ?? a.type}{a.mask ? ` ••${a.mask}` : ""}</span>
+                    <span className="acct-bal mono num">{a.balance < 0 ? "−" : ""}${Math.abs(a.balance).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <span className="acct-inc mono muted">
+                      <span className="acct-inc-label">in net worth</span>
                       <button type="button" role="switch" aria-checked={a.include} aria-label={`Include ${a.name} in net worth`} disabled={savingInclusion || !!busy} className="switch" style={{ width: 44, height: 26 }} onClick={() => toggleInclude(a.id, !a.include)}>
                         <span style={{ width: 20, height: 20, left: a.include ? 21 : 3 }} />
                       </button>

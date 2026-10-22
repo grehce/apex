@@ -70,8 +70,8 @@ export function LedgerTable({ rows, initialCategory = "", initialMonth = "" }: {
           <tbody>
             {filtered.slice(0, limit).map((r) => (
               <tr key={r.id}>
-                <td className="mono muted" style={{ fontSize: 12, whiteSpace: "nowrap" }}>{r.date}</td>
-                <td style={{ fontWeight: 500 }}>{r.name}</td>
+                <td className="mono muted" style={{ fontSize: 12, whiteSpace: "nowrap" }}><span className="date-full">{r.date}</span><span className="date-short">{r.date.slice(5)}</span></td>
+                <td style={{ fontWeight: 500 }}>{r.name}<span className="ledger-sub mono muted">{prettyCategory(r.category)} · {r.account}</span></td>
                 <td className="mono muted" style={{ fontSize: 12 }}>{prettyCategory(r.category)}</td>
                 <td className="mono muted" style={{ fontSize: 12, whiteSpace: "nowrap" }}>{r.account}</td>
                 <td className="r mono num" style={{ color: r.amount < 0 ? "var(--accent-ink)" : "var(--ink)", whiteSpace: "nowrap" }}>{r.amount < 0 ? "+" : "−"}{fmt(Math.abs(r.amount))}</td>
