@@ -38,7 +38,8 @@
   --chart-grid: #ecede9;
   --chart-base: #dddfda;
   --link-hover: #1c2e26;
-  --heat-0: transparent; --heat-empty: #e1e4de; --heat-1: #d3ded2; --heat-2: #a9bfa9; --heat-3: #6f8a70; --heat-4: #3d5a4c;
+  /* Heatmap: lightest = $0, darkest = biggest spend — the same in light and dark themes */
+  --heat-0: #eceeea; --heat-empty: transparent; --heat-1: #d3ded2; --heat-2: #a9bfa9; --heat-3: #6f8a70; --heat-4: #3d5a4c;
   --tip-bg: #17191a;
   color-scheme: light;
   --sans: -apple-system, BlinkMacSystemFont, "Figtree", system-ui, sans-serif;
@@ -87,7 +88,7 @@
   --chart-grid: #232725;
   --chart-base: #2f3431;
   --link-hover: #d3ecdc;
-  --heat-0: transparent; --heat-empty: #2c312e; --heat-1: #213a2c; --heat-2: #275c3d; --heat-3: #2d784a; --heat-4: #3c9a5f;
+  --heat-0: #dfe3dc; --heat-empty: transparent; --heat-1: #c3d2c2; --heat-2: #97b29a; --heat-3: #5f8466; --heat-4: #2f5a44;
 }
 
 * { box-sizing: border-box; }
