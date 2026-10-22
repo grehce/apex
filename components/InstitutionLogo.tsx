@@ -7,7 +7,8 @@ import { officialInstitutionLogo } from "@/lib/institution-logo-data";
 export function InstitutionLogo({ name, logo, size = 40 }: { name: string; logo?: string | null; size?: number }) {
   const [failedLogos, setFailedLogos] = useState<string[]>([]);
   const official = officialInstitutionLogo(name);
-  const source = [logo, official].find((candidate): candidate is string => Boolean(candidate && !failedLogos.includes(candidate)));
+  // A locally hosted official asset wins over Plaid's PNG (some, like American Express, arrive cropped).
+  const source = [official, logo].find((candidate): candidate is string => Boolean(candidate && !failedLogos.includes(candidate)));
   if (!source) return <InstitutionMark name={name} size={size} />;
   return (
     // Plaid's embedded PNG needs neither an image proxy nor an external browser request.

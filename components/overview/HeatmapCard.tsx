@@ -36,6 +36,7 @@ export function HeatmapCard({ days }: { days: HeatDay[] }) {
   // Pad the start so columns are whole weeks starting on Sunday.
   const firstDow = new Date(days[0].day + "T12:00:00").getDay();
   const cells: (HeatDay | null)[] = [...Array(firstDow).fill(null), ...days];
+  const weeks = Math.ceil(cells.length / 7);
 
   const dt = new Date(d.day + "T12:00:00");
   const ratio = avg > 0 ? d.amount / avg : 0;
@@ -52,38 +53,39 @@ export function HeatmapCard({ days }: { days: HeatDay[] }) {
         <span className="mono muted" style={{ fontSize: 12 }}>avg ${Math.round(avg)}/day · last 13 weeks</span>
       </div>
 
-      {/* 4px of padding (cancelled by the negative margin) so the selection ring isn't clipped by the scroll box */}
-      <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: 4, margin: -4 }}>
-        <div aria-hidden="true" className="mono muted" style={{ display: "grid", gridTemplateRows: "repeat(7, 16px)", gap: 4, fontSize: 10, lineHeight: "16px" }}>
-          <span>sun</span><span /><span>tue</span><span /><span>thu</span><span /><span>sat</span>
-        </div>
-        <div role="group" aria-label="Daily spending, last 13 weeks" onMouseLeave={() => setHover(null)} style={{ display: "grid", gridTemplateRows: "repeat(7, 16px)", gridAutoFlow: "column", gridAutoColumns: "16px", gap: 4 }}>
-          {cells.map((c, i) => {
-            if (c === null) return <span key={`pad${i}`} />;
-            const idx = i - firstDow;
-            const cd = new Date(c.day + "T12:00:00");
-            return (
-              <button
-                key={c.day}
-                type="button"
-                aria-label={`${DOW[cd.getDay()]} ${cd.getMonth() + 1}/${cd.getDate()}: $${c.amount}`}
-                aria-pressed={pinned === idx}
-                onMouseEnter={() => setHover(idx)}
-                onFocus={() => setHover(idx)}
-                onBlur={() => setHover(null)}
-                onClick={() => setPinned(idx)}
-                style={{
-                  width: 16, height: 16, padding: 0, border: 0, borderRadius: 2, cursor: "pointer",
-                  // $0 days are empty (outlined) in both themes; spending fills with a stronger green as it grows.
-                  background: LEVELS[level(c.amount)],
-                  outline: level(c.amount) === 0 ? "1px solid var(--heat-empty)" : "none", outlineOffset: -1,
-                  boxShadow: sel === idx ? "0 0 0 2px var(--ink)" : pinned === idx ? "0 0 0 2px var(--border-hover)" : "none",
-                  transition: "box-shadow 150ms",
-                }}
-              />
-            );
-          })}
-        </div>
+      {/* One fluid grid: a narrow label column, then one column per week. Squares stretch to fill the
+          card (up to a comfortable max), so they're easy to hover on desktop and to tap on a phone. */}
+      <div role="group" aria-label="Daily spending, last 13 weeks" onMouseLeave={() => setHover(null)}
+        style={{ display: "grid", gridTemplateColumns: `26px repeat(${weeks}, minmax(0, 1fr))`, gap: 4, maxWidth: 26 + weeks * 36, width: "100%", padding: 3, margin: -3 }}>
+        {["sun", "", "tue", "", "thu", "", "sat"].map((t, r) => (
+          <span key={`l${r}`} aria-hidden="true" className="mono muted" style={{ gridColumn: 1, gridRow: r + 1, fontSize: 10, alignSelf: "center" }}>{t}</span>
+        ))}
+        {cells.map((c, i) => {
+          if (c === null) return null;
+          const idx = i - firstDow;
+          const cd = new Date(c.day + "T12:00:00");
+          return (
+            <button
+              key={c.day}
+              type="button"
+              aria-label={`${DOW[cd.getDay()]} ${cd.getMonth() + 1}/${cd.getDate()}: $${c.amount}`}
+              aria-pressed={pinned === idx}
+              onMouseEnter={() => setHover(idx)}
+              onFocus={() => setHover(idx)}
+              onBlur={() => setHover(null)}
+              onClick={() => setPinned(idx)}
+              style={{
+                gridColumn: 2 + Math.floor(i / 7), gridRow: 1 + (i % 7),
+                width: "100%", aspectRatio: "1", minHeight: 14, padding: 0, border: 0, borderRadius: 3, cursor: "pointer",
+                // $0 days are empty (outlined) in both themes; spending fills with a stronger green as it grows.
+                background: LEVELS[level(c.amount)],
+                outline: level(c.amount) === 0 ? "1px solid var(--heat-empty)" : "none", outlineOffset: -1,
+                boxShadow: sel === idx ? "0 0 0 2px var(--ink)" : pinned === idx ? "0 0 0 2px var(--border-hover)" : "none",
+                transition: "box-shadow 150ms",
+              }}
+            />
+          );
+        })}
       </div>
 
       <div className="row mono muted" style={{ gap: 4, fontSize: 11 }}>

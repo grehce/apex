@@ -5,8 +5,12 @@ export function institutionLogoData(logo: string | null | undefined): string | n
 }
 
 /** Locally hosted official assets; never infer a remote logo URL from account details. */
+const OFFICIAL: Record<string, string> = {
+  "chase": "/institutions/chase.jpg", "jpmorgan chase": "/institutions/chase.jpg", "jp morgan chase": "/institutions/chase.jpg",
+  // American Express standard Blue Box from Amex's design system (the full logo, nothing off the edge).
+  "american express": "/institutions/amex.svg", "amex": "/institutions/amex.svg",
+};
+
 export function officialInstitutionLogo(name: string): string | null {
-  return ["chase", "jpmorgan chase", "jp morgan chase"].includes(name.trim().toLowerCase())
-    ? "/institutions/chase.jpg"
-    : null;
+  return OFFICIAL[name.trim().toLowerCase()] ?? null;
 }
