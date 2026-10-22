@@ -27,6 +27,8 @@ export type ItemRow = {
   status: "ok" | "login_required" | "error";
   lastSyncedAt: string | null;
   accounts: AccountRow[];
+  attention?: string | null; // set by Plaid webhooks (see lib/plaid-webhook.ts)
+  lastWebhookAt?: string | null;
 };
 
 export type HoldingRow = {

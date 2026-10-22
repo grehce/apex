@@ -3,6 +3,7 @@ import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePlaidLink, type PlaidLinkOnSuccessMetadata } from "react-plaid-link";
 import { exchangeBody, logLinkEvent } from "@/lib/link-client";
+import { ATTENTION_COPY, type Attention } from "@/lib/plaid-attention";
 import type { ItemRow } from "@/lib/model";
 import { InstitutionLogo } from "../InstitutionLogo";
 import { AgentAccess } from "./AgentAccess";
@@ -74,7 +75,7 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
       if (!publicToken) return;
       setBusy(updateItem ? "Reconnecting…" : "Fetching accounts…");
       try {
-        if (updateItem) { await post("/api/plaid/sync", {}); setMsg({ kind: "ok", text: consenting ? "Loan details shared — see your home card below." : "Reconnected. Check the transaction status below." }); setConsenting(false); }
+        if (updateItem) { await post("/api/plaid/sync", { resolvedItemId: updateItem }); setMsg({ kind: "ok", text: consenting ? "Loan details shared — see your home card below." : "Reconnected. Check the transaction status below." }); setConsenting(false); }
         else {
           const result = await post("/api/plaid/exchange", exchangeBody(publicToken, metadata));
           setMsg(result.synced === false ? { kind: "err", text: `Account connected, but sync needs attention: ${result.error ?? "SYNC_FAILED"}` } : { kind: "ok", text: result.transactionsPending ? "Account connected. Initial transactions are still loading." : "Account connected." });
@@ -102,11 +103,11 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
     if (token && linkReady) open();
   }, [token, linkReady, open]);
 
-  async function startLink(itemId?: string, consent?: "liabilities") {
+  async function startLink(itemId?: string, consent?: "liabilities", newAccounts = false) {
     if (demo) return toSignIn();
     setMsg(null);
     try {
-      const j = await post("/api/plaid/link-token", itemId ? { itemId, ...(consent ? { consent } : {}) } : {});
+      const j = await post("/api/plaid/link-token", itemId ? { itemId, ...(consent ? { consent } : {}), ...(newAccounts ? { newAccounts: true } : {}) } : {});
       setUpdateItem(itemId ?? null);
       setConsenting(consent === "liabilities");
       // Saved so Link can resume on /oauth after a bank's own sign-in page.
@@ -219,13 +220,14 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
                   <InstitutionLogo name={item.institution} logo={demo ? null : item.logo} />
                   <div style={{ flex: "1 1 200px", minWidth: 0 }}>
                     <div style={{ fontWeight: 600 }}>{item.institution}</div>
-                    <div className="mono" style={{ fontSize: 12, color: item.status === "ok" ? "var(--accent-ink)" : "var(--warn)" }}>
-                      {demo ? "Sample institution · fictional balances" : item.status === "ok" ? `synced ${ago(item.lastSyncedAt)}` : item.status === "login_required" ? "login expired — reconnect" : "sync error"}
+                    <div className="mono" style={{ fontSize: 12, color: item.status === "ok" && !item.attention ? "var(--accent-ink)" : "var(--warn)" }}>
+                      {demo ? "Sample institution · fictional balances" : item.attention && item.attention in ATTENTION_COPY ? ATTENTION_COPY[item.attention as Attention] : item.status === "ok" ? `synced ${ago(item.lastSyncedAt)}` : item.status === "login_required" ? "login expired — reconnect" : "sync error"}
                     </div>
+                    {!demo && item.lastWebhookAt && <div className="mono muted" style={{ fontSize: 11 }}>live updates on · last heard from Plaid {ago(item.lastWebhookAt)}</div>}
                     {!demo && item.transactionsState && item.transactionsState !== "ready" && <div className="mono muted" style={{ fontSize: 12 }}>{item.transactionsState === "unknown" ? "Transaction readiness not yet checked" : item.transactionsState === "pending" ? "Initial transactions pending" : `Transactions need attention: ${item.transactionsError ?? item.transactionsState}`}</div>}
                   </div>
                   <div className="inst-actions">
-                    {item.status !== "ok" && <button type="button" className="btn btn-warn" disabled={savingInclusion || !!busy} style={{ minHeight: 36 }} onClick={() => startLink(item.itemId)}>Reconnect</button>}
+                    {(item.status !== "ok" || item.attention) && <button type="button" className="btn btn-warn" disabled={savingInclusion || !!busy} style={{ minHeight: 36 }} onClick={() => startLink(item.itemId, undefined, item.attention === "new_accounts")}>{item.attention === "new_accounts" ? "Add accounts" : "Reconnect"}</button>}
                     <button type="button" className="chip" disabled={savingInclusion || !!busy} onClick={() => remove(item)}>disconnect</button>
                   </div>
                 </div>

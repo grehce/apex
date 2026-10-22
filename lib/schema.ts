@@ -68,6 +68,9 @@ export const plaidItems = pgTable("plaid_items", {
   transactionsLeaseToken: text("transactions_lease_token"),
   transactionsError: text("transactions_error"),
   status: text("status").notNull().default("ok"), // ok | login_required | error
+  attention: text("attention"), // set by webhooks: login_required | pending_expiration | pending_disconnect | new_accounts | revoked
+  webhookUrl: text("webhook_url"), // the URL registered with Plaid for this Item
+  lastWebhookAt: timestamp("last_webhook_at", { withTimezone: true }),
   lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index("plaid_items_user_idx").on(t.userEmail)]);

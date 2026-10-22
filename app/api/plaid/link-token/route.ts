@@ -7,13 +7,15 @@ import { db } from "@/lib/db";
 import { decrypt } from "@/lib/crypto";
 import { plaidItems } from "@/lib/schema";
 import { createHash } from "node:crypto";
+import { webhookUrl } from "@/lib/plaid-webhook";
 
 /** Creates a short-lived Link token. Pass { itemId } to open Link in update mode (reconnect). */
 export async function POST(req: Request) {
   const g = await guard(req);
   if (g instanceof NextResponse) return g;
 
-  const body = (await req.json().catch(() => ({}))) as { itemId?: string; consent?: "liabilities" };
+  const body = (await req.json().catch(() => ({}))) as { itemId?: string; consent?: "liabilities"; newAccounts?: boolean };
+  const hook = webhookUrl();
   // Plaid wants a stable, non-PII user id.
   const clientUserId = createHash("sha256").update(g.email).digest("hex").slice(0, 32);
 
@@ -38,11 +40,13 @@ export async function POST(req: Request) {
     ...(accessToken
       ? // Update mode. With consent: "liabilities", the existing connection is asked to also share
         // mortgage details — nothing is erased and the account ids stay the same.
-        { access_token: accessToken, ...(body.consent === "liabilities" ? { additional_consented_products: [Products.Liabilities] } : {}) }
+        { access_token: accessToken, ...(body.consent === "liabilities" ? { additional_consented_products: [Products.Liabilities] } : {}),
+          // NEW_ACCOUNTS_AVAILABLE: let the member pick the newly opened accounts.
+          ...(body.newAccounts ? { update: { account_selection_enabled: true } } : {}) }
       // Ask for 24 months of transactions (Plaid's maximum) so net worth history can be rebuilt.
       // Liabilities is consent-only here: Plaid bills it only once /liabilities/get is called,
       // and sync calls it only on Items that actually hold a mortgage.
-      : { products: [Products.Transactions], optional_products: [Products.Investments], additional_consented_products: [Products.Liabilities], transactions: { days_requested: 730 } }),
+      : { products: [Products.Transactions], optional_products: [Products.Investments], additional_consented_products: [Products.Liabilities], transactions: { days_requested: 730 }, ...(hook ? { webhook: hook } : {}) }),
   });
   return NextResponse.json({ linkToken: r.data.link_token });
 }

@@ -78,6 +78,8 @@ export async function loadDashboard(email: string): Promise<Dashboard> {
     institution: i.institutionName,
     status: (i.status as ItemRow["status"]) ?? "ok",
     lastSyncedAt: i.lastSyncedAt ? i.lastSyncedAt.toISOString() : null,
+    attention: i.attention,
+    lastWebhookAt: i.lastWebhookAt ? i.lastWebhookAt.toISOString() : null,
     accounts: acctList.filter((a) => a.itemId === i.itemId),
   }));
 

@@ -6,6 +6,7 @@ import { decrypt, encrypt } from "./crypto";
 import { plaid, plaidErrorCode } from "./plaid";
 import { accounts, holdings, netWorthDaily, plaidItems, transactions, manualEntries, mortgageDetails } from "./schema";
 import { fromPlaidAddress } from "./property";
+import { webhookUrl } from "./plaid-webhook";
 import { netWorthTotal } from "./net-worth";
 import { syncTransactions } from "./initial-transactions";
 import type { ManualEntry } from "./manual-assets";
@@ -26,6 +27,15 @@ export async function institutionName(institutionId: string | null | undefined):
 export async function syncItem(item: Item): Promise<{ ok: boolean; error?: string; pending?: boolean }> {
   const accessToken = decrypt(item.accessTokenEnc);
   const d = db();
+  // Make sure Plaid sends this Item's webhooks to Apex (existing Items predate webhooks). Plaid answers a
+  // change with WEBHOOK_UPDATE_ACKNOWLEDGED, which also proves delivery end to end.
+  const hook = webhookUrl();
+  if (hook && item.webhookUrl !== hook) {
+    try {
+      await plaid().itemWebhookUpdate({ access_token: accessToken, webhook: hook });
+      await d.update(plaidItems).set({ webhookUrl: hook }).where(eq(plaidItems.itemId, item.itemId));
+    } catch { /* retried on the next sync */ }
+  }
   try {
     // Accounts + cached balances
     const acc = await plaid().accountsGet({ access_token: accessToken });
@@ -91,7 +101,7 @@ export async function syncItem(item: Item): Promise<{ ok: boolean; error?: strin
 
     await d
       .update(plaidItems)
-      .set({ status: "ok", lastSyncedAt: new Date() })
+      .set({ status: "ok", lastSyncedAt: new Date(), ...(item.attention === "login_required" ? { attention: null } : {}) })
       .where(eq(plaidItems.itemId, item.itemId));
     return { ok: true, pending: transactionResult.pending };
   } catch (e) {
