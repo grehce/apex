@@ -1,7 +1,8 @@
 "use client";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { usePlaidLink } from "react-plaid-link";
+import { usePlaidLink, type PlaidLinkOnSuccessMetadata } from "react-plaid-link";
+import { exchangeBody, logLinkEvent } from "@/lib/link-client";
 import type { ItemRow } from "@/lib/model";
 import { InstitutionLogo } from "../InstitutionLogo";
 import { AgentAccess } from "./AgentAccess";
@@ -69,13 +70,13 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
   const tally = sample ? initialNetWorth : netWorthTotal(items.flatMap((i) => i.accounts), manualEntries, inclusionOverrides);
 
   const onSuccess = useCallback(
-    async (publicToken: string | null) => {
+    async (publicToken: string | null, metadata?: PlaidLinkOnSuccessMetadata) => {
       if (!publicToken) return;
       setBusy(updateItem ? "Reconnecting…" : "Fetching accounts…");
       try {
         if (updateItem) { await post("/api/plaid/sync", {}); setMsg({ kind: "ok", text: consenting ? "Loan details shared — see your home card below." : "Reconnected. Check the transaction status below." }); setConsenting(false); }
         else {
-          const result = await post("/api/plaid/exchange", { publicToken });
+          const result = await post("/api/plaid/exchange", exchangeBody(publicToken, metadata));
           setMsg(result.synced === false ? { kind: "err", text: `Account connected, but sync needs attention: ${result.error ?? "SYNC_FAILED"}` } : { kind: "ok", text: result.transactionsPending ? "Account connected. Initial transactions are still loading." : "Account connected." });
         }
         router.refresh();
@@ -93,7 +94,8 @@ export function SettingsView({ items, manualEntries, initialNetWorth, sample, se
   const { open, ready: linkReady } = usePlaidLink({
     token,
     onSuccess,
-    onExit: () => { setToken(null); setUpdateItem(null); },
+    onExit: (error, metadata) => { logLinkEvent(error ? "link_error" : "link_exit", { ...metadata, error }); setToken(null); setUpdateItem(null); },
+    onEvent: (eventName, metadata) => { if (eventName === "ERROR") logLinkEvent("link_error", metadata); },
   });
 
   useEffect(() => {

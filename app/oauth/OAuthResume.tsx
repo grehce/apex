@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePlaidLink } from "react-plaid-link";
+import { exchangeBody, logLinkEvent } from "@/lib/link-client";
 
 /** Finishes Plaid Link after a bank's own sign-in page (OAuth) sends the user back to Apex. */
 export function OAuthResume() {
@@ -24,11 +25,11 @@ export function OAuthResume() {
   const { open, ready } = usePlaidLink({
     token: saved?.token ?? null,
     receivedRedirectUri: redirect,
-    onSuccess: async (publicToken) => {
+    onSuccess: async (publicToken, metadata) => {
       setStatus("Fetching accounts…");
       try {
         const url = saved?.itemId ? "/api/plaid/sync" : "/api/plaid/exchange";
-        const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(saved?.itemId ? {} : { publicToken }) });
+        const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(saved?.itemId ? {} : exchangeBody(publicToken, metadata)) });
         if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error ?? `Request failed (${r.status})`);
         try { sessionStorage.removeItem("apex.plaid.link"); } catch { /* ignore */ }
         router.replace("/settings");
@@ -37,7 +38,8 @@ export function OAuthResume() {
         setStatus((e as Error).message);
       }
     },
-    onExit: () => {
+    onExit: (error, metadata) => {
+      logLinkEvent(error ? "link_error" : "link_exit", { ...metadata, error });
       try { sessionStorage.removeItem("apex.plaid.link"); } catch { /* ignore */ }
       router.replace("/settings");
     },

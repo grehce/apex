@@ -3,6 +3,7 @@ const {renderToStaticMarkup}=require('react-dom/server');
 const replacements={
  'next/navigation':{useRouter:()=>({push:()=>{},refresh:()=>{}})},
  'react-plaid-link':{usePlaidLink:()=>({open:()=>{},ready:false})},
+ '@/lib/link-client':{exchangeBody:()=>({}),logLinkEvent:()=>{}},
  '../InstitutionLogo':{InstitutionLogo:()=>null},'./AgentAccess':{AgentAccess:()=>null},
  '../networth/ManualAssets':{ManualAssets:()=>React.createElement('section',{id:'manual-assets'},'Fixture assets section')},
  './HomeSheet':{HomeSheet:(p)=>React.createElement('div',{'data-home-sheet':p.fixedMortgageId??'new'},'Fixture home sheet')},
